@@ -22,11 +22,9 @@ export const postRouter = {
       });
     }),
 
-  create: publicProcedure
-    .input(CreatePostSchema)
-    .mutation(({ ctx, input }) => {
-      return ctx.db.insert(Post).values(input);
-    }),
+  create: publicProcedure.input(CreatePostSchema).mutation(({ ctx, input }) => {
+    return ctx.db.insert(Post).values(input);
+  }),
 
   delete: publicProcedure.input(z.string()).mutation(({ ctx, input }) => {
     return ctx.db.delete(Post).where(eq(Post.id, input));
