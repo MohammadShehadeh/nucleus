@@ -26,6 +26,7 @@
     "lint": "eslint",
     "push": "pnpm with-env drizzle-kit push",
     "pull": "pnpm with-env drizzle-kit pull",
+    "drop": "pnpm with-env drizzle-kit drop",
     "migrate": "pnpm with-env drizzle-kit migrate",
     "generate": "pnpm with-env drizzle-kit generate",
     "studio": "pnpm with-env drizzle-kit studio",

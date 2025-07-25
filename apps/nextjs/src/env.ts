@@ -9,14 +9,20 @@ export const env = createEnv({
   shared: {
     NODE_ENV: z
       .enum(["development", "production", "test"])
-      .default("development"),
+      .default("development")
+      .optional(),
+    PORT: z.number().default(3000).optional(),
   },
   /**
    * Specify your server-side environment variables schema here.
    * This way you can ensure the app isn't built with invalid env vars.
    */
   server: {
-    POSTGRES_URL: z.string().url(),
+    POSTGRES_URL: z.url(),
+    // Add Vercel environment variables with optional fallbacks
+    VERCEL_ENV: z.enum(["development", "preview", "production"]).optional(),
+    VERCEL_URL: z.string().optional(),
+    VERCEL_PROJECT_PRODUCTION_URL: z.string().optional(),
   },
 
   /**
@@ -31,6 +37,7 @@ export const env = createEnv({
    */
   experimental__runtimeEnv: {
     NODE_ENV: process.env.NODE_ENV,
+    PORT: process.env.PORT,
 
     // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
   },
