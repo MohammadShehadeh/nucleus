@@ -8,6 +8,13 @@
       "when": 1753305081537,
       "tag": "0000_worthless_penance",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1753483148511,
+      "tag": "0001_minor_the_phantom",
+      "breakpoints": true
     }
   ]
 }
