@@ -13,8 +13,12 @@
       "default": "./src/client.ts"
     },
     "./schema": {
-      "types": "./dist/schema.d.ts",
-      "default": "./src/schema.ts"
+      "types": "./dist/src/schema/index.d.ts",
+      "default": "./src/schema/index.ts"
+    },
+    "./env": {
+      "types": "./dist/env.d.ts",
+      "default": "./env.ts"
     }
   },
   "license": "MIT",
@@ -33,6 +37,7 @@
     "with-env": "dotenv -e ../../.env --"
   },
   "dependencies": {
+    "@t3-oss/env-nextjs": "^0.13.6",
     "@vercel/postgres": "^0.10.0",
     "drizzle-orm": "^0.44.1",
     "drizzle-zod": "^0.8.2",
