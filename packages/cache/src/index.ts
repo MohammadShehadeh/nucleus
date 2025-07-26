@@ -102,7 +102,6 @@ export class RedisCache {
   ): Promise<void> {
     const { ttl = this.defaultTTL } = options;
     const serializedValue = JSON.stringify(value);
-
     if (ttl > 0) {
       await this.client.setEx(key, ttl, serializedValue);
     } else {
@@ -118,7 +117,6 @@ export class RedisCache {
     if (value === null) {
       return null;
     }
-
     try {
       return JSON.parse(value) as T;
     } catch (error) {
