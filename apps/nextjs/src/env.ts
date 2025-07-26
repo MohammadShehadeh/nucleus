@@ -11,7 +11,9 @@ export const env = createEnv({
   shared: {
     NODE_ENV: z
       .enum(["development", "production", "test"])
-      .default("development"),
+      .default("development")
+      .optional(),
+    PORT: z.number().default(3000).optional(),
   },
   /**
    * Specify your server-side environment variables schema here.
@@ -36,6 +38,7 @@ export const env = createEnv({
    */
   experimental__runtimeEnv: {
     NODE_ENV: process.env.NODE_ENV,
+    PORT: process.env.PORT,
 
     // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
   },

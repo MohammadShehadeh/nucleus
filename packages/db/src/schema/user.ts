@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm";
 import { pgTable } from "drizzle-orm/pg-core";
 
 export const user = pgTable("user", (t) => ({
@@ -7,7 +8,9 @@ export const user = pgTable("user", (t) => ({
   emailVerified: t.boolean().notNull(),
   image: t.text(),
   createdAt: t.timestamp().notNull(),
-  updatedAt: t.timestamp().notNull(),
+  updatedAt: t
+    .timestamp({ mode: "date", withTimezone: true })
+    .$onUpdateFn(() => sql`now()`),
 }));
 
 export const session = pgTable("session", (t) => ({
@@ -15,7 +18,9 @@ export const session = pgTable("session", (t) => ({
   expiresAt: t.timestamp().notNull(),
   token: t.text().notNull().unique(),
   createdAt: t.timestamp().notNull(),
-  updatedAt: t.timestamp().notNull(),
+  updatedAt: t
+    .timestamp({ mode: "date", withTimezone: true })
+    .$onUpdateFn(() => sql`now()`),
   ipAddress: t.text(),
   userAgent: t.text(),
   userId: t
@@ -40,7 +45,9 @@ export const account = pgTable("account", (t) => ({
   scope: t.text(),
   password: t.text(),
   createdAt: t.timestamp().notNull(),
-  updatedAt: t.timestamp().notNull(),
+  updatedAt: t
+    .timestamp({ mode: "date", withTimezone: true })
+    .$onUpdateFn(() => sql`now()`),
 }));
 
 export const verification = pgTable("verification", (t) => ({
@@ -52,5 +59,7 @@ export const verification = pgTable("verification", (t) => ({
   value: t.text().notNull(),
   expiresAt: t.timestamp().notNull(),
   createdAt: t.timestamp(),
-  updatedAt: t.timestamp(),
+  updatedAt: t
+    .timestamp({ mode: "date", withTimezone: true })
+    .$onUpdateFn(() => sql`now()`),
 }));
