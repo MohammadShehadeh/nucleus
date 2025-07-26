@@ -1,10 +1,9 @@
-import { relations, sql } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 import { pgTable } from "drizzle-orm/pg-core";
 
-import { enrollment } from "./enrollments";
-import { user } from "./users";
+import { user } from "./user";
 
-export interface Attachment {
+export interface File {
   name: string;
   url: string;
   type: "file";
@@ -16,9 +15,9 @@ export interface Video {
   type: "video";
 }
 
-export interface Content {
-  attachments: Attachment[];
-  video: Video;
+export interface Attachments {
+  files?: File[];
+  videos?: Video[];
 }
 
 export const course = pgTable("course", (t) => ({
@@ -58,33 +57,9 @@ export const lesson = pgTable("lesson", (t) => ({
     .notNull()
     .references(() => module.id),
   description: t.text().notNull(),
-  content: t.jsonb().$type<Content>().notNull(),
+  attachments: t.jsonb().$type<Attachments>().notNull(),
   createdAt: t.timestamp().notNull().defaultNow(),
   updatedAt: t
     .timestamp({ mode: "date", withTimezone: true })
     .$onUpdateFn(() => sql`now()`),
-}));
-
-export const courseRelations = relations(course, ({ many, one }) => ({
-  modules: many(module),
-  enrollments: many(enrollment),
-  instructor: one(user, {
-    fields: [course.instructorId],
-    references: [user.id],
-  }),
-}));
-
-export const moduleRelations = relations(module, ({ many, one }) => ({
-  lessons: many(lesson),
-  course: one(course, {
-    fields: [module.courseId],
-    references: [course.id],
-  }),
-}));
-
-export const lessonRelations = relations(lesson, ({ one }) => ({
-  module: one(module, {
-    fields: [lesson.moduleId],
-    references: [module.id],
-  }),
 }));

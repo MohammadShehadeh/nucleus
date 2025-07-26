@@ -16,6 +16,7 @@
   "dependencies": {
     "@lms/api": "workspace:*",
     "@lms/auth": "workspace:*",
+    "@lms/cache": "workspace:*",
     "@lms/db": "workspace:*",
     "@lms/ui": "workspace:*",
     "@lms/validators": "workspace:*",

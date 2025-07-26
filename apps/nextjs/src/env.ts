@@ -3,9 +3,11 @@ import { vercel } from "@t3-oss/env-nextjs/presets-zod";
 import { z } from "zod/v4";
 
 import { authEnv } from "@lms/auth/env";
+import { cacheEnv } from "@lms/cache/env";
+import { dbEnv } from "@lms/db/env";
 
 export const env = createEnv({
-  extends: [authEnv(), vercel()],
+  extends: [authEnv(), vercel(), dbEnv(), cacheEnv()],
   shared: {
     NODE_ENV: z
       .enum(["development", "production", "test"])
@@ -18,7 +20,6 @@ export const env = createEnv({
    * This way you can ensure the app isn't built with invalid env vars.
    */
   server: {
-    POSTGRES_URL: z.url(),
     // Add Vercel environment variables with optional fallbacks
     VERCEL_ENV: z.enum(["development", "preview", "production"]).optional(),
     VERCEL_URL: z.string().optional(),

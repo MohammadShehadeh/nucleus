@@ -1,4 +1,4 @@
-import { relations, sql } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 import { pgTable } from "drizzle-orm/pg-core";
 
 import { course } from "./course";
@@ -18,15 +18,4 @@ export const enrollment = pgTable("enrollment", (t) => ({
   updatedAt: t
     .timestamp({ mode: "date", withTimezone: true })
     .$onUpdateFn(() => sql`now()`),
-}));
-
-export const enrollmentRelations = relations(enrollment, ({ one }) => ({
-  course: one(course, {
-    fields: [enrollment.courseId],
-    references: [course.id],
-  }),
-  user: one(user, {
-    fields: [enrollment.userId],
-    references: [user.id],
-  }),
 }));
