@@ -13,7 +13,7 @@ export const env = createEnv({
       .enum(["development", "production", "test"])
       .default("development")
       .optional(),
-    PORT: z.number().default(3000).optional(),
+    PORT: z.coerce.number().default(3000).optional(),
   },
   /**
    * Specify your server-side environment variables schema here.

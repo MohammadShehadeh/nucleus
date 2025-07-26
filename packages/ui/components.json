@@ -5,13 +5,15 @@
   "tsx": true,
   "tailwind": {
     "config": "../../tooling/tailwind/web.ts",
-    "css": "unused.css",
+    "css": "src/styles/globals.css",
     "baseColor": "zinc",
     "cssVariables": true
   },
   "aliases": {
-    "utils": "@lms/ui",
-    "components": "src/",
-    "ui": "src/"
+    "components": "@lms/ui/components",
+    "utils": "@lms/ui/lib/utils",
+    "hooks": "@lms/ui/hooks",
+    "lib": "@lms/ui/lib",
+    "ui": "src/components"
   }
 }

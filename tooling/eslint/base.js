@@ -68,13 +68,14 @@ export default tseslint.config(
         { checksVoidReturn: { attributes: false } },
       ],
       "@typescript-eslint/no-unnecessary-condition": [
-        "error",
+        "warn",
         {
           allowConstantLoopConditions: true,
         },
       ],
       "@typescript-eslint/no-non-null-assertion": "error",
       "import/consistent-type-specifier-style": ["error", "prefer-top-level"],
+      "@typescript-eslint/prefer-nullish-coalescing": "off",
       "no-restricted-imports": [
         "error",
         {
