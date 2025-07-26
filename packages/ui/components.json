@@ -10,8 +10,10 @@
     "cssVariables": true
   },
   "aliases": {
-    "utils": "@lms/ui",
-    "components": "src/",
-    "ui": "src/"
+    "components": "@lms/ui/components",
+    "utils": "@lms/ui/lib/utils",
+    "hooks": "@lms/ui/hooks",
+    "lib": "@lms/ui/lib",
+    "ui": "@lms/ui/components"
   }
 }

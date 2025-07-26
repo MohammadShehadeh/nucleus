@@ -1,15 +1,16 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 
-import { cn } from "@lms/ui";
-import { ThemeProvider, ThemeToggle } from "@lms/ui/theme";
-import { Toaster } from "@lms/ui/toast";
+import { ThemeProvider } from "@lms/ui/components/theme";
+import { Toaster } from "@lms/ui/components/toast";
+import { cn } from "@lms/ui/lib/utils";
 
 import { TRPCReactProvider } from "~/trpc/react";
 
-import "~/app/globals.css";
+import "@lms/ui/globals.css";
 
 import { env } from "~/env";
+import { HydrateClient } from "~/trpc/server";
 
 export const metadata: Metadata = {
   metadataBase: new URL(
@@ -59,10 +60,9 @@ export default function RootLayout(props: { children: React.ReactNode }) {
         )}
       >
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <TRPCReactProvider>{props.children}</TRPCReactProvider>
-          <div className="absolute bottom-4 right-4">
-            <ThemeToggle />
-          </div>
+          <TRPCReactProvider>
+            <HydrateClient>{props.children}</HydrateClient>
+          </TRPCReactProvider>
           <Toaster />
         </ThemeProvider>
       </body>
