@@ -14,6 +14,7 @@
     "with-env": "dotenv -e ../../.env --"
   },
   "dependencies": {
+    "@hookform/resolvers": "^5.0.1",
     "@lms/api": "workspace:*",
     "@lms/auth": "workspace:*",
     "@lms/cache": "workspace:*",
