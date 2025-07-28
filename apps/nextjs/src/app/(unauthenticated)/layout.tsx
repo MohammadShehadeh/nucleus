@@ -6,10 +6,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           LOGO
         </a>
         {children}
-        <div className="link text-balance text-center text-xs text-muted-foreground">
-          By clicking continue, you agree to our{" "}
-          <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
-        </div>
       </div>
     </div>
   );

@@ -31,6 +31,11 @@ export const registerSchema = z
     path: ["confirmPassword"],
   });
 
+export const resetPasswordSchema = z.object({
+  email: z.email("Please enter a valid email address"),
+});
+
 // Export types for TypeScript
 export type LoginFormData = z.infer<typeof loginSchema>;
 export type RegisterFormData = z.infer<typeof registerSchema>;
+export type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;

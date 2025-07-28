@@ -1,3 +1,5 @@
-export default function ResetPasswordPage() {
-  return <div>Reset Password</div>;
+import { ResetPasswordForm } from "../components/reset-password-form";
+
+export default function ForgotPasswordPage() {
+  return <ResetPasswordForm />;
 }
