@@ -49,7 +49,9 @@
     "POSTGRES_URL",
     "AUTH_REDIRECT_PROXY_URL",
     "AUTH_SECRET",
-    "PORT"
+    "PORT",
+    "RESEND_FROM",
+    "RESEND_TOKEN"
   ],
   "globalPassThroughEnv": [
     "NODE_ENV",
