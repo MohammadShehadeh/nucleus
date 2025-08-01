@@ -1,38 +1,32 @@
 {
-  "name": "@lms/auth",
-  "version": "0.1.0",
+  "name": "@lms/email",
   "private": true,
+  "version": "0.1.0",
   "type": "module",
   "exports": {
-    ".": "./src/index.ts",
-    "./middleware": "./src/middleware.ts",
-    "./client": "./src/client.ts",
-    "./env": "./env.ts"
+    ".": "./src/index.ts"
   },
   "license": "MIT",
   "scripts": {
+    "build": "tsc",
     "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "dev": "tsc",
     "format": "prettier --check . --ignore-path ../../.gitignore",
     "lint": "eslint",
-    "generate": "dotenv -e ../../.env -- pnpx @better-auth/cli generate --output ../db/src/auth-schema.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@better-auth/expo": "1.2.12",
-    "@lms/db": "workspace:*",
+    "@react-email/components": "0.0.41",
     "@t3-oss/env-nextjs": "catalog:",
-    "better-auth": "1.2.12",
-    "next": "^15.4.4",
     "react": "catalog:react19",
     "react-dom": "catalog:react19",
+    "resend": "^4.5.1",
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@better-auth/cli": "1.2.12",
     "@lms/eslint-config": "workspace:*",
     "@lms/prettier-config": "workspace:*",
     "@lms/tsconfig": "workspace:*",
-    "@types/react": "catalog:react19",
     "eslint": "catalog:",
     "prettier": "catalog:",
     "typescript": "catalog:"
