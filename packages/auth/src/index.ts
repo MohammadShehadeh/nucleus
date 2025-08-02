@@ -6,17 +6,35 @@ import { oAuthProxy } from "better-auth/plugins";
 
 import { db } from "@lms/db/client";
 
-export function initAuth(options: {
+interface InitAuthOptions {
   baseUrl: string;
   productionUrl: string;
   secret: string | undefined;
-}) {
+  socialProviders: {
+    google: {
+      clientId: string;
+      clientSecret: string;
+    };
+  };
+}
+
+export function initAuth(options: InitAuthOptions) {
   const config = {
     database: drizzleAdapter(db, {
       provider: "pg",
     }),
     baseURL: options.baseUrl,
     secret: options.secret,
+    socialProviders: {
+      /**
+       * Google social provider https://www.better-auth.com/docs/authentication/google
+       */
+      google: {
+        prompt: "select_account",
+        clientId: options.socialProviders.google.clientId,
+        clientSecret: options.socialProviders.google.clientSecret,
+      },
+    },
     plugins: [
       oAuthProxy({
         /**
