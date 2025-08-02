@@ -22,6 +22,27 @@
       "when": 1753524091880,
       "tag": "0002_flimsy_albert_cleary",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1754137048944,
+      "tag": "0003_wooden_sabretooth",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1754140516170,
+      "tag": "0004_bright_tigra",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1754140720805,
+      "tag": "0005_overrated_vulture",
+      "breakpoints": true
     }
   ]
 }

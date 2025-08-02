@@ -2,21 +2,49 @@ import type { BetterAuthOptions } from "better-auth";
 import { expo } from "@better-auth/expo";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { nextCookies } from "better-auth/next-js";
 import { oAuthProxy } from "better-auth/plugins";
 
 import { db } from "@lms/db/client";
 
-export function initAuth(options: {
+interface InitAuthOptions {
   baseUrl: string;
   productionUrl: string;
   secret: string | undefined;
-}) {
+  socialProviders: {
+    google: {
+      clientId: string;
+      clientSecret: string;
+    };
+  };
+}
+
+export function initAuth(options: InitAuthOptions) {
   const config = {
+    appName: "Learning Management System (LMS)",
+    emailAndPassword: {
+      enabled: true,
+    },
+    account: {
+      accountLinking: {
+        trustedProviders: ["google"],
+      },
+    },
     database: drizzleAdapter(db, {
       provider: "pg",
     }),
     baseURL: options.baseUrl,
     secret: options.secret,
+    socialProviders: {
+      /**
+       * Google social provider https://www.better-auth.com/docs/authentication/google
+       */
+      google: {
+        prompt: "select_account",
+        clientId: options.socialProviders.google.clientId,
+        clientSecret: options.socialProviders.google.clientSecret,
+      },
+    },
     plugins: [
       oAuthProxy({
         /**
@@ -26,6 +54,7 @@ export function initAuth(options: {
         productionURL: options.productionUrl,
       }),
       expo(),
+      nextCookies(), // make sure this is the last plugin in the array
     ],
     trustedOrigins: ["expo://"],
   } satisfies BetterAuthOptions;

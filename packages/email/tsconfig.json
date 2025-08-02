@@ -1,11 +1,11 @@
 {
-  "extends": "@lms/tsconfig/base.json",
+  "extends": "@lms/tsconfig/internal-package.json",
   "compilerOptions": {
     "lib": ["ES2022"],
     "jsx": "preserve",
     "plugins": [{ "name": "next" }],
     "module": "esnext"
   },
-  "include": ["./src"],
+  "include": ["src", "*.ts"],
   "exclude": ["node_modules"]
 }
