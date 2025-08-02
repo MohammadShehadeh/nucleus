@@ -1,4 +1,4 @@
-import { relations, sql } from "drizzle-orm";
+import { relations } from "drizzle-orm";
 import { pgTable } from "drizzle-orm/pg-core";
 
 import { course } from "./course";
@@ -17,7 +17,7 @@ export const enrollment = pgTable("enrollment", (t) => ({
   createdAt: t.timestamp().notNull().defaultNow(),
   updatedAt: t
     .timestamp({ mode: "date", withTimezone: true })
-    .$onUpdateFn(() => sql`now()`),
+    .$onUpdateFn(() => new Date()),
 }));
 
 export const enrollmentRelations = relations(enrollment, ({ one }) => ({

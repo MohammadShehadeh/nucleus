@@ -45,7 +45,7 @@ export function LoginForm({
   };
 
   const onSignInWithGoogle = async () => {
-    await signIn.social({ provider: "google" });
+    await signIn.social({ provider: "google", callbackURL: "/" });
   };
 
   return (

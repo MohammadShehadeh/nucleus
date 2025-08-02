@@ -46,7 +46,6 @@ export function initAuth(options: InitAuthOptions) {
       },
     },
     plugins: [
-      nextCookies(),
       oAuthProxy({
         /**
          * Auto-inference blocked by https://github.com/better-auth/better-auth/pull/2891
@@ -55,6 +54,7 @@ export function initAuth(options: InitAuthOptions) {
         productionURL: options.productionUrl,
       }),
       expo(),
+      nextCookies(), // make sure this is the last plugin in the array
     ],
     trustedOrigins: ["expo://"],
   } satisfies BetterAuthOptions;

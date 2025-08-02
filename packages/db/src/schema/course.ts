@@ -1,4 +1,3 @@
-import { sql } from "drizzle-orm";
 import { pgTable } from "drizzle-orm/pg-core";
 
 import { user } from "./user";
@@ -32,7 +31,7 @@ export const course = pgTable("course", (t) => ({
   createdAt: t.timestamp().notNull().defaultNow(),
   updatedAt: t
     .timestamp({ mode: "date", withTimezone: true })
-    .$onUpdateFn(() => sql`now()`),
+    .$onUpdateFn(() => new Date()),
 }));
 
 export const module = pgTable("module", (t) => ({
@@ -46,7 +45,7 @@ export const module = pgTable("module", (t) => ({
   createdAt: t.timestamp().notNull().defaultNow(),
   updatedAt: t
     .timestamp({ mode: "date", withTimezone: true })
-    .$onUpdateFn(() => sql`now()`),
+    .$onUpdateFn(() => new Date()),
 }));
 
 export const lesson = pgTable("lesson", (t) => ({
@@ -61,5 +60,5 @@ export const lesson = pgTable("lesson", (t) => ({
   createdAt: t.timestamp().notNull().defaultNow(),
   updatedAt: t
     .timestamp({ mode: "date", withTimezone: true })
-    .$onUpdateFn(() => sql`now()`),
+    .$onUpdateFn(() => new Date()),
 }));
