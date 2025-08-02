@@ -2,6 +2,7 @@ import type { BetterAuthOptions } from "better-auth";
 import { expo } from "@better-auth/expo";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { nextCookies } from "better-auth/next-js";
 import { oAuthProxy } from "better-auth/plugins";
 
 import { db } from "@lms/db/client";
@@ -20,6 +21,15 @@ interface InitAuthOptions {
 
 export function initAuth(options: InitAuthOptions) {
   const config = {
+    appName: "Learning Management System (LMS)",
+    emailAndPassword: {
+      enabled: true,
+    },
+    account: {
+      accountLinking: {
+        trustedProviders: ["google"],
+      },
+    },
     database: drizzleAdapter(db, {
       provider: "pg",
     }),
@@ -36,6 +46,7 @@ export function initAuth(options: InitAuthOptions) {
       },
     },
     plugins: [
+      nextCookies(),
       oAuthProxy({
         /**
          * Auto-inference blocked by https://github.com/better-auth/better-auth/pull/2891

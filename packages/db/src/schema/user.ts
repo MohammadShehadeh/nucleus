@@ -52,10 +52,7 @@ export const account = pgTable("account", (t) => ({
 
 export const verification = pgTable("verification", (t) => ({
   id: t.text().primaryKey(),
-  identifier: t
-    .text()
-    .notNull()
-    .references(() => user.id, { onDelete: "cascade" }),
+  identifier: t.text().notNull(),
   value: t.text().notNull(),
   expiresAt: t.timestamp().notNull(),
   createdAt: t.timestamp(),
