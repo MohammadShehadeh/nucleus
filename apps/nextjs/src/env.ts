@@ -5,9 +5,10 @@ import { z } from "zod/v4";
 import { authEnv } from "@lms/auth/env";
 import { cacheEnv } from "@lms/cache/env";
 import { dbEnv } from "@lms/db/env";
+import { emailEnv } from "@lms/email/env";
 
 export const env = createEnv({
-  extends: [authEnv(), vercel(), dbEnv(), cacheEnv()],
+  extends: [authEnv(), vercel(), dbEnv(), cacheEnv(), emailEnv()],
   shared: {
     NODE_ENV: z
       .enum(["development", "production", "test"])

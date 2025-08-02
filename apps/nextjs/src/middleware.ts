@@ -2,31 +2,31 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { getSessionCookie } from "better-auth/cookies";
 
+// Define routes that require authentication
 const protectedRoutes = ["/dashboard"];
+
+// Define routes that are only accessible when not authenticated
 const authRoutes = ["/sign-in", "/sign-up", "/reset-password"];
 
 export function middleware(request: NextRequest) {
-  // THIS IS NOT SECURE!
-  // This is the recommended approach to optimistically redirect users
-  // Auth checks are handled in each page/route
+  // This middleware provides optimistic redirects
+  // Full authentication checks are performed within each page/route handler
   const cookies = getSessionCookie(request);
 
+  // Check if the requested URL matches any protected route patterns
   const isProtectedRoute = () => {
     return protectedRoutes.some((path) =>
       request.nextUrl.pathname.startsWith(path),
     );
   };
 
+  // Check if the requested URL matches any authentication route patterns
   const isAuthRoute = () => {
     return authRoutes.some((path) => request.nextUrl.pathname.startsWith(path));
   };
 
-  if (
-    // If the user is not authenticated and trying to access an authenticated route (dashboard)
-    (isProtectedRoute() && !cookies) ||
-    // If the user is authenticated and trying to access an unauthenticated route (sign-in, sign-up, reset-password)
-    (isAuthRoute() && cookies)
-  ) {
+  // Handle route protection and redirects
+  if ((isProtectedRoute() && !cookies) || (isAuthRoute() && cookies)) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 

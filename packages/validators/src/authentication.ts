@@ -13,6 +13,7 @@ export const loginSchema = z.object({
 
 export const registerSchema = z
   .object({
+    name: z.string().min(1, "Full name is required"),
     email: z
       .email("Please enter a valid email address")
       .min(1, "Email is required"),

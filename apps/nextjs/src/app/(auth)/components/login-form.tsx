@@ -39,9 +39,12 @@ export function LoginForm({
     },
   });
 
-  const onSubmit = (data: LoginFormData) => {
-    console.log("Login form data:", data);
-    // TODO: Implement actual login logic
+  const onSubmit = async (data: LoginFormData) => {
+    await signIn.email({
+      email: data.email,
+      password: data.password,
+      callbackURL: "/",
+    });
   };
 
   const onSignInWithGoogle = async () => {

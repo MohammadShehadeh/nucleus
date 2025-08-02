@@ -24,11 +24,14 @@
     "typecheck": "turbo run typecheck",
     "ui-add": "turbo run ui-add",
     "android": "expo run:android",
-    "ios": "expo run:ios"
+    "ios": "expo run:ios",
+    "prepare": "husky"
   },
   "devDependencies": {
     "@lms/prettier-config": "workspace:*",
     "@turbo/gen": "^2.5.4",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.2",
     "prettier": "catalog:",
     "turbo": "^2.5.4",
     "typescript": "catalog:"
