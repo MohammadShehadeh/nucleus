@@ -1,5 +1,5 @@
 {
-  "name": "@lms/internationalization",
+  "name": "@lms/i18n",
   "private": true,
   "version": "0.1.0",
   "type": "module",
