@@ -2,28 +2,15 @@ import { pgTable } from "drizzle-orm/pg-core";
 
 import { user } from "./user";
 
-export interface File {
-  name: string;
-  url: string;
-  type: "file";
-}
-
-export interface Video {
-  name: string;
-  url: string;
-  type: "video";
-}
-
-export interface Attachments {
-  files?: File[];
-  videos?: Video[];
-}
-
 export const course = pgTable("course", (t) => ({
   id: t.uuid().notNull().primaryKey().defaultRandom(),
   name: t.varchar({ length: 256 }).notNull(),
   slug: t.varchar({ length: 256 }).unique().notNull(),
   description: t.text().notNull(),
+  language: t.varchar({ length: 16 }).default("en").notNull(),
+  visibility: t.varchar({ length: 16 }).default("private").notNull(),
+  published: t.boolean().notNull().default(false),
+  publishedAt: t.timestamp(),
   instructorId: t
     .text()
     .notNull()
@@ -38,6 +25,7 @@ export const module = pgTable("module", (t) => ({
   id: t.uuid().notNull().primaryKey().defaultRandom(),
   name: t.varchar({ length: 256 }).notNull(),
   description: t.text().notNull(),
+  position: t.integer().notNull().default(0),
   courseId: t
     .uuid()
     .notNull()
@@ -56,7 +44,61 @@ export const lesson = pgTable("lesson", (t) => ({
     .notNull()
     .references(() => module.id),
   description: t.text().notNull(),
-  attachments: t.jsonb().$type<Attachments>().notNull(),
+  resourceId: t.uuid().references(() => resource.id),
+  position: t.integer().notNull().default(0),
+  createdAt: t.timestamp().notNull().defaultNow(),
+  updatedAt: t
+    .timestamp({ mode: "date", withTimezone: true })
+    .$onUpdateFn(() => new Date()),
+}));
+
+export const resource = pgTable("resource", (t) => ({
+  id: t.uuid().notNull().primaryKey().defaultRandom(),
+  name: t.varchar({ length: 256 }).notNull(),
+  url: t.text().notNull(),
+  metadata: t
+    .jsonb()
+    .$type<{
+      sizeBytes?: number;
+      mimeType?: string;
+      durationSeconds?: number;
+    }>()
+    .notNull(),
+  type: t.varchar({ length: 16 }).$type<"file" | "video">().notNull(),
+  createdAt: t.timestamp().notNull().defaultNow(),
+  updatedAt: t
+    .timestamp({ mode: "date", withTimezone: true })
+    .$onUpdateFn(() => new Date()),
+}));
+
+export const review = pgTable("review", (t) => ({
+  id: t.uuid().notNull().primaryKey().defaultRandom(),
+  courseId: t
+    .uuid()
+    .notNull()
+    .references(() => course.id),
+  rating: t.integer().notNull(),
+  comment: t.text().notNull(),
+  userId: t
+    .text()
+    .notNull()
+    .references(() => user.id),
+  createdAt: t.timestamp().notNull().defaultNow(),
+  updatedAt: t
+    .timestamp({ mode: "date", withTimezone: true })
+    .$onUpdateFn(() => new Date()),
+}));
+
+export const enrollment = pgTable("enrollment", (t) => ({
+  id: t.uuid().notNull().primaryKey().defaultRandom(),
+  courseId: t
+    .uuid()
+    .notNull()
+    .references(() => course.id),
+  userId: t
+    .text()
+    .notNull()
+    .references(() => user.id),
   createdAt: t.timestamp().notNull().defaultNow(),
   updatedAt: t
     .timestamp({ mode: "date", withTimezone: true })
