@@ -26,19 +26,25 @@ export interface CacheSetOptions {
   ttl?: number; // TTL in seconds
 }
 
+export interface WrapWithCacheOptions {
+  key: string; // Key to use for the cache
+  ttl?: number; // TTL in seconds
+}
+
 export class RedisCache {
   private client: RedisClient;
   private defaultTTL: number;
   private isConnected = false;
+  private static instance: RedisCache | null = null;
 
-  constructor(options: CacheOptions = {}) {
+  private constructor(options: CacheOptions = {}) {
     const {
       url,
       host = "localhost",
       port = 6379,
       password,
       database = 0,
-      defaultTTL = 3600, // 1 hour default
+      defaultTTL = 3600 * 24 * 7, // 7 days default
     } = options;
 
     this.defaultTTL = defaultTTL;
@@ -75,6 +81,23 @@ export class RedisCache {
   }
 
   /**
+   * Get or create the singleton instance of RedisCache
+   */
+  public static getInstance(options?: CacheOptions): RedisCache {
+    if (!RedisCache.instance) {
+      RedisCache.instance = new RedisCache(options);
+    }
+    return RedisCache.instance;
+  }
+
+  /**
+   * Initialize the cache with options (call this once at app startup)
+   */
+  public static initialize(options?: CacheOptions): RedisCache {
+    return RedisCache.getInstance(options);
+  }
+
+  /**
    * Connect to Redis
    */
   async connect(): Promise<void> {
@@ -102,6 +125,7 @@ export class RedisCache {
   ): Promise<void> {
     const { ttl = this.defaultTTL } = options;
     const serializedValue = JSON.stringify(value);
+
     if (ttl > 0) {
       await this.client.setEx(key, ttl, serializedValue);
     } else {
@@ -114,9 +138,9 @@ export class RedisCache {
    */
   async get<T>(key: string): Promise<T | null> {
     const value = await this.client.get(key);
-    if (value === null) {
-      return null;
-    }
+
+    if (value === null) return null;
+
     try {
       return JSON.parse(value) as T;
     } catch (error) {
@@ -145,5 +169,17 @@ export class RedisCache {
    */
   async clear(): Promise<void> {
     await this.client.flushDb();
+  }
+
+  async wrapWithCache<T>(
+    fn: () => Promise<T>,
+    options: WrapWithCacheOptions,
+  ): Promise<T> {
+    const { key, ttl = this.defaultTTL } = options;
+    const value = await this.get<T>(key);
+    if (value) return value;
+    const result = await fn();
+    await this.set(key, result, { ttl });
+    return result;
   }
 }
