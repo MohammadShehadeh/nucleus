@@ -1,4 +1,5 @@
 import type { inferRouterOutputs } from "@trpc/server";
+
 import { authRouter } from "./router/auth";
 import { createCallerFactory, createTRPCRouter } from "./trpc";
 
