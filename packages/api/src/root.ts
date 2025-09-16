@@ -1,5 +1,6 @@
+import type { inferRouterOutputs } from "@trpc/server";
 import { authRouter } from "./router/auth";
-import { createTRPCRouter } from "./trpc";
+import { createCallerFactory, createTRPCRouter } from "./trpc";
 
 export const appRouter = createTRPCRouter({
   auth: authRouter,
@@ -7,3 +8,14 @@ export const appRouter = createTRPCRouter({
 
 // export type definition of API
 export type AppRouter = typeof appRouter;
+
+/**
+ * Create a server-side caller for the tRPC API.
+ * @example
+ * const trpc = createCaller(createContext);
+ * const res = await trpc.auth.getSecretMessage();
+ *       ^? string
+ */
+export const createCaller = createCallerFactory(appRouter);
+
+export type RouterOutput = inferRouterOutputs<AppRouter>;
