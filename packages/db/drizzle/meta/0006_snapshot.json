@@ -86,12 +86,8 @@
           "name": "course_instructor_id_user_id_fk",
           "tableFrom": "course",
           "tableTo": "user",
-          "columnsFrom": [
-            "instructor_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["instructor_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -101,9 +97,7 @@
         "course_slug_unique": {
           "name": "course_slug_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "slug"
-          ]
+          "columns": ["slug"]
         }
       },
       "policies": {},
@@ -153,12 +147,8 @@
           "name": "enrollment_course_id_course_id_fk",
           "tableFrom": "enrollment",
           "tableTo": "course",
-          "columnsFrom": [
-            "course_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["course_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -166,12 +156,8 @@
           "name": "enrollment_user_id_user_id_fk",
           "tableFrom": "enrollment",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -244,12 +230,8 @@
           "name": "lesson_module_id_module_id_fk",
           "tableFrom": "lesson",
           "tableTo": "module",
-          "columnsFrom": [
-            "module_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["module_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -257,12 +239,8 @@
           "name": "lesson_resource_id_resource_id_fk",
           "tableFrom": "lesson",
           "tableTo": "resource",
-          "columnsFrom": [
-            "resource_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["resource_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -329,12 +307,8 @@
           "name": "module_course_id_course_id_fk",
           "tableFrom": "module",
           "tableTo": "course",
-          "columnsFrom": [
-            "course_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["course_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -457,12 +431,8 @@
           "name": "review_course_id_course_id_fk",
           "tableFrom": "review",
           "tableTo": "course",
-          "columnsFrom": [
-            "course_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["course_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -470,12 +440,8 @@
           "name": "review_user_id_user_id_fk",
           "tableFrom": "review",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -576,12 +542,8 @@
           "name": "account_user_id_user_id_fk",
           "tableFrom": "account",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -652,12 +614,8 @@
           "name": "session_user_id_user_id_fk",
           "tableFrom": "session",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -667,9 +625,7 @@
         "session_token_unique": {
           "name": "session_token_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "token"
-          ]
+          "columns": ["token"]
         }
       },
       "policies": {},
@@ -739,9 +695,7 @@
         "user_email_unique": {
           "name": "user_email_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "email"
-          ]
+          "columns": ["email"]
         }
       },
       "policies": {},
@@ -803,10 +757,7 @@
     "public.role": {
       "name": "role",
       "schema": "public",
-      "values": [
-        "admin",
-        "member"
-      ]
+      "values": ["admin", "member"]
     }
   },
   "schemas": {},
