@@ -28,19 +28,19 @@ export const moduleRelations = relations(module, ({ many, one }) => ({
   }),
 }));
 
-export const lessonRelations = relations(lesson, ({ one, many }) => ({
+export const lessonRelations = relations(lesson, ({ one }) => ({
   module: one(module, {
     fields: [lesson.moduleId],
     references: [module.id],
   }),
-  resources: many(resource),
+  resource: one(resource, {
+    fields: [lesson.resourceId],
+    references: [resource.id],
+  }),
 }));
 
-export const resourceRelations = relations(resource, ({ one }) => ({
-  lesson: one(lesson, {
-    fields: [resource.id],
-    references: [lesson.id],
-  }),
+export const resourceRelations = relations(resource, ({ many }) => ({
+  lessons: many(lesson),
 }));
 
 export const reviewRelations = relations(review, ({ one }) => ({
