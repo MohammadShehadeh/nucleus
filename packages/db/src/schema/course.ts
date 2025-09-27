@@ -1,4 +1,9 @@
 import { pgTable } from "drizzle-orm/pg-core";
+import {
+  createInsertSchema,
+  createSelectSchema,
+  createUpdateSchema,
+} from "drizzle-zod";
 
 import { user } from "./user";
 
@@ -104,3 +109,33 @@ export const enrollment = pgTable("enrollment", (t) => ({
     .timestamp({ mode: "date", withTimezone: true })
     .$onUpdateFn(() => new Date()),
 }));
+
+// course zod schemas
+export const courseInsertSchema = createInsertSchema(course);
+export const courseSelectSchema = createSelectSchema(course);
+export const courseUpdateSchema = createUpdateSchema(course);
+
+// module zod schemas
+export const moduleInsertSchema = createInsertSchema(module);
+export const moduleSelectSchema = createSelectSchema(module);
+export const moduleUpdateSchema = createUpdateSchema(module);
+
+// lesson zod schemas
+export const lessonInsertSchema = createInsertSchema(lesson);
+export const lessonSelectSchema = createSelectSchema(lesson);
+export const lessonUpdateSchema = createUpdateSchema(lesson);
+
+// resource zod schemas
+export const resourceInsertSchema = createInsertSchema(resource);
+export const resourceSelectSchema = createSelectSchema(resource);
+export const resourceUpdateSchema = createUpdateSchema(resource);
+
+// review zod schemas
+export const reviewInsertSchema = createInsertSchema(review);
+export const reviewSelectSchema = createSelectSchema(review);
+export const reviewUpdateSchema = createUpdateSchema(review);
+
+// enrollment zod schemas
+export const enrollmentInsertSchema = createInsertSchema(enrollment);
+export const enrollmentSelectSchema = createSelectSchema(enrollment);
+export const enrollmentUpdateSchema = createUpdateSchema(enrollment);
