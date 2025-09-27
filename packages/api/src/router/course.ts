@@ -1,4 +1,5 @@
 import type { TRPCRouterRecord } from "@trpc/server";
+import { TRPCError } from "@trpc/server";
 
 import { eq } from "@lms/db";
 import { db } from "@lms/db/client";
@@ -30,12 +31,38 @@ export const courseRouter = {
   getById: publicProcedure
     .input(courseSelectSchema.pick({ id: true }))
     .query(async ({ input }) => {
-      return await db.select().from(course).where(eq(course.id, input.id));
+      const results = await db
+        .select()
+        .from(course)
+        .where(eq(course.id, input.id))
+        .limit(1);
+
+      if (!results[0]) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Course not found",
+        });
+      }
+
+      return results[0];
     }),
   getBySlug: publicProcedure
     .input(courseSelectSchema.pick({ slug: true }))
     .query(async ({ input }) => {
-      return await db.select().from(course).where(eq(course.slug, input.slug));
+      const results = await db
+        .select()
+        .from(course)
+        .where(eq(course.slug, input.slug))
+        .limit(1);
+
+      if (!results[0]) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Course not found",
+        });
+      }
+
+      return results[0];
     }),
   getByInstructorId: protectedProcedure
     .input(courseSelectSchema.pick({ instructorId: true }))
