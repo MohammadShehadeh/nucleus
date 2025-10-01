@@ -5,50 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1753305081537,
-      "tag": "0000_worthless_penance",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1753483148511,
-      "tag": "0001_minor_the_phantom",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1753524091880,
-      "tag": "0002_flimsy_albert_cleary",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1754137048944,
-      "tag": "0003_wooden_sabretooth",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1754140516170,
-      "tag": "0004_bright_tigra",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "7",
-      "when": 1754140720805,
-      "tag": "0005_overrated_vulture",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "7",
-      "when": 1758966371859,
-      "tag": "0006_crazy_kulan_gath",
+      "when": 1759346892621,
+      "tag": "0000_fine_ultimates",
       "breakpoints": true
     }
   ]
