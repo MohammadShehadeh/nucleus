@@ -1,7 +1,6 @@
 import { relations } from "drizzle-orm";
 
-import { course } from "../course";
-import { enrollment } from "../enrollment";
+import { course, enrollment } from "../course";
 import { account, session, user, verification } from "../user";
 
 export const userRelations = relations(user, ({ many }) => ({

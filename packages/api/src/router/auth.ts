@@ -6,7 +6,4 @@ export const authRouter = {
   getSession: publicProcedure.query(({ ctx }) => {
     return ctx.session;
   }),
-  getSecretMessage: publicProcedure.query(() => {
-    return "you can see this secret message!";
-  }),
 } satisfies TRPCRouterRecord;
