@@ -17,11 +17,7 @@ interface ContactTemplateProps {
   readonly message: string;
 }
 
-export const ContactTemplate = ({
-  name,
-  email,
-  message,
-}: ContactTemplateProps) => (
+export const ContactTemplate = ({ name, email, message }: ContactTemplateProps) => (
   <Tailwind>
     <Html>
       <Head />

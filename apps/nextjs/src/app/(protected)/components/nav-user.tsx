@@ -1,14 +1,5 @@
 "use client";
 
-import {
-  BadgeCheck,
-  Bell,
-  ChevronsUpDown,
-  CreditCard,
-  LogOut,
-  Sparkles,
-} from "lucide-react";
-
 import { Avatar, AvatarFallback, AvatarImage } from "@lms/ui/components/avatar";
 import {
   DropdownMenu,
@@ -25,6 +16,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@lms/ui/components/sidebar";
+import { BadgeCheck, Bell, ChevronsUpDown, CreditCard, LogOut, Sparkles } from "lucide-react";
 
 interface NavUserProps {
   user: {

@@ -1,0 +1,283 @@
+---
+description: "TypeScript patterns and code quality guidelines"
+globs: *.ts,*.tsx
+---
+
+# TypeScript Guidelines
+
+## Type Safety Principles
+- Prefer explicit types over `any`
+- Use strict TypeScript configuration
+- Leverage type inference when it improves readability
+- Use branded types for domain-specific values
+
+## Import Patterns
+Always use consistent import styles:
+```typescript
+// Type-only imports
+import type { User } from "@lms/db/schema";
+import type { NextRequest } from "next/server";
+
+// Regular imports
+import { z } from "zod/v4";
+import { eq } from "@lms/db";
+
+// Mixed imports (prefer separate lines)
+import { createTRPCRouter } from "@lms/api/trpc";
+import type { TRPCRouterRecord } from "@trpc/server";
+```
+
+## Zod Integration
+Always import Zod from v4 for consistency:
+```typescript
+import { z } from "zod/v4";
+
+// Type inference from Zod schemas
+export type LoginFormData = z.infer<typeof loginSchema>;
+export type CourseInsert = z.infer<typeof courseInsertSchema>;
+```
+
+## Function Patterns
+
+### Async Function Types
+```typescript
+// Prefer explicit return types for public APIs
+export async function createCourse(
+  data: CourseInsert
+): Promise<Course> {
+  return await db.insert(course).values(data).returning();
+}
+
+// Use proper error handling
+export async function getCourseById(
+  id: string
+): Promise<Course | null> {
+  try {
+    const result = await db
+      .select()
+      .from(course)
+      .where(eq(course.id, id))
+      .limit(1);
+    
+    return result[0] ?? null;
+  } catch (error) {
+    console.error("Failed to get course:", error);
+    return null;
+  }
+}
+```
+
+### Generic Patterns
+```typescript
+// Utility types for API responses
+export type ApiResponse<T> = {
+  data: T;
+  success: true;
+} | {
+  error: string;
+  success: false;
+};
+
+// Generic repository pattern
+export class Repository<T extends { id: string }> {
+  constructor(private table: any) {}
+  
+  async findById(id: string): Promise<T | null> {
+    const result = await db
+      .select()
+      .from(this.table)
+      .where(eq(this.table.id, id))
+      .limit(1);
+    
+    return result[0] ?? null;
+  }
+}
+```
+
+## React Component Types
+
+### Component Props
+```typescript
+// Use React.ComponentProps for HTML elements
+interface ButtonProps extends React.ComponentProps<"button"> {
+  variant?: "primary" | "secondary";
+  size?: "sm" | "md" | "lg";
+}
+
+// Use proper children types
+interface LayoutProps {
+  children: React.ReactNode;
+  title?: string;
+}
+
+// Forward refs properly
+const Button = React.forwardRef<
+  HTMLButtonElement,
+  ButtonProps
+>(({ className, variant = "primary", ...props }, ref) => {
+  return (
+    <button
+      ref={ref}
+      className={cn(buttonVariants({ variant }), className)}
+      {...props}
+    />
+  );
+});
+Button.displayName = "Button";
+```
+
+### Hook Types
+```typescript
+// Custom hook return types
+export function useAuth(): {
+  user: User | null;
+  isLoading: boolean;
+  signIn: (email: string, password: string) => Promise<void>;
+  signOut: () => Promise<void>;
+} {
+  // Implementation
+}
+
+// Generic hooks
+export function useLocalStorage<T>(
+  key: string,
+  defaultValue: T
+): [T, (value: T) => void] {
+  // Implementation
+}
+```
+
+## Utility Types
+
+### Common Patterns
+```typescript
+// Pick specific fields
+export type UserPublic = Pick<User, "id" | "name" | "email">;
+
+// Omit sensitive fields
+export type UserSafe = Omit<User, "password" | "resetToken">;
+
+// Make fields optional
+export type UserUpdate = Partial<Pick<User, "name" | "email">>;
+
+// Branded types for IDs
+export type UserId = string & { readonly brand: unique symbol };
+export type CourseId = string & { readonly brand: unique symbol };
+```
+
+### Database Types
+```typescript
+// Infer types from Drizzle schemas
+export type Course = typeof course.$inferSelect;
+export type CourseInsert = typeof course.$inferInsert;
+
+// Create union types for enums
+export type CourseVisibility = "public" | "private" | "unlisted";
+export type UserRole = "student" | "instructor" | "admin";
+```
+
+## Error Handling Types
+
+### Result Pattern
+```typescript
+export type Result<T, E = Error> = 
+  | { success: true; data: T }
+  | { success: false; error: E };
+
+export async function safeAsyncOperation<T>(
+  operation: () => Promise<T>
+): Promise<Result<T>> {
+  try {
+    const data = await operation();
+    return { success: true, data };
+  } catch (error) {
+    return { 
+      success: false, 
+      error: error instanceof Error ? error : new Error(String(error))
+    };
+  }
+}
+```
+
+## Configuration Types
+
+### Environment Types
+```typescript
+// Extend process.env with custom types
+declare global {
+  namespace NodeJS {
+    interface ProcessEnv {
+      DATABASE_URL: string;
+      AUTH_SECRET: string;
+      GOOGLE_CLIENT_ID: string;
+      GOOGLE_CLIENT_SECRET: string;
+    }
+  }
+}
+```
+
+## Best Practices
+
+### Type Guards
+```typescript
+export function isUser(obj: unknown): obj is User {
+  return (
+    typeof obj === "object" &&
+    obj !== null &&
+    "id" in obj &&
+    "email" in obj &&
+    typeof (obj as any).id === "string" &&
+    typeof (obj as any).email === "string"
+  );
+}
+```
+
+### Assertion Functions
+```typescript
+export function assertIsUser(obj: unknown): asserts obj is User {
+  if (!isUser(obj)) {
+    throw new Error("Expected User object");
+  }
+}
+```
+
+### Const Assertions
+```typescript
+// Use const assertions for readonly data
+export const COURSE_STATUSES = ["draft", "published", "archived"] as const;
+export type CourseStatus = typeof COURSE_STATUSES[number];
+
+// Object const assertions
+export const API_ENDPOINTS = {
+  courses: "/api/courses",
+  users: "/api/users",
+} as const;
+```
+
+## Code Quality Rules
+
+### Naming Conventions
+- Use PascalCase for types, interfaces, and classes
+- Use camelCase for variables, functions, and methods
+- Use SCREAMING_SNAKE_CASE for constants
+- Use kebab-case for file names
+
+### Documentation
+```typescript
+/**
+ * Creates a new course with the provided data
+ * @param data - Course creation data
+ * @returns Promise resolving to the created course
+ * @throws {TRPCError} When course creation fails
+ */
+export async function createCourse(data: CourseInsert): Promise<Course> {
+  // Implementation
+}
+```
+
+### Avoid Common Pitfalls
+- Don't use `any` - use `unknown` instead
+- Don't use `Function` - use specific function signatures
+- Don't use `object` - use specific object types
+- Don't use `{}` - use `Record<string, unknown>` or specific types
+- Always handle null/undefined cases explicitly

@@ -1,0 +1,185 @@
+---
+description: "Turborepo development workflow and patterns"
+globs: turbo.json,package.json
+---
+
+# Turborepo Development Guidelines
+
+## Monorepo Structure
+This project uses Turborepo for efficient monorepo management with the following structure:
+- **Apps**: `apps/nextjs/`, `apps/expo/`
+- **Packages**: `packages/db/`, `packages/api/`, `packages/ui/`, etc.
+- **Tooling**: unified Biome config, `tooling/tailwind/`, `tooling/typescript/`, etc.
+
+## Package Scripts and Tasks
+
+### Root Level Scripts
+From the project root, use these commands:
+```bash
+# Development
+pnpm dev                    # Start all apps in watch mode
+pnpm dev:next              # Start only Next.js app with dependencies
+
+# Building
+pnpm build                 # Build all packages and apps
+pnpm clean                 # Clean all node_modules
+pnpm clean:workspaces      # Clean all package build outputs
+
+# Database
+pnpm db:push               # Push database schema changes
+pnpm db:studio             # Open Drizzle Studio
+
+# Code Quality (Biome)
+pnpm lint                  # Lint all packages (Biome)
+pnpm lint:fix              # Fix linting issues (Biome)
+pnpm format                # Format all files (Biome)
+pnpm format:check          # Check formatting (Biome)
+pnpm check                 # Lint + format + organize imports (Biome)
+pnpm typecheck             # Type check all packages
+```
+
+### Package-Specific Scripts
+Target specific packages using Turbo filters:
+```bash
+# Run script in specific package
+turbo run build -F @lms/db
+turbo run dev -F @lms/nextjs
+
+# Run script in package and its dependencies
+turbo run build -F @lms/nextjs...
+
+# Run script in package and its dependents
+turbo run test -F ...@lms/db
+```
+
+## Turbo Configuration Patterns
+
+### Task Dependencies
+Define task dependencies in [turbo.json](mdc:turbo.json):
+```json
+{
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**", ".next/**"]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "lint": {
+      "dependsOn": ["^build"]
+    }
+  }
+}
+```
+
+### Cache Configuration
+- **Build outputs**: Cache `dist/`, `.next/`, build artifacts
+- **Linting**: Cache based on source files and config changes
+- **Testing**: Cache based on test files and source dependencies
+- **Development**: Never cache (`"cache": false`)
+
+## Package Development Workflow
+
+### Creating New Packages
+1. Use Turbo generators: `turbo gen workspace`
+2. Follow naming convention: `@lms/package-name`
+3. Include standard files: `package.json`, `tsconfig.json`, `eslint.config.js`
+4. Export from `src/index.ts` with proper TypeScript types
+
+### Package Dependencies
+- **Internal dependencies**: Use `workspace:*` protocol
+- **External dependencies**: Use `catalog:` for shared versions
+- **Dev dependencies**: Inherit from workspace when possible
+
+Example `package.json`:
+```json
+{
+  "name": "@lms/new-package",
+  "dependencies": {
+    "@lms/db": "workspace:*",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@lms/tsconfig": "workspace:*"
+  }
+}
+```
+
+### Shared Tooling Configuration
+Extend shared configurations from `tooling/`:
+```typescript
+// tsconfig.json
+{
+  "extends": "@lms/tsconfig/base.json",
+  "compilerOptions": {
+    "outDir": "dist"
+  }
+}
+```
+
+## Development Best Practices
+
+### Workspace Dependencies
+- Always use workspace aliases (`@lms/package`) in imports
+- Update dependencies using `pnpm up` from root
+- Use `pnpm install` from root to maintain lockfile consistency
+
+### Build Order
+Turbo automatically handles build order based on dependencies:
+1. Shared packages (`db`, `ui`, `validators`) build first
+2. API packages build after database schemas
+3. Apps build last, consuming all package outputs
+
+### Hot Reload and Watch Mode
+- Use `pnpm dev` for full-stack development
+- Turbo's watch mode automatically rebuilds dependencies
+- Next.js and Expo apps hot-reload when packages change
+
+### Performance Optimization
+- Leverage Turbo's caching for faster builds
+- Use `turbo prune` for Docker builds
+- Run tasks in parallel when possible
+- Cache node_modules using proper `.gitignore` patterns
+
+## Deployment Patterns
+
+### Vercel Deployment
+- Deploy from `apps/nextjs/` directory
+- Use `turbo prune` to optimize bundle size
+- Configure build command: `cd ../.. && turbo build -F @lms/nextjs`
+
+### Package Publishing
+- Build packages before publishing: `turbo build`
+- Use changesets for version management
+- Publish from package directories, not root
+
+## Troubleshooting Common Issues
+
+### Cache Issues
+```bash
+# Clear Turbo cache
+turbo clean
+
+# Clear all caches and reinstall
+pnpm clean && pnpm install
+```
+
+### Dependency Issues
+```bash
+# Check workspace dependencies
+pnpm list --depth=0
+
+# Update all dependencies
+pnpm up -r
+```
+
+### Build Issues
+```bash
+# Build specific package and dependencies
+turbo build -F @lms/package-name...
+
+# Force rebuild without cache
+turbo build --force
+```

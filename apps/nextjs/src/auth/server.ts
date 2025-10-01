@@ -1,9 +1,8 @@
 import "server-only";
 
-import { cache } from "react";
-import { headers } from "next/headers";
-
 import { initAuth } from "@lms/auth";
+import { headers } from "next/headers";
+import { cache } from "react";
 
 import { env } from "~/env";
 
@@ -26,6 +25,4 @@ export const auth = initAuth({
   },
 });
 
-export const getSession = cache(async () =>
-  auth.api.getSession({ headers: await headers() }),
-);
+export const getSession = cache(async () => auth.api.getSession({ headers: await headers() }));

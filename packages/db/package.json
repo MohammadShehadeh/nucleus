@@ -26,8 +26,11 @@
     "build": "tsc",
     "clean": "git clean -xdf .cache .turbo dist node_modules",
     "dev": "tsc",
-    "format": "prettier --check . --ignore-path ../../.gitignore",
-    "lint": "eslint",
+    "format": "biome format --write .",
+    "format:check": "biome format .",
+    "lint": "biome lint .",
+    "lint:fix": "biome lint --write .",
+    "check": "biome check --write .",
     "push": "pnpm with-env drizzle-kit push",
     "pull": "pnpm with-env drizzle-kit pull",
     "drop": "pnpm with-env drizzle-kit drop",
@@ -45,14 +48,9 @@
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@lms/eslint-config": "workspace:*",
-    "@lms/prettier-config": "workspace:*",
     "@lms/tsconfig": "workspace:*",
     "dotenv-cli": "^8.0.0",
     "drizzle-kit": "^0.31.1",
-    "eslint": "catalog:",
-    "prettier": "catalog:",
     "typescript": "catalog:"
-  },
-  "prettier": "@lms/prettier-config"
+  }
 }

@@ -14,7 +14,5 @@ export const enrollment = pgTable("enrollment", (t) => ({
     .notNull()
     .references(() => user.id),
   createdAt: t.timestamp().notNull().defaultNow(),
-  updatedAt: t
-    .timestamp({ mode: "date", withTimezone: true })
-    .$onUpdateFn(() => new Date()),
+  updatedAt: t.timestamp({ mode: "date", withTimezone: true }).$onUpdateFn(() => new Date()),
 }));

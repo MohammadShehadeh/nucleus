@@ -1,6 +1,6 @@
+import { getSessionCookie } from "better-auth/cookies";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import { getSessionCookie } from "better-auth/cookies";
 
 // Define routes that require authentication
 const protectedRoutes = ["/dashboard"];
@@ -15,9 +15,7 @@ export function middleware(request: NextRequest) {
 
   // Check if the requested URL matches any protected route patterns
   const isProtectedRoute = () => {
-    return protectedRoutes.some((path) =>
-      request.nextUrl.pathname.startsWith(path),
-    );
+    return protectedRoutes.some((path) => request.nextUrl.pathname.startsWith(path));
   };
 
   // Check if the requested URL matches any authentication route patterns

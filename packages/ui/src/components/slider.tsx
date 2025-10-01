@@ -1,22 +1,17 @@
 "use client";
 
-import * as React from "react";
-import * as SliderPrimitive from "@radix-ui/react-slider";
-
 import { cn } from "@lms/ui/lib/utils";
+import * as SliderPrimitive from "@radix-ui/react-slider";
+import type * as React from "react";
 
-interface SliderProps
-  extends React.ComponentPropsWithoutRef<typeof SliderPrimitive.Root> {
+interface SliderProps extends React.ComponentPropsWithoutRef<typeof SliderPrimitive.Root> {
   ref?: React.Ref<React.ComponentRef<typeof SliderPrimitive.Root>>;
 }
 
 const Slider = ({ className, ref, ...props }: SliderProps) => (
   <SliderPrimitive.Root
     ref={ref}
-    className={cn(
-      "relative flex w-full touch-none select-none items-center",
-      className,
-    )}
+    className={cn("relative flex w-full touch-none select-none items-center", className)}
     {...props}
   >
     <SliderPrimitive.Track className="relative h-1.5 w-full grow overflow-hidden rounded-full bg-primary/20">

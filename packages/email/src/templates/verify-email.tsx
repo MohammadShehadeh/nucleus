@@ -16,10 +16,7 @@ interface VerifyEmailTemplateProps {
   readonly verifyUrl: string;
 }
 
-export const VerifyEmailTemplate = ({
-  name,
-  verifyUrl,
-}: VerifyEmailTemplateProps) => (
+export const VerifyEmailTemplate = ({ name, verifyUrl }: VerifyEmailTemplateProps) => (
   <Tailwind>
     <Html>
       <Head />
@@ -33,8 +30,8 @@ export const VerifyEmailTemplate = ({
               </Text>
               <Text className="m-0 text-zinc-500">Hello {name},</Text>
               <Text className="m-0 text-zinc-500">
-                Thank you for signing up! To complete your account setup, please
-                verify your email address by clicking the button below:
+                Thank you for signing up! To complete your account setup, please verify your email
+                address by clicking the button below:
               </Text>
               <Section className="my-8 text-center">
                 <Button
@@ -45,13 +42,12 @@ export const VerifyEmailTemplate = ({
                 </Button>
               </Section>
               <Text className="m-0 text-sm text-zinc-400">
-                This verification link will expire in 7 days. If you didn't
-                create an account, you can safely ignore this email.
+                This verification link will expire in 7 days. If you didn't create an account, you
+                can safely ignore this email.
               </Text>
               <Hr className="my-4" />
               <Text className="m-0 text-sm text-zinc-400">
-                If the button doesn't work, copy and paste this link into your
-                browser: {verifyUrl}
+                If the button doesn't work, copy and paste this link into your browser: {verifyUrl}
               </Text>
             </Section>
           </Section>

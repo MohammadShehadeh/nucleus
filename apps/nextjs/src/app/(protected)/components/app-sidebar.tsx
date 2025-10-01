@@ -1,16 +1,5 @@
 "use client";
 
-import * as React from "react";
-import {
-  BookOpen,
-  Bot,
-  Command,
-  LifeBuoy,
-  Send,
-  Settings2,
-  SquareTerminal,
-} from "lucide-react";
-
 import {
   Sidebar,
   SidebarContent,
@@ -20,6 +9,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@lms/ui/components/sidebar";
+import { BookOpen, Bot, Command, LifeBuoy, Send, Settings2, SquareTerminal } from "lucide-react";
+import type * as React from "react";
 
 import { NavMain } from "./nav-main";
 import { NavSecondary } from "./nav-secondary";

@@ -1,4 +1,4 @@
 module.exports = {
-  "*.{js,ts,tsx,json,md,css,scss}": ["pnpm format:fix"],
-  "*.{js,ts,tsx}": ["pnpm lint:fix"],
+  "*.{js,ts,tsx,md,scss}": ["biome format --write"],
+  "*.{js,ts,tsx}": ["biome lint --write"],
 };

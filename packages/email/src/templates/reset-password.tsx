@@ -16,10 +16,7 @@ interface ResetPasswordTemplateProps {
   readonly resetUrl: string;
 }
 
-export const ResetPasswordTemplate = ({
-  name,
-  resetUrl,
-}: ResetPasswordTemplateProps) => (
+export const ResetPasswordTemplate = ({ name, resetUrl }: ResetPasswordTemplateProps) => (
   <Tailwind>
     <Html>
       <Head />
@@ -33,8 +30,8 @@ export const ResetPasswordTemplate = ({
               </Text>
               <Text className="m-0 text-zinc-500">Hello {name},</Text>
               <Text className="m-0 text-zinc-500">
-                We received a request to reset your password. Click the button
-                below to create a new password:
+                We received a request to reset your password. Click the button below to create a new
+                password:
               </Text>
               <Section className="my-8 text-center">
                 <Button
@@ -45,13 +42,12 @@ export const ResetPasswordTemplate = ({
                 </Button>
               </Section>
               <Text className="m-0 text-sm text-zinc-400">
-                This link will expire in 24 hours. If you didn't request a
-                password reset, you can safely ignore this email.
+                This link will expire in 24 hours. If you didn't request a password reset, you can
+                safely ignore this email.
               </Text>
               <Hr className="my-4" />
               <Text className="m-0 text-sm text-zinc-400">
-                If the button doesn't work, copy and paste this link into your
-                browser: {resetUrl}
+                If the button doesn't work, copy and paste this link into your browser: {resetUrl}
               </Text>
             </Section>
           </Section>

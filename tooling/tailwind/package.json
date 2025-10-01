@@ -20,13 +20,8 @@
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
-    "@lms/eslint-config": "workspace:*",
-    "@lms/prettier-config": "workspace:*",
     "@lms/tsconfig": "workspace:*",
     "@types/node": "^22.15.29",
-    "eslint": "catalog:",
-    "prettier": "catalog:",
     "typescript": "catalog:"
-  },
-  "prettier": "@lms/prettier-config"
+  }
 }

@@ -1,24 +1,16 @@
 "use client";
 
-import * as React from "react";
+import { cn } from "@lms/ui/lib/utils";
 import { DotFilledIcon } from "@radix-ui/react-icons";
 import * as RadioGroupPrimitive from "@radix-ui/react-radio-group";
+import type * as React from "react";
 
-import { cn } from "@lms/ui/lib/utils";
-
-interface RadioGroupProps
-  extends React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Root> {
+interface RadioGroupProps extends React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Root> {
   ref?: React.Ref<React.ComponentRef<typeof RadioGroupPrimitive.Root>>;
 }
 
 const RadioGroup = ({ className, ref, ...props }: RadioGroupProps) => {
-  return (
-    <RadioGroupPrimitive.Root
-      className={cn("grid gap-2", className)}
-      {...props}
-      ref={ref}
-    />
-  );
+  return <RadioGroupPrimitive.Root className={cn("grid gap-2", className)} {...props} ref={ref} />;
 };
 
 interface RadioGroupItemProps
@@ -32,7 +24,7 @@ const RadioGroupItem = ({ className, ref, ...props }: RadioGroupItemProps) => {
       ref={ref}
       className={cn(
         "aspect-square h-4 w-4 rounded-full border border-primary text-primary shadow focus:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50",
-        className,
+        className
       )}
       {...props}
     >

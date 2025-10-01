@@ -2,9 +2,7 @@ import { z } from "zod/v4";
 
 // Auth form validation schemas
 export const loginSchema = z.object({
-  email: z
-    .email("Please enter a valid email address")
-    .min(1, "Email is required"),
+  email: z.email("Please enter a valid email address").min(1, "Email is required"),
   password: z
     .string()
     .min(1, "Password is required")
@@ -14,16 +12,14 @@ export const loginSchema = z.object({
 export const registerSchema = z
   .object({
     name: z.string().min(1, "Full name is required"),
-    email: z
-      .email("Please enter a valid email address")
-      .min(1, "Email is required"),
+    email: z.email("Please enter a valid email address").min(1, "Email is required"),
     password: z
       .string()
       .min(1, "Password is required")
       .min(6, "Password must be at least 6 characters")
       .regex(
         /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-        "Password must contain at least one uppercase letter, one lowercase letter, and one number",
+        "Password must contain at least one uppercase letter, one lowercase letter, and one number"
       ),
     confirmPassword: z.string().min(1, "Please confirm your password"),
   })

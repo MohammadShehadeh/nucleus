@@ -1,19 +1,15 @@
-import { createEnv } from "@t3-oss/env-nextjs";
-import { vercel } from "@t3-oss/env-nextjs/presets-zod";
-import { z } from "zod/v4";
-
 import { authEnv } from "@lms/auth/env";
 import { cacheEnv } from "@lms/cache/env";
 import { dbEnv } from "@lms/db/env";
 import { emailEnv } from "@lms/email/env";
+import { createEnv } from "@t3-oss/env-nextjs";
+import { vercel } from "@t3-oss/env-nextjs/presets-zod";
+import { z } from "zod/v4";
 
 export const env = createEnv({
   extends: [authEnv(), vercel(), dbEnv(), cacheEnv(), emailEnv()],
   shared: {
-    NODE_ENV: z
-      .enum(["development", "production", "test"])
-      .default("development")
-      .optional(),
+    NODE_ENV: z.enum(["development", "production", "test"]).default("development").optional(),
     PORT: z.coerce.number().default(3000).optional(),
   },
   /**
@@ -43,6 +39,5 @@ export const env = createEnv({
 
     // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
   },
-  skipValidation:
-    !!process.env.CI || process.env.npm_lifecycle_event === "lint",
+  skipValidation: !!process.env.CI || process.env.npm_lifecycle_event === "lint",
 });

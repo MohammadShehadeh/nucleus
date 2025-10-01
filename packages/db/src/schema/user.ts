@@ -7,9 +7,7 @@ export const user = pgTable("user", (t) => ({
   emailVerified: t.boolean().notNull(),
   image: t.text(),
   createdAt: t.timestamp().notNull().defaultNow(),
-  updatedAt: t
-    .timestamp({ mode: "date", withTimezone: true })
-    .$onUpdateFn(() => new Date()),
+  updatedAt: t.timestamp({ mode: "date", withTimezone: true }).$onUpdateFn(() => new Date()),
 }));
 
 export const session = pgTable("session", (t) => ({
@@ -17,9 +15,7 @@ export const session = pgTable("session", (t) => ({
   expiresAt: t.timestamp().notNull(),
   token: t.text().notNull().unique(),
   createdAt: t.timestamp().notNull().defaultNow(),
-  updatedAt: t
-    .timestamp({ mode: "date", withTimezone: true })
-    .$onUpdateFn(() => new Date()),
+  updatedAt: t.timestamp({ mode: "date", withTimezone: true }).$onUpdateFn(() => new Date()),
   ipAddress: t.text(),
   userAgent: t.text(),
   userId: t
@@ -44,9 +40,7 @@ export const account = pgTable("account", (t) => ({
   scope: t.text(),
   password: t.text(),
   createdAt: t.timestamp().notNull().defaultNow(),
-  updatedAt: t
-    .timestamp({ mode: "date", withTimezone: true })
-    .$onUpdateFn(() => new Date()),
+  updatedAt: t.timestamp({ mode: "date", withTimezone: true }).$onUpdateFn(() => new Date()),
 }));
 
 export const verification = pgTable("verification", (t) => ({
@@ -55,7 +49,5 @@ export const verification = pgTable("verification", (t) => ({
   value: t.text().notNull(),
   expiresAt: t.timestamp().notNull(),
   createdAt: t.timestamp().defaultNow(),
-  updatedAt: t
-    .timestamp({ mode: "date", withTimezone: true })
-    .$onUpdateFn(() => new Date()),
+  updatedAt: t.timestamp({ mode: "date", withTimezone: true }).$onUpdateFn(() => new Date()),
 }));

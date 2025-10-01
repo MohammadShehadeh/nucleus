@@ -1,18 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
-import { useForm } from "react-hook-form";
-
-import type { ResetPasswordFormData } from "@lms/validators/authentication";
 import { Button } from "@lms/ui/components/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@lms/ui/components/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@lms/ui/components/card";
 import {
   Form,
   FormControl,
@@ -23,12 +13,12 @@ import {
 } from "@lms/ui/components/form";
 import { Input } from "@lms/ui/components/input";
 import { cn } from "@lms/ui/lib/utils";
+import type { ResetPasswordFormData } from "@lms/validators/authentication";
 import { resetPasswordSchema } from "@lms/validators/authentication";
+import Link from "next/link";
+import { useForm } from "react-hook-form";
 
-export function ResetPasswordForm({
-  className,
-  ...props
-}: React.ComponentProps<"div">) {
+export function ResetPasswordForm({ className, ...props }: React.ComponentProps<"div">) {
   const form = useForm<ResetPasswordFormData>({
     resolver: standardSchemaResolver(resetPasswordSchema),
     defaultValues: {
@@ -36,8 +26,7 @@ export function ResetPasswordForm({
     },
   });
 
-  const onSubmit = (data: ResetPasswordFormData) => {
-    console.log("Reset password form data:", data);
+  const onSubmit = (_data: ResetPasswordFormData) => {
     // TODO: Implement actual reset password logic
   };
 
@@ -45,9 +34,7 @@ export function ResetPasswordForm({
     <Card className={cn("w-full", className)} {...props}>
       <CardHeader className="text-center">
         <CardTitle className="text-xl">Recover Password</CardTitle>
-        <CardDescription>
-          Enter your email to receive a reset link
-        </CardDescription>
+        <CardDescription>Enter your email to receive a reset link</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -69,21 +56,12 @@ export function ResetPasswordForm({
 
               <div className="text-sm">
                 Remembered your password?{" "}
-                <Link
-                  href="/sign-in"
-                  className="underline-offset-4 hover:underline"
-                >
+                <Link href="/sign-in" className="underline-offset-4 hover:underline">
                   Log in
                 </Link>
               </div>
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={form.formState.isSubmitting}
-              >
-                {form.formState.isSubmitting
-                  ? "Sending reset link..."
-                  : "Send reset link"}
+              <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
+                {form.formState.isSubmitting ? "Sending reset link..." : "Send reset link"}
               </Button>
             </div>
           </form>

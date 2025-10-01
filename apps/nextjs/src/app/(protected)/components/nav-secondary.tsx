@@ -1,6 +1,3 @@
-import type { LucideIcon } from "lucide-react";
-import * as React from "react";
-
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -8,9 +5,10 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@lms/ui/components/sidebar";
+import type { LucideIcon } from "lucide-react";
+import type * as React from "react";
 
-interface NavSecondaryProps
-  extends React.ComponentPropsWithoutRef<typeof SidebarGroup> {
+interface NavSecondaryProps extends React.ComponentPropsWithoutRef<typeof SidebarGroup> {
   items: {
     title: string;
     url: string;

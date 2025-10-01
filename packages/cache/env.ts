@@ -9,7 +9,6 @@ export function cacheEnv() {
       REDIS_PASSWORD: z.string().min(1),
     },
     experimental__runtimeEnv: {},
-    skipValidation:
-      !!process.env.CI || process.env.npm_lifecycle_event === "lint",
+    skipValidation: !!process.env.CI || process.env.npm_lifecycle_event === "lint",
   });
 }

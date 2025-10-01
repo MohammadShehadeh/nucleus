@@ -54,20 +54,28 @@ packages
   ├─ api
   |   └─ tRPC v11 router definition
   ├─ auth
-  |   └─ Authentication using better-auth.
+  |   └─ Authentication using better-auth
+  ├─ cache
+  |   └─ Caching utilities (Redis)
   ├─ db
   |   └─ Typesafe db calls using Drizzle & Supabase
+  ├─ email
+  |   └─ Email templates and helpers
+  ├─ i18n
+  |   └─ Internationalization helpers
+  ├─ upload
+  |   └─ File upload utilities
+  ├─ validators
+  |   └─ Zod validation schemas
   └─ ui
-      └─ Start of a UI package for the webapp using shadcn-ui
+      └─ Shared UI package (shadcn/ui)
 tooling
-  ├─ eslint
-  |   └─ shared, fine-grained, eslint presets
-  ├─ prettier
-  |   └─ shared prettier configuration
+  ├─ biome
+  |   └─ Unified formatter/linter configuration
   ├─ tailwind
-  |   └─ shared tailwind configuration
+  |   └─ Shared Tailwind configuration
   └─ typescript
-      └─ shared tsconfig you can extend from
+      └─ Shared tsconfig you can extend from
 ```
 
 > In this template, we use `@lms` as a placeholder for package names. As a user, you might want to replace it with your own organization or project name. You can use find-and-replace to change all the instances of `@lms` to something like `@my-company` or `@project-name`.

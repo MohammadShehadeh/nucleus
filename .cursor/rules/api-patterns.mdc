@@ -1,0 +1,113 @@
+---
+description: "tRPC API development patterns"
+globs: packages/api/**/*.ts
+---
+
+# tRPC API Development Guidelines
+
+## Router Structure
+- Create dedicated routers for each domain entity in [packages/api/src/router/](mdc:packages/api/src/router/)
+- Export routers with descriptive names following `{entity}Router` pattern
+- Satisfy `TRPCRouterRecord` type for proper typing
+
+## Procedure Patterns
+- Use `publicProcedure` for unauthenticated endpoints
+- Use `protectedProcedure` for authenticated endpoints
+- Always validate inputs using database schemas from `@lms/db/schema`
+
+Example from [packages/api/src/router/course.ts](mdc:packages/api/src/router/course.ts):
+```typescript
+export const courseRouter = {
+  create: protectedProcedure
+    .input(courseInsertSchema)
+    .mutation(async ({ input }) => {
+      return await db.insert(course).values(input).returning();
+    }),
+  getById: publicProcedure
+    .input(courseSelectSchema.pick({ id: true }))
+    .query(async ({ input }) => {
+      // implementation
+    }),
+} satisfies TRPCRouterRecord;
+```
+
+## Input Validation Patterns
+- Use complete schemas for create operations: `.input(courseInsertSchema)`
+- Use schema modifications for updates: `.input(courseUpdateSchema.required({ id: true }))`
+- Use schema picking for queries: `.input(courseSelectSchema.pick({ id: true }))`
+
+## Database Operations
+- Import `db` from `@lms/db/client`
+- Import query builders (`eq`, `and`, `or`) from `@lms/db`
+- Use proper error handling with `TRPCError`
+
+## Error Handling
+```typescript
+if (!results[0]) {
+  throw new TRPCError({
+    code: "NOT_FOUND",
+    message: "Resource not found",
+  });
+}
+```
+
+## Query Patterns
+- Use `.limit(1)` for single record queries
+- Always handle potential undefined results
+- Prefer specific select statements over `select()*` when possible
+
+## Advanced tRPC Patterns
+
+### Infinite Queries
+```typescript
+getInfinite: publicProcedure
+  .input(z.object({
+    limit: z.number().min(1).max(100).default(10),
+    cursor: z.string().optional(),
+  }))
+  .query(async ({ input }) => {
+    const courses = await db
+      .select()
+      .from(course)
+      .where(input.cursor ? gt(course.id, input.cursor) : undefined)
+      .limit(input.limit + 1);
+
+    let nextCursor: string | undefined;
+    if (courses.length > input.limit) {
+      const nextItem = courses.pop();
+      nextCursor = nextItem!.id;
+    }
+
+    return { courses, nextCursor };
+  }),
+```
+
+### Subscription Patterns
+```typescript
+onCourseUpdate: publicProcedure
+  .input(z.object({ courseId: z.string() }))
+  .subscription(async function* ({ input }) {
+    // Implementation depends on your real-time setup
+    yield { type: 'course-updated', courseId: input.courseId };
+  }),
+```
+
+### Middleware for Logging
+```typescript
+const loggingMiddleware = t.middleware(async ({ path, type, next }) => {
+  const start = Date.now();
+  const result = await next();
+  const durationMs = Date.now() - start;
+  
+  console.log(`${type} ${path} - ${durationMs}ms`);
+  return result;
+});
+
+export const loggedProcedure = publicProcedure.use(loggingMiddleware);
+```
+
+## Context Patterns
+- Access database via `ctx.db`
+- Access session via `ctx.session`
+- Access user via `ctx.user` (in protected procedures)
+- Pass request headers via `ctx.headers`

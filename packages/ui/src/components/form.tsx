@@ -1,13 +1,12 @@
 "use client";
 
-import type * as LabelPrimitive from "@radix-ui/react-label";
-import type { ControllerProps, FieldPath, FieldValues } from "react-hook-form";
-import * as React from "react";
-import { Slot } from "@radix-ui/react-slot";
-import { Controller, FormProvider, useFormContext } from "react-hook-form";
-
 import { Label } from "@lms/ui/components/label";
 import { cn } from "@lms/ui/lib/utils";
+import type * as LabelPrimitive from "@radix-ui/react-label";
+import { Slot } from "@radix-ui/react-slot";
+import * as React from "react";
+import type { ControllerProps, FieldPath, FieldValues } from "react-hook-form";
+import { Controller, FormProvider, useFormContext } from "react-hook-form";
 
 const Form = FormProvider;
 
@@ -18,9 +17,7 @@ interface FormFieldContextValue<
   name: TName;
 }
 
-const FormFieldContext = React.createContext<FormFieldContextValue>(
-  {} as FormFieldContextValue,
-);
+const FormFieldContext = React.createContext<FormFieldContextValue>({} as FormFieldContextValue);
 
 const FormField = <
   TFieldValues extends FieldValues = FieldValues,
@@ -62,9 +59,7 @@ interface FormItemContextValue {
   id: string;
 }
 
-const FormItemContext = React.createContext<FormItemContextValue>(
-  {} as FormItemContextValue,
-);
+const FormItemContext = React.createContext<FormItemContextValue>({} as FormItemContextValue);
 
 interface FormItemProps extends React.HTMLAttributes<HTMLDivElement> {
   ref?: React.Ref<HTMLDivElement>;
@@ -80,8 +75,7 @@ const FormItem = ({ className, ref, ...props }: FormItemProps) => {
   );
 };
 
-interface FormLabelProps
-  extends React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root> {
+interface FormLabelProps extends React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root> {
   ref?: React.Ref<React.ComponentRef<typeof LabelPrimitive.Root>>;
 }
 
@@ -103,34 +97,24 @@ interface FormControlProps extends React.ComponentPropsWithoutRef<typeof Slot> {
 }
 
 const FormControl = ({ ref, ...props }: FormControlProps) => {
-  const { error, formItemId, formDescriptionId, formMessageId } =
-    useFormField();
+  const { error, formItemId, formDescriptionId, formMessageId } = useFormField();
 
   return (
     <Slot
       ref={ref}
       id={formItemId}
-      aria-describedby={
-        !error
-          ? `${formDescriptionId}`
-          : `${formDescriptionId} ${formMessageId}`
-      }
+      aria-describedby={!error ? `${formDescriptionId}` : `${formDescriptionId} ${formMessageId}`}
       aria-invalid={!!error}
       {...props}
     />
   );
 };
 
-interface FormDescriptionProps
-  extends React.HTMLAttributes<HTMLParagraphElement> {
+interface FormDescriptionProps extends React.HTMLAttributes<HTMLParagraphElement> {
   ref?: React.Ref<HTMLParagraphElement>;
 }
 
-const FormDescription = ({
-  className,
-  ref,
-  ...props
-}: FormDescriptionProps) => {
+const FormDescription = ({ className, ref, ...props }: FormDescriptionProps) => {
   const { formDescriptionId } = useFormField();
 
   return (
@@ -147,12 +131,7 @@ interface FormMessageProps extends React.HTMLAttributes<HTMLParagraphElement> {
   ref?: React.Ref<HTMLParagraphElement>;
 }
 
-const FormMessage = ({
-  className,
-  children,
-  ref,
-  ...props
-}: FormMessageProps) => {
+const FormMessage = ({ className, children, ref, ...props }: FormMessageProps) => {
   const { error, formMessageId } = useFormField();
   const body = error ? String(error?.message ?? "") : children;
 

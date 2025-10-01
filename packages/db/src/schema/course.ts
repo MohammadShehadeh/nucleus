@@ -29,9 +29,7 @@ export const course = pgTable("course", (t) => ({
     .notNull()
     .references(() => user.id),
   createdAt: t.timestamp().notNull().defaultNow(),
-  updatedAt: t
-    .timestamp({ mode: "date", withTimezone: true })
-    .$onUpdateFn(() => new Date()),
+  updatedAt: t.timestamp({ mode: "date", withTimezone: true }).$onUpdateFn(() => new Date()),
 }));
 
 export const module = pgTable("module", (t) => ({
@@ -43,9 +41,7 @@ export const module = pgTable("module", (t) => ({
     .notNull()
     .references(() => course.id),
   createdAt: t.timestamp().notNull().defaultNow(),
-  updatedAt: t
-    .timestamp({ mode: "date", withTimezone: true })
-    .$onUpdateFn(() => new Date()),
+  updatedAt: t.timestamp({ mode: "date", withTimezone: true }).$onUpdateFn(() => new Date()),
 }));
 
 export const lesson = pgTable("lesson", (t) => ({
@@ -58,7 +54,5 @@ export const lesson = pgTable("lesson", (t) => ({
   description: t.text().notNull(),
   attachments: t.jsonb().$type<Attachments>().notNull(),
   createdAt: t.timestamp().notNull().defaultNow(),
-  updatedAt: t
-    .timestamp({ mode: "date", withTimezone: true })
-    .$onUpdateFn(() => new Date()),
+  updatedAt: t.timestamp({ mode: "date", withTimezone: true }).$onUpdateFn(() => new Date()),
 }));

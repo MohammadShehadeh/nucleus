@@ -1,0 +1,83 @@
+---
+description: "Schema validation patterns and best practices"
+globs: *.ts,*.tsx
+---
+
+# Schema Validation Guidelines
+
+## Database Schema Patterns
+- Database schemas are defined using Drizzle ORM in [packages/db/src/schema/](mdc:packages/db/src/schema/)
+- Always generate Zod schemas from Drizzle schemas using `createInsertSchema`, `createSelectSchema`, `createUpdateSchema` from `drizzle-zod`
+- Export TypeScript types using `z.infer<typeof schema>`
+
+Example pattern from [packages/db/src/schema/course.ts](mdc:packages/db/src/schema/course.ts):
+```typescript
+export const courseInsertSchema = createInsertSchema(course);
+export const courseSelectSchema = createSelectSchema(course);
+export const courseUpdateSchema = createUpdateSchema(course);
+```
+
+## Form Validation Patterns
+- For React Hook Form validation, prefer importing database schemas over creating duplicate validation
+- Use `standardSchemaResolver` from `@hookform/resolvers/standard-schema` for Zod v4 compatibility
+- Form-specific schemas should go in [packages/validators/src/](mdc:packages/validators/src/) when they need custom validation logic
+
+Example from [apps/nextjs/src/app/(auth)/components/login-form.tsx](mdc:apps/nextjs/src/app/(auth)/components/login-form.tsx):
+```typescript
+import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
+import { loginSchema } from "@lms/validators/authentication";
+
+const form = useForm<LoginFormData>({
+  resolver: standardSchemaResolver(loginSchema),
+});
+```
+
+## API Input Validation
+- tRPC procedures should use database schemas for input validation
+- Import schemas from `@lms/db/schema` in API routers
+- Use `.pick()`, `.omit()`, or `.required()` to modify schemas as needed
+
+Example from [packages/api/src/router/course.ts](mdc:packages/api/src/router/course.ts):
+```typescript
+create: protectedProcedure
+  .input(courseInsertSchema)
+  .mutation(async ({ input }) => {
+    return await db.insert(course).values(input).returning();
+  }),
+```
+
+## Schema Creation Priority
+1. **Use database schemas directly** for simple CRUD forms
+2. **Create form-specific schemas** in validators package for complex validation (password confirmation, custom error messages)
+3. **Never duplicate validation logic** - always extend or modify existing schemas
+
+## Advanced Schema Patterns
+- Use `.pick()` to select specific fields: `userSchema.pick({ email: true, name: true })`
+- Use `.omit()` to exclude fields: `userSchema.omit({ password: true })`
+- Use `.required()` to make optional fields required: `userUpdateSchema.required({ id: true })`
+- Use `.extend()` to add additional fields: `userSchema.extend({ confirmPassword: z.string() })`
+
+## Custom Validation Messages
+```typescript
+const loginSchema = z.object({
+  email: z.string().email("Please enter a valid email address"),
+  password: z.string().min(8, "Password must be at least 8 characters long"),
+});
+```
+
+## Conditional Validation
+```typescript
+const courseSchema = z.object({
+  name: z.string().min(1, "Course name is required"),
+  published: z.boolean(),
+  publishedAt: z.date().optional(),
+}).refine(
+  (data) => !data.published || data.publishedAt,
+  {
+    message: "Published date is required when course is published",
+    path: ["publishedAt"],
+  }
+);
+```
+2. **Create form-specific schemas** in validators package for complex validation (password confirmation, custom error messages)
+3. **Never duplicate validation logic** - always extend or modify existing schemas
