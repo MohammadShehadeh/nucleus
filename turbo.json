@@ -55,7 +55,10 @@
     "AUTH_SECRET",
     "PORT",
     "RESEND_FROM",
-    "RESEND_TOKEN"
+    "RESEND_TOKEN",
+    "REDIS_CONNECTION_STRING",
+    "GOOGLE_CLIENT_ID",
+    "GOOGLE_CLIENT_SECRET"
   ],
   "globalPassThroughEnv": [
     "NODE_ENV",
