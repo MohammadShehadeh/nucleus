@@ -15,10 +15,12 @@
     "db:studio": "turbo -F @lms/db studio",
     "dev": "turbo watch dev --continue",
     "dev:next": "turbo watch dev -F @lms/nextjs...",
-    "format": "turbo run format --continue -- --cache --cache-location .cache/.prettiercache",
-    "format:fix": "turbo run format --continue -- --write --cache --cache-location .cache/.prettiercache",
-    "lint": "turbo run lint --continue -- --cache --cache-location .cache/.eslintcache",
-    "lint:fix": "turbo run lint --continue -- --fix --cache --cache-location .cache/.eslintcache",
+    "format": "biome format --write .",
+    "format:check": "biome format .",
+    "lint": "biome lint .",
+    "lint:fix": "biome lint --write .",
+    "check": "biome check --write .",
+    "check:ci": "biome check .",
     "lint:ws": "pnpm dlx sherif@latest",
     "postinstall": "pnpm lint:ws",
     "typecheck": "turbo run typecheck",
@@ -28,13 +30,11 @@
     "prepare": "husky"
   },
   "devDependencies": {
-    "@lms/prettier-config": "workspace:*",
+    "@biomejs/biome": "2.2.4",
     "@turbo/gen": "^2.5.4",
     "husky": "^9.1.7",
     "lint-staged": "^16.1.2",
-    "prettier": "catalog:",
     "turbo": "^2.5.4",
     "typescript": "catalog:"
-  },
-  "prettier": "@lms/prettier-config"
+  }
 }

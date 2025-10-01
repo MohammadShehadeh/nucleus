@@ -118,11 +118,7 @@ export class RedisCache {
   /**
    * Set a value in cache
    */
-  async set<T>(
-    key: string,
-    value: T,
-    options: CacheSetOptions = {},
-  ): Promise<void> {
+  async set<T>(key: string, value: T, options: CacheSetOptions = {}): Promise<void> {
     const { ttl = this.defaultTTL } = options;
     const serializedValue = JSON.stringify(value);
 
@@ -171,10 +167,7 @@ export class RedisCache {
     await this.client.flushDb();
   }
 
-  async wrapWithCache<T>(
-    fn: () => Promise<T>,
-    options: WrapWithCacheOptions,
-  ): Promise<T> {
+  async wrapWithCache<T>(fn: () => Promise<T>, options: WrapWithCacheOptions): Promise<T> {
     const { key, ttl = this.defaultTTL } = options;
     const value = await this.get<T>(key);
     if (value) return value;

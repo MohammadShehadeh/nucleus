@@ -14,11 +14,9 @@ console.log(user, hasUser);
 
 const value = await cache.wrapWithCache(
   async () => {
-    return await new Promise((resolve) =>
-      setTimeout(() => resolve({ name: "John" }), 1000),
-    );
+    return await new Promise((resolve) => setTimeout(() => resolve({ name: "John" }), 1000));
   },
-  { key: "user:123" },
+  { key: "user:123" }
 );
 
 console.log(value);

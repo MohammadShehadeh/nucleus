@@ -1,9 +1,5 @@
 import { pgTable } from "drizzle-orm/pg-core";
-import {
-  createInsertSchema,
-  createSelectSchema,
-  createUpdateSchema,
-} from "drizzle-zod";
+import { createInsertSchema, createSelectSchema, createUpdateSchema } from "drizzle-zod";
 
 import { user } from "./user";
 
@@ -21,9 +17,7 @@ export const course = pgTable("course", (t) => ({
     .notNull()
     .references(() => user.id),
   createdAt: t.timestamp().notNull().defaultNow(),
-  updatedAt: t
-    .timestamp({ mode: "date", withTimezone: true })
-    .$onUpdateFn(() => new Date()),
+  updatedAt: t.timestamp({ mode: "date", withTimezone: true }).$onUpdateFn(() => new Date()),
 }));
 
 export const module = pgTable("module", (t) => ({
@@ -36,9 +30,7 @@ export const module = pgTable("module", (t) => ({
     .notNull()
     .references(() => course.id),
   createdAt: t.timestamp().notNull().defaultNow(),
-  updatedAt: t
-    .timestamp({ mode: "date", withTimezone: true })
-    .$onUpdateFn(() => new Date()),
+  updatedAt: t.timestamp({ mode: "date", withTimezone: true }).$onUpdateFn(() => new Date()),
 }));
 
 export const lesson = pgTable("lesson", (t) => ({
@@ -52,9 +44,7 @@ export const lesson = pgTable("lesson", (t) => ({
   resourceId: t.uuid().references(() => resource.id),
   position: t.integer().notNull().default(0),
   createdAt: t.timestamp().notNull().defaultNow(),
-  updatedAt: t
-    .timestamp({ mode: "date", withTimezone: true })
-    .$onUpdateFn(() => new Date()),
+  updatedAt: t.timestamp({ mode: "date", withTimezone: true }).$onUpdateFn(() => new Date()),
 }));
 
 export const resource = pgTable("resource", (t) => ({
@@ -71,9 +61,7 @@ export const resource = pgTable("resource", (t) => ({
     .notNull(),
   type: t.varchar({ length: 16 }).$type<"file" | "video">().notNull(),
   createdAt: t.timestamp().notNull().defaultNow(),
-  updatedAt: t
-    .timestamp({ mode: "date", withTimezone: true })
-    .$onUpdateFn(() => new Date()),
+  updatedAt: t.timestamp({ mode: "date", withTimezone: true }).$onUpdateFn(() => new Date()),
 }));
 
 export const review = pgTable("review", (t) => ({
@@ -89,9 +77,7 @@ export const review = pgTable("review", (t) => ({
     .notNull()
     .references(() => user.id),
   createdAt: t.timestamp().notNull().defaultNow(),
-  updatedAt: t
-    .timestamp({ mode: "date", withTimezone: true })
-    .$onUpdateFn(() => new Date()),
+  updatedAt: t.timestamp({ mode: "date", withTimezone: true }).$onUpdateFn(() => new Date()),
 }));
 
 export const enrollment = pgTable("enrollment", (t) => ({
@@ -105,9 +91,7 @@ export const enrollment = pgTable("enrollment", (t) => ({
     .notNull()
     .references(() => user.id),
   createdAt: t.timestamp().notNull().defaultNow(),
-  updatedAt: t
-    .timestamp({ mode: "date", withTimezone: true })
-    .$onUpdateFn(() => new Date()),
+  updatedAt: t.timestamp({ mode: "date", withTimezone: true }).$onUpdateFn(() => new Date()),
 }));
 
 // course zod schemas

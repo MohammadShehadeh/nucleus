@@ -1,12 +1,10 @@
 "use client";
 
-import * as React from "react";
-import * as SeparatorPrimitive from "@radix-ui/react-separator";
-
 import { cn } from "@lms/ui/lib/utils";
+import * as SeparatorPrimitive from "@radix-ui/react-separator";
+import type * as React from "react";
 
-interface SeparatorProps
-  extends React.ComponentPropsWithoutRef<typeof SeparatorPrimitive.Root> {
+interface SeparatorProps extends React.ComponentPropsWithoutRef<typeof SeparatorPrimitive.Root> {
   ref?: React.Ref<React.ComponentRef<typeof SeparatorPrimitive.Root>>;
 }
 
@@ -24,7 +22,7 @@ const Separator = ({
     className={cn(
       "shrink-0 bg-border",
       orientation === "horizontal" ? "h-[1px] w-full" : "h-full w-[1px]",
-      className,
+      className
     )}
     {...props}
   />

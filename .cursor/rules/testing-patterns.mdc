@@ -1,0 +1,202 @@
+---
+description: "Testing patterns and best practices"
+globs: *.test.ts,*.test.tsx,*.spec.ts,*.spec.tsx
+---
+
+# Testing Guidelines
+
+## Testing Stack
+This project uses the following testing tools:
+- **Unit Testing**: Vitest for fast unit tests
+- **E2E Testing**: Playwright for end-to-end testing
+- **Component Testing**: React Testing Library with Vitest
+- **API Testing**: tRPC testing utilities
+
+## Test File Organization
+```
+src/
+├── components/
+│   ├── login-form.tsx
+│   └── __tests__/
+│       └── login-form.test.tsx
+├── utils/
+│   ├── helpers.ts
+│   └── __tests__/
+│       └── helpers.test.ts
+└── __tests__/
+    └── integration/
+        └── auth-flow.test.tsx
+```
+
+## Unit Testing Patterns
+
+### Component Testing
+```typescript
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { vi } from 'vitest';
+import { LoginForm } from '../login-form';
+
+describe('LoginForm', () => {
+  it('should submit form with valid data', async () => {
+    const mockSignIn = vi.fn();
+    vi.mock('~/auth/client', () => ({
+      signIn: { email: mockSignIn }
+    }));
+
+    render(<LoginForm />);
+    
+    fireEvent.change(screen.getByLabelText(/email/i), {
+      target: { value: 'test@example.com' }
+    });
+    
+    fireEvent.click(screen.getByRole('button', { name: /login/i }));
+    
+    await waitFor(() => {
+      expect(mockSignIn).toHaveBeenCalledWith({
+        email: 'test@example.com',
+        password: expect.any(String),
+        callbackURL: '/',
+      });
+    });
+  });
+});
+```
+
+### API Testing
+```typescript
+import { createTRPCMsw } from 'msw-trpc';
+import { setupServer } from 'msw/node';
+import type { AppRouter } from '@lms/api';
+import { courseRouter } from '@lms/api/router/course';
+
+const trpcMsw = createTRPCMsw<AppRouter>();
+const server = setupServer();
+
+describe('Course API', () => {
+  beforeAll(() => server.listen());
+  afterEach(() => server.resetHandlers());
+  afterAll(() => server.close());
+
+  it('should create course successfully', async () => {
+    server.use(
+      trpcMsw.course.create.mutation((req, res, ctx) => {
+        return res(ctx.status(200), ctx.data({
+          id: 'test-id',
+          name: req.input.name,
+          slug: req.input.slug,
+        }));
+      })
+    );
+
+    const result = await courseRouter.create({
+      name: 'Test Course',
+      slug: 'test-course',
+      description: 'Test description',
+      instructorId: 'instructor-1',
+    });
+
+    expect(result).toMatchObject({
+      name: 'Test Course',
+      slug: 'test-course',
+    });
+  });
+});
+```
+
+## Database Testing
+```typescript
+import { beforeEach, afterEach } from 'vitest';
+import { db } from '@lms/db/client';
+import { course } from '@lms/db/schema';
+
+describe('Course Database Operations', () => {
+  beforeEach(async () => {
+    // Setup test data
+    await db.insert(course).values({
+      name: 'Test Course',
+      slug: 'test-course',
+      description: 'Test description',
+      instructorId: 'test-instructor',
+    });
+  });
+
+  afterEach(async () => {
+    // Cleanup test data
+    await db.delete(course).where(eq(course.slug, 'test-course'));
+  });
+
+  it('should find course by slug', async () => {
+    const result = await db
+      .select()
+      .from(course)
+      .where(eq(course.slug, 'test-course'))
+      .limit(1);
+
+    expect(result[0]).toMatchObject({
+      name: 'Test Course',
+      slug: 'test-course',
+    });
+  });
+});
+```
+
+## E2E Testing Patterns
+```typescript
+import { test, expect } from '@playwright/test';
+
+test.describe('Authentication Flow', () => {
+  test('should login successfully', async ({ page }) => {
+    await page.goto('/sign-in');
+    
+    await page.fill('[data-testid="email-input"]', 'test@example.com');
+    await page.fill('[data-testid="password-input"]', 'password123');
+    
+    await page.click('[data-testid="login-button"]');
+    
+    await expect(page).toHaveURL('/dashboard');
+    await expect(page.locator('[data-testid="user-menu"]')).toBeVisible();
+  });
+});
+```
+
+## Test Utilities and Helpers
+Create reusable test utilities in `__tests__/utils/`:
+
+```typescript
+// __tests__/utils/test-providers.tsx
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { trpc } from '@lms/api/react';
+
+export function TestProviders({ children }: { children: React.ReactNode }) {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+  
+  const trpcClient = trpc.createClient({
+    links: [/* test links */],
+  });
+
+  return (
+    <trpc.Provider client={trpcClient} queryClient={queryClient}>
+      <QueryClientProvider client={queryClient}>
+        {children}
+      </QueryClientProvider>
+    </trpc.Provider>
+  );
+}
+```
+
+## Testing Best Practices
+- **Arrange, Act, Assert**: Structure tests clearly
+- **Test behavior, not implementation**: Focus on user interactions
+- **Use data-testid attributes**: For reliable element selection
+- **Mock external dependencies**: Keep tests isolated
+- **Test error states**: Include unhappy path scenarios
+- **Use descriptive test names**: Explain what is being tested
+- **Group related tests**: Use `describe` blocks for organization
+
+## Coverage Guidelines
+- Aim for 80%+ code coverage on critical business logic
+- Focus on testing public APIs and user interactions
+- Don't test implementation details or third-party libraries
+- Prioritize integration tests over unit tests for complex flows

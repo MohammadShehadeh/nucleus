@@ -1,9 +1,8 @@
-import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-
 import { ThemeProvider } from "@lms/ui/components/theme";
 import { Toaster } from "@lms/ui/components/toast";
 import { cn } from "@lms/ui/lib/utils";
+import type { Metadata, Viewport } from "next";
+import { Geist, Geist_Mono } from "next/font/google";
 
 import { TRPCReactProvider } from "~/trpc/react";
 
@@ -14,9 +13,7 @@ import { HydrateClient } from "~/trpc/server";
 
 export const metadata: Metadata = {
   metadataBase: new URL(
-    env.VERCEL_ENV === "production"
-      ? "https://turbo.t3.gg"
-      : "http://localhost:3000",
+    env.VERCEL_ENV === "production" ? "https://turbo.t3.gg" : "http://localhost:3000"
   ),
   title: "Create T3 Turbo",
   description: "Simple monorepo with shared backend for web & mobile apps",
@@ -56,7 +53,7 @@ export default function RootLayout(props: { children: React.ReactNode }) {
         className={cn(
           "min-h-screen bg-background font-sans text-foreground antialiased",
           geistSans.variable,
-          geistMono.variable,
+          geistMono.variable
         )}
       >
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>

@@ -1,12 +1,11 @@
 "use client";
 
-import type { UseEmblaCarouselType } from "embla-carousel-react";
-import * as React from "react";
-import { ArrowLeftIcon, ArrowRightIcon } from "@radix-ui/react-icons";
-import useEmblaCarousel from "embla-carousel-react";
-
 import { Button } from "@lms/ui/components/button";
 import { cn } from "@lms/ui/lib/utils";
+import { ArrowLeftIcon, ArrowRightIcon } from "@radix-ui/react-icons";
+import type { UseEmblaCarouselType } from "embla-carousel-react";
+import useEmblaCarousel from "embla-carousel-react";
+import * as React from "react";
 
 type CarouselApi = UseEmblaCarouselType[1];
 type UseCarouselParameters = Parameters<typeof useEmblaCarousel>;
@@ -41,9 +40,7 @@ function useCarousel() {
   return context;
 }
 
-interface CarouselMainProps
-  extends React.HTMLAttributes<HTMLDivElement>,
-    CarouselProps {
+interface CarouselMainProps extends React.HTMLAttributes<HTMLDivElement>, CarouselProps {
   ref?: React.Ref<HTMLDivElement>;
 }
 
@@ -62,7 +59,7 @@ const Carousel = ({
       ...opts,
       axis: orientation === "horizontal" ? "x" : "y",
     },
-    plugins,
+    plugins
   );
   const [canScrollPrev, setCanScrollPrev] = React.useState(false);
   const [canScrollNext, setCanScrollNext] = React.useState(false);
@@ -94,7 +91,7 @@ const Carousel = ({
         scrollNext();
       }
     },
-    [scrollPrev, scrollNext],
+    [scrollPrev, scrollNext]
   );
 
   React.useEffect(() => {
@@ -132,7 +129,7 @@ const Carousel = ({
         canScrollNext,
       }}
     >
-      <div
+      <section
         ref={ref}
         onKeyDownCapture={handleKeyDown}
         className={cn("relative", className)}
@@ -141,7 +138,7 @@ const Carousel = ({
         {...props}
       >
         {children}
-      </div>
+      </section>
     </CarouselContext.Provider>
   );
 };
@@ -150,44 +147,35 @@ interface CarouselContentProps extends React.HTMLAttributes<HTMLDivElement> {
   ref?: React.Ref<HTMLDivElement>;
 }
 
-const CarouselContent = ({
-  className,
-  ref,
-  ...props
-}: CarouselContentProps) => {
+const CarouselContent = ({ className, ref, ...props }: CarouselContentProps) => {
   const { carouselRef, orientation } = useCarousel();
 
   return (
     <div ref={carouselRef} className="overflow-hidden">
       <div
         ref={ref}
-        className={cn(
-          "flex",
-          orientation === "horizontal" ? "-ml-4" : "-mt-4 flex-col",
-          className,
-        )}
+        className={cn("flex", orientation === "horizontal" ? "-ml-4" : "-mt-4 flex-col", className)}
         {...props}
       />
     </div>
   );
 };
 
-interface CarouselItemProps extends React.HTMLAttributes<HTMLDivElement> {
-  ref?: React.Ref<HTMLDivElement>;
+interface CarouselItemProps extends React.HTMLAttributes<HTMLFieldSetElement> {
+  ref?: React.Ref<HTMLFieldSetElement>;
 }
 
 const CarouselItem = ({ className, ref, ...props }: CarouselItemProps) => {
   const { orientation } = useCarousel();
 
   return (
-    <div
+    <fieldset
       ref={ref}
-      role="group"
       aria-roledescription="slide"
       className={cn(
         "min-w-0 shrink-0 grow-0 basis-full",
         orientation === "horizontal" ? "pl-4" : "pt-4",
-        className,
+        className
       )}
       {...props}
     />
@@ -217,7 +205,7 @@ const CarouselPrevious = ({
         orientation === "horizontal"
           ? "-left-12 top-1/2 -translate-y-1/2"
           : "-top-12 left-1/2 -translate-x-1/2 rotate-90",
-        className,
+        className
       )}
       disabled={!canScrollPrev}
       onClick={scrollPrev}
@@ -252,7 +240,7 @@ const CarouselNext = ({
         orientation === "horizontal"
           ? "-right-12 top-1/2 -translate-y-1/2"
           : "-bottom-12 left-1/2 -translate-x-1/2 rotate-90",
-        className,
+        className
       )}
       disabled={!canScrollNext}
       onClick={scrollNext}

@@ -5,11 +5,7 @@ import { SiteHeader } from "../components/site-header";
 
 export const description = "A sidebar with a header and a search form.";
 
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="[--header-height:calc(theme(spacing.14))]">
       <SidebarProvider className="flex flex-col">
