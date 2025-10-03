@@ -11,7 +11,7 @@ import { HydrateClient } from "~/trpc/server";
 
 export const metadata: Metadata = {
   metadataBase: new URL(
-    env.VERCEL_ENV === "production" ? "https://lms-livid-omega.vercel.app" : "http://localhost:3000"
+    env.VERCEL_ENV === "production" ? env.NEXT_PUBLIC_BASE_URL : "http://localhost:3000"
   ),
   title: "Learn Management System",
   description:
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     title: "Learn Management System",
     description:
       "A learning management system that enables instructors to create, manage, and deliver online courses while providing students with an intuitive platform to discover, enroll in, and complete educational content.",
-    url: "https://lms-livid-omega.vercel.app",
+    url: env.NEXT_PUBLIC_BASE_URL,
     siteName: "Learn Management System",
   },
   twitter: {
