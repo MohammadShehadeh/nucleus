@@ -18,9 +18,9 @@ import { registerSchema } from "@lms/validators/authentication";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 
-import { signIn, signUp } from "~/auth/client";
+import { signIn, signUp } from "@/auth/client";
 
-export function RegisterForm({ className, ...props }: React.ComponentProps<"div">) {
+export default function RegisterPage({ className, ...props }: React.ComponentProps<"div">) {
   const form = useForm<RegisterFormData>({
     resolver: standardSchemaResolver(registerSchema),
     defaultValues: {

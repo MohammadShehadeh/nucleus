@@ -2,11 +2,7 @@ import { getSessionCookie } from "better-auth/cookies";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
-// Define routes that require authentication
-const protectedRoutes = ["/dashboard"];
-
-// Define routes that are only accessible when not authenticated
-const authRoutes = ["/sign-in", "/sign-up", "/reset-password"];
+import { authRoutes, protectedRoutes } from "@/constants/routes";
 
 export function middleware(request: NextRequest) {
   // This middleware provides optimistic redirects

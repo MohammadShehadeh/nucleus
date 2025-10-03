@@ -18,9 +18,9 @@ import { loginSchema } from "@lms/validators/authentication";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 
-import { signIn } from "~/auth/client";
+import { signIn } from "@/auth/client";
 
-export function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
+export default function LoginPage({ className, ...props }: React.ComponentProps<"div">) {
   const form = useForm<LoginFormData>({
     resolver: standardSchemaResolver(loginSchema),
     defaultValues: {

@@ -1,7 +1,7 @@
 import { SidebarInset, SidebarProvider } from "@lms/ui/components/sidebar";
 
-import { AppSidebar } from "../components/app-sidebar";
-import { SiteHeader } from "../components/site-header";
+import { AppSidebar } from "@/components/app-sidebar";
+import { SiteHeader } from "@/components/site-header";
 
 export const description = "A sidebar with a header and a search form.";
 

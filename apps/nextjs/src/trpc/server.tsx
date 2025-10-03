@@ -6,7 +6,7 @@ import { createTRPCOptionsProxy } from "@trpc/tanstack-react-query";
 import { headers } from "next/headers";
 import { cache } from "react";
 
-import { auth } from "~/auth/server";
+import { auth } from "@/auth/server";
 import { createQueryClient } from "./query-client";
 
 /**

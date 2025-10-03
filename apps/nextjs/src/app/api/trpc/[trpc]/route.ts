@@ -2,7 +2,7 @@ import { appRouter, createTRPCContext } from "@lms/api";
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
 import type { NextRequest } from "next/server";
 
-import { auth } from "~/auth/server";
+import { auth } from "@/auth/server";
 
 /**
  * Configure basic CORS headers

@@ -5,9 +5,9 @@ import { Toaster } from "@lms/ui/components/toast";
 import { cn } from "@lms/ui/lib/utils";
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { env } from "~/env";
-import { TRPCReactProvider } from "~/trpc/react";
-import { HydrateClient } from "~/trpc/server";
+import { env } from "@/env";
+import { TRPCReactProvider } from "@/trpc/react";
+import { HydrateClient } from "@/trpc/server";
 
 export const metadata: Metadata = {
   metadataBase: new URL(
@@ -59,7 +59,9 @@ export default function RootLayout(props: { children: React.ReactNode }) {
       >
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <TRPCReactProvider>
-            <HydrateClient>{props.children}</HydrateClient>
+            <HydrateClient>
+              <div className="flex min-h-screen flex-col">{props.children}</div>
+            </HydrateClient>
           </TRPCReactProvider>
           <Toaster />
         </ThemeProvider>
