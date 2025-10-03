@@ -1,32 +1,32 @@
+import "@lms/ui/styles.css";
+
 import { ThemeProvider } from "@lms/ui/components/theme";
 import { Toaster } from "@lms/ui/components/toast";
 import { cn } from "@lms/ui/lib/utils";
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-
-import { TRPCReactProvider } from "~/trpc/react";
-
-import "@lms/ui/globals.css";
-
 import { env } from "~/env";
+import { TRPCReactProvider } from "~/trpc/react";
 import { HydrateClient } from "~/trpc/server";
 
 export const metadata: Metadata = {
   metadataBase: new URL(
-    env.VERCEL_ENV === "production" ? "https://turbo.t3.gg" : "http://localhost:3000"
+    env.VERCEL_ENV === "production" ? "lms-livid-omega.vercel.app" : "http://localhost:3000"
   ),
-  title: "Create T3 Turbo",
-  description: "Simple monorepo with shared backend for web & mobile apps",
+  title: "Learn Management System",
+  description:
+    "A learning management system that enables instructors to create, manage, and deliver online courses while providing students with an intuitive platform to discover, enroll in, and complete educational content.",
   openGraph: {
-    title: "Create T3 Turbo",
-    description: "Simple monorepo with shared backend for web & mobile apps",
-    url: "https://create-t3-turbo.vercel.app",
-    siteName: "Create T3 Turbo",
+    title: "Learn Management System",
+    description:
+      "A learning management system that enables instructors to create, manage, and deliver online courses while providing students with an intuitive platform to discover, enroll in, and complete educational content.",
+    url: "https://lms-livid-omega.vercel.app",
+    siteName: "Learn Management System",
   },
   twitter: {
     card: "summary_large_image",
-    site: "@jullerino",
-    creator: "@jullerino",
+    site: "@_mshehadeh",
+    creator: "@_mshehadeh",
   },
 };
 
@@ -41,6 +41,7 @@ const geistSans = Geist({
   subsets: ["latin"],
   variable: "--font-geist-sans",
 });
+
 const geistMono = Geist_Mono({
   subsets: ["latin"],
   variable: "--font-geist-mono",
