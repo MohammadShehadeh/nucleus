@@ -68,7 +68,7 @@ export default function RegisterPage({ className, ...props }: React.ComponentPro
                         fill="currentColor"
                       />
                     </svg>
-                    Sign up with Google
+                    Register with Google
                   </Button>
                 </div>
                 <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
@@ -130,13 +130,13 @@ export default function RegisterPage({ className, ...props }: React.ComponentPro
                     )}
                   />
                   <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
-                    {form.formState.isSubmitting ? "Creating account..." : "Sign up"}
+                    {form.formState.isSubmitting ? "Creating account..." : "Register"}
                   </Button>
                 </div>
                 <div className="text-center text-sm">
                   Already have an account?{" "}
-                  <Link href="/sign-in" className="underline underline-offset-4">
-                    Sign in
+                  <Link href="/login" className="underline underline-offset-4">
+                    Login
                   </Link>
                 </div>
               </div>

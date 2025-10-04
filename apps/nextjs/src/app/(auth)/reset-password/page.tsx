@@ -38,32 +38,31 @@ export default function ResetPasswordPage({ className, ...props }: React.Compone
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)}>
-            <div className="grid gap-4">
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input type="email" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+          <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input type="email" placeholder="m@example.com" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-              <div className="text-sm">
-                Remembered your password?{" "}
-                <Link href="/sign-in" className="underline-offset-4 hover:underline">
-                  Log in
-                </Link>
-              </div>
-              <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
-                {form.formState.isSubmitting ? "Sending reset link..." : "Send reset link"}
-              </Button>
+            <div className="text-sm">
+              Remembered your password?{" "}
+              <Link href="/login" className="underline underline-offset-4">
+                Login
+              </Link>
             </div>
+
+            <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
+              {form.formState.isSubmitting ? "Sending reset link..." : "Send reset link"}
+            </Button>
           </form>
         </Form>
       </CardContent>

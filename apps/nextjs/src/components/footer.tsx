@@ -1,19 +1,12 @@
-import { cn } from "@lms/ui/lib/utils";
-import { Logo } from "./logo";
+import { Logo } from "@/components/logo";
 
-interface FooterProps {
-  className?: string;
-}
-
-export function Footer({ className }: FooterProps) {
+export const Footer = () => {
   return (
-    <footer className={cn("bg-background border-t", className)}>
-      <div className="container flex flex-col items-center justify-center gap-4 py-10">
-        <Logo />
-        <p className="text-sm text-muted-foreground">
-          &copy; {new Date().getFullYear()} Mohammad Shehadeh. All rights reserved.
-        </p>
-      </div>
+    <footer className="w-full bg-secondary/50 text-foreground py-6 gap-4 mt-auto h-fit flex flex-col items-center justify-center rounded-t-2xl">
+      <Logo />
+      <p className="text-center text-sm text-muted-foreground">
+        © {new Date().getFullYear()} LMS. All rights reserved.
+      </p>
     </footer>
   );
-}
+};

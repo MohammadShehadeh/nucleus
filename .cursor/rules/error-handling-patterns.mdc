@@ -86,7 +86,7 @@ export function CourseList() {
   if (isError) {
     // Handle different error types
     if (error.data?.code === "UNAUTHORIZED") {
-      return <div>Please sign in to view courses</div>;
+      return <div>Please Login to view courses</div>;
     }
     
     if (error.data?.code === "FORBIDDEN") {

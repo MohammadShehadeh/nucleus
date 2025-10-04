@@ -83,16 +83,16 @@ export const { signIn, signUp, signOut } = createAuthClient();
 
 ## Authentication Patterns
 
-### Sign In Implementation
+### Login Implementation
 ```typescript
-// Email/Password Sign In
+// Email/Password Login
 await signIn.email({
   email: data.email,
   password: data.password,
   callbackURL: "/dashboard",
 });
 
-// Social Sign In
+// Social Login
 await signIn.social({
   provider: "google",
   callbackURL: "/dashboard",
@@ -145,7 +145,7 @@ export function UserProfile() {
   const { data: session, isPending } = useSession();
 
   if (isPending) return <div>Loading...</div>;
-  if (!session) return <div>Please sign in</div>;
+  if (!session) return <div>Please Login</div>;
 
   return <div>Hello, {session.user.name}!</div>;
 }
