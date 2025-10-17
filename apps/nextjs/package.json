@@ -32,8 +32,8 @@
     "@trpc/tanstack-react-query": "catalog:",
     "motion": "^12.23.15",
     "next": "^15.4.4",
-    "react-dom": "catalog:react19",
     "react": "catalog:react19",
+    "react-dom": "catalog:react19",
     "superjson": "2.2.2",
     "zod": "catalog:"
   },
