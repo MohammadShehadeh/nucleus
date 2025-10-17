@@ -4,7 +4,4 @@
     "source.fixAll.biome": "explicit"
   },
   "editor.defaultFormatter": "biomejs.biome",
-  "[typescriptreact]": {
-    "editor.defaultFormatter": "biomejs.biome"
-  }
 }

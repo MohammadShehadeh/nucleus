@@ -31,11 +31,11 @@ export interface WrapWithCacheOptions {
   ttl?: number; // TTL in seconds
 }
 
-export class RedisCache {
+export class Redis {
   private client: RedisClient;
   private defaultTTL: number;
   private isConnected = false;
-  private static instance: RedisCache | null = null;
+  private static instance: Redis | null = null;
 
   private constructor(options: CacheOptions = {}) {
     const {
@@ -81,20 +81,20 @@ export class RedisCache {
   }
 
   /**
-   * Get or create the singleton instance of RedisCache
+   * Get or create the singleton instance of Redis
    */
-  public static getInstance(options?: CacheOptions): RedisCache {
-    if (!RedisCache.instance) {
-      RedisCache.instance = new RedisCache(options);
+  public static getInstance(options?: CacheOptions): Redis {
+    if (!Redis.instance) {
+      Redis.instance = new Redis(options);
     }
-    return RedisCache.instance;
+    return Redis.instance;
   }
 
   /**
    * Initialize the cache with options (call this once at app startup)
    */
-  public static initialize(options?: CacheOptions): RedisCache {
-    return RedisCache.getInstance(options);
+  public static initialize(options?: CacheOptions): Redis {
+    return Redis.getInstance(options);
   }
 
   /**
@@ -120,12 +120,12 @@ export class RedisCache {
    */
   async set<T>(key: string, value: T, options: CacheSetOptions = {}): Promise<void> {
     const { ttl = this.defaultTTL } = options;
-    const serializedValue = JSON.stringify(value);
+    try {
+      const serializedValue = JSON.stringify(value);
 
-    if (ttl > 0) {
       await this.client.setEx(key, ttl, serializedValue);
-    } else {
-      await this.client.set(key, serializedValue);
+    } catch (error) {
+      console.error("Error setting value in cache:", error);
     }
   }
 
@@ -133,14 +133,12 @@ export class RedisCache {
    * Get a value from cache
    */
   async get<T>(key: string): Promise<T | null> {
-    const value = await this.client.get(key);
-
-    if (value === null) return null;
-
     try {
+      const value = await this.client.get(key);
+      if (value === null) return null;
       return JSON.parse(value) as T;
     } catch (error) {
-      console.error("Error parsing cached value:", error);
+      console.error("Error getting value from cache:", error);
       return null;
     }
   }
@@ -149,15 +147,25 @@ export class RedisCache {
    * Delete a key from cache
    */
   async del(key: string): Promise<number> {
-    return await this.client.del(key);
+    try {
+      return await this.client.del(key);
+    } catch (error) {
+      console.error("Error deleting key:", error);
+      return 0;
+    }
   }
 
   /**
    * Check if a key exists
    */
   async exists(key: string): Promise<boolean> {
-    const result = await this.client.exists(key);
-    return result === 1;
+    try {
+      const result = await this.client.exists(key);
+      return result === 1;
+    } catch (error) {
+      console.error("Error checking if key exists:", error);
+      return false;
+    }
   }
 
   /**

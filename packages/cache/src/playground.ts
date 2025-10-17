@@ -1,18 +1,18 @@
-import { RedisCache } from ".";
+import { Redis } from ".";
 
-export const cache = RedisCache.getInstance();
+export const redis = Redis.getInstance();
 
-await cache.connect();
-await cache.set("user:123", { name: "John" });
-const user = await cache.get("user:123");
-const hasUser = await cache.exists("user:123");
-await cache.del("user:123");
+await redis.connect();
+await redis.set("user:123", { name: "John" });
+const user = await redis.get("user:123");
+const hasUser = await redis.exists("user:123");
+await redis.del("user:123");
 
-cache.destroy();
+redis.destroy();
 
 console.log(user, hasUser);
 
-const value = await cache.wrapWithCache(
+const value = await redis.wrapWithCache(
   async () => {
     return await new Promise((resolve) => setTimeout(() => resolve({ name: "John" }), 1000));
   },
