@@ -18,7 +18,7 @@ interface InitAuthOptions {
   };
 }
 
-export function initAuth(options: InitAuthOptions) {
+export function initAuth(options: InitAuthOptions): ReturnType<typeof betterAuth> {
   const config = {
     appName: "Learning Management System (LMS)",
     emailAndPassword: {
@@ -46,16 +46,17 @@ export function initAuth(options: InitAuthOptions) {
     },
     plugins: [
       oAuthProxy({
-        /**
-         * Auto-inference blocked by https://github.com/better-auth/better-auth/pull/2891
-         */
-        currentURL: options.baseUrl,
         productionURL: options.productionUrl,
       }),
       expo(),
-      nextCookies(), // make sure this is the last plugin in the array
+      nextCookies(),
     ],
     trustedOrigins: ["expo://"],
+    onAPIError: {
+      onError(error, ctx) {
+        console.error("BETTER AUTH API ERROR", error, ctx);
+      },
+    },
   } satisfies BetterAuthOptions;
 
   return betterAuth(config);

@@ -17,6 +17,7 @@ export const getBaseUrl = () => {
   const localhost = debuggerHost?.split(":")[0];
 
   if (!localhost) {
+    // @TODO(expo): Change this to environment variable
     return "https://lms-livid-omega.vercel.app";
   }
   return `http://${localhost}:3000`;

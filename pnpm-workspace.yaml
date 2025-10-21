@@ -3,21 +3,25 @@ packages:
   - packages/*
   - tooling/*
 catalog:
-  eslint: ^9.28.0
-  prettier: ^3.5.3
-  tailwindcss: ^3.4.15
-  typescript: ^5.8.3
-  zod: ^3.25.49
+  better-auth: 1.4.0-beta.9
+  "@better-auth/expo": 1.4.0-beta.9
+  "@better-auth/cli": 1.4.0-beta.9
+  tailwindcss: ^4.1.14
+  "@tailwindcss/postcss": ^4.1.14
+  typescript: ^5.9.3
+  zod: ^4.1.12
   "@tanstack/react-query": ^5.80.7
-  "@trpc/client": ^11.5.1
-  "@trpc/tanstack-react-query": ^11.5.1
-  "@trpc/server": ^11.5.1
+  "@trpc/client": ^11.6.0
+  "@trpc/server": ^11.6.0
+  "@trpc/tanstack-react-query": ^11.6.0
   "@t3-oss/env-nextjs": ^0.13.6
+
 catalogs:
   react19:
-    react: 19.0.0
-    react-dom: 19.0.0
-    "@types/react": ^19.1.6
-    "@types/react-dom": ^19.1.5
+    "@types/react": ^19.1.12
+    "@types/react-dom": ^19.1.9
+    react: 19.1.1
+    react-dom: 19.1.1
+
 onlyBuiltDependencies:
   - esbuild
