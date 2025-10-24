@@ -35,18 +35,18 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@better-auth/expo": "1.2.12",
+    "@better-auth/expo": "catalog:",
     "@lms/db": "workspace:*",
     "@lms/email": "workspace:*",
     "@t3-oss/env-nextjs": "catalog:",
-    "better-auth": "1.2.12",
-    "next": "^15.4.4",
+    "better-auth": "catalog:",
+    "next": "^15.5.6",
     "react": "catalog:react19",
     "react-dom": "catalog:react19",
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@better-auth/cli": "1.2.12",
+    "@better-auth/cli": "catalog:",
     "@lms/tsconfig": "workspace:*",
     "@types/react": "catalog:react19",
     "typescript": "catalog:"

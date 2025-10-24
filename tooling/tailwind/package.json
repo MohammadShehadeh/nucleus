@@ -1,11 +1,10 @@
 {
   "name": "@lms/tailwind-config",
-  "version": "0.1.0",
   "private": true,
   "type": "module",
   "exports": {
-    "./native": "./native.ts",
-    "./web": "./web.ts"
+    "./theme": "./theme.css",
+    "./postcss-config": "./postcss-config.js"
   },
   "license": "MIT",
   "scripts": {
@@ -18,13 +17,13 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "postcss": "^8.5.4",
-    "tailwindcss": "catalog:",
-    "tailwindcss-animate": "^1.0.7"
+    "@tailwindcss/postcss": "catalog:",
+    "postcss": "^8.5.6",
+    "tailwindcss": "catalog:"
   },
   "devDependencies": {
     "@lms/tsconfig": "workspace:*",
-    "@types/node": "^22.15.29",
+    "@types/node": "^22.18.10",
     "typescript": "catalog:"
   }
 }

@@ -1,4 +1,4 @@
-import "@lms/ui/styles.css";
+import "./globals.css";
 
 import { ThemeProvider } from "@lms/ui/components/theme";
 import { Toaster } from "@lms/ui/components/toast";

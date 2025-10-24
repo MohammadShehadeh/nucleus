@@ -33,8 +33,7 @@ packages/{package-name}/
 │   ├── index.ts          # Main export file
 │   └── ...               # Feature files
 ├── package.json
-├── tsconfig.json
-└── eslint.config.js
+└── tsconfig.json
 ```
 
 ## Import/Export Patterns

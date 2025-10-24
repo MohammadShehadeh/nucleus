@@ -85,7 +85,7 @@ Define task dependencies in [turbo.json](mdc:turbo.json):
 ### Creating New Packages
 1. Use Turbo generators: `turbo gen workspace`
 2. Follow naming convention: `@lms/package-name`
-3. Include standard files: `package.json`, `tsconfig.json`, `eslint.config.js`
+3. Include standard files: `package.json`, `tsconfig.json`
 4. Export from `src/index.ts` with proper TypeScript types
 
 ### Package Dependencies

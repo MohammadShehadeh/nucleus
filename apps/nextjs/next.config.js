@@ -12,7 +12,7 @@ const config = {
 
   // images
   images: {
-    domains: ["mohammadshehadeh.com"],
+    remotePatterns: [{ protocol: "https", hostname: "mohammadshehadeh.com" }],
   },
 
   /** We already do linting and typechecking as separate tasks in CI */
