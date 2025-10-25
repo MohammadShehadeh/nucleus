@@ -51,10 +51,11 @@ export class RedisRateLimiter {
       // Remove expired entries (older than window)
       pipeline.zRemRangeByScore(redisKey, 0, windowStart);
 
-      // count remaining before adding current request
-      pipeline.zCard(redisKey);
-
+      // Add current request
       pipeline.zAdd(redisKey, { score: now, value: now.toString() });
+
+      // Count requests after adding current request
+      pipeline.zCard(redisKey);
 
       // expire key automatically
       pipeline.pExpire(redisKey, this.window);
