@@ -22,7 +22,7 @@
 		"check": "biome check --write .",
 		"check:ci": "biome check .",
 		"dep:check": "pnpm dlx sherif@latest",
-		"postinstall": "pnpm dep:ws",
+		"postinstall": "pnpm dep:check",
 		"typecheck": "turbo run typecheck",
 		"ui-add": "turbo run ui-add",
 		"android": "expo run:android",
