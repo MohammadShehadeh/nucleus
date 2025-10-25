@@ -1,10 +1,24 @@
+import { Redis } from "@lms/cache";
+import { RedisRateLimiter } from "@lms/rate-limit";
 import { getSessionCookie } from "better-auth/cookies";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-
 import { authRoutes, protectedRoutes } from "@/constants/routes";
 
-export function middleware(request: NextRequest) {
+const rateLimiter = new RedisRateLimiter(Redis.getInstance(), {
+  limit: 20,
+  window: 60_000,
+});
+
+export async function middleware(request: NextRequest) {
+  const xffHeader = request.headers.get("x-forwarded-for");
+  const clientIp = xffHeader?.split(",")[0] ?? "anonymous";
+  const { allowed } = await rateLimiter.check(clientIp);
+
+  if (!allowed) {
+    return new NextResponse("Rate limit exceeded", { status: 429 });
+  }
+
   // This middleware provides optimistic redirects
   // Full authentication checks are performed within each page/route handler
   const cookies = getSessionCookie(request);

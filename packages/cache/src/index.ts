@@ -6,7 +6,9 @@ import type {
   RedisScripts,
 } from "redis";
 import { createClient } from "redis";
+import { cacheEnv } from "../env";
 
+const env = cacheEnv();
 export type RedisClient = RedisClientType<
   RedisDefaultModules & RedisModules,
   RedisFunctions,
@@ -15,10 +17,6 @@ export type RedisClient = RedisClientType<
 
 export interface CacheOptions {
   url?: string;
-  host?: string;
-  port?: number;
-  password?: string;
-  database?: number;
   defaultTTL?: number; // Default TTL in seconds
 }
 
@@ -39,29 +37,14 @@ export class Redis {
 
   private constructor(options: CacheOptions = {}) {
     const {
-      url,
-      host = "localhost",
-      port = 6379,
-      password,
-      database = 0,
+      url = env.REDIS_CONNECTION_STRING,
       defaultTTL = 3600 * 24 * 7, // 7 days default
     } = options;
 
     this.defaultTTL = defaultTTL;
 
     // Create Redis client
-    if (url) {
-      this.client = createClient({ url });
-    } else {
-      this.client = createClient({
-        socket: {
-          host,
-          port,
-        },
-        password,
-        database,
-      });
-    }
+    this.client = createClient({ url });
 
     // Set up error handling
     this.client.on("error", (err) => {
@@ -172,15 +155,29 @@ export class Redis {
    * Clear all keys (use with caution!)
    */
   async clear(): Promise<void> {
+    await this.connect();
     await this.client.flushDb();
   }
 
   async wrapWithCache<T>(fn: () => Promise<T>, options: WrapWithCacheOptions): Promise<T> {
+    await this.connect();
     const { key, ttl = this.defaultTTL } = options;
     const value = await this.get<T>(key);
     if (value) return value;
     const result = await fn();
     await this.set(key, result, { ttl });
     return result;
+  }
+
+  /**
+   * Create a new pipeline
+   */
+  async multi() {
+    try {
+      return this.client.multi();
+    } catch (error) {
+      console.error("Error creating pipeline:", error);
+      return null;
+    }
   }
 }

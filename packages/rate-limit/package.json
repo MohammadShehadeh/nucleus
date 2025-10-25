@@ -1,0 +1,30 @@
+{
+	"name": "@lms/rate-limit",
+	"private": true,
+	"version": "0.1.0",
+	"type": "module",
+	"exports": {
+		".": "./src/index.ts"
+	},
+	"license": "MIT",
+	"scripts": {
+		"build": "tsc",
+		"clean": "git clean -xdf .cache .turbo dist node_modules",
+		"dev": "tsc",
+		"format": "biome format --write .",
+		"format:check": "biome format .",
+		"lint": "biome lint .",
+		"lint:fix": "biome lint --write .",
+		"check": "biome check --write .",
+		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
+	},
+	"dependencies": {
+		"@lms/cache": "workspace:*",
+		"@t3-oss/env-nextjs": "catalog:",
+		"zod": "catalog:"
+	},
+	"devDependencies": {
+		"@lms/tsconfig": "workspace:*",
+		"typescript": "catalog:"
+	}
+}
