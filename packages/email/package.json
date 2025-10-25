@@ -1,34 +1,34 @@
 {
-  "name": "@lms/email",
-  "private": true,
-  "version": "0.1.0",
-  "type": "module",
-  "exports": {
-    ".": "./src/index.ts",
-    "./env": "./env.ts"
-  },
-  "license": "MIT",
-  "scripts": {
-    "build": "tsc",
-    "clean": "git clean -xdf .cache .turbo dist node_modules",
-    "dev": "tsc",
-    "format": "biome format --write .",
-    "format:check": "biome format .",
-    "lint": "biome lint .",
-    "lint:fix": "biome lint --write .",
-    "check": "biome check --write .",
-    "typecheck": "tsc --noEmit --emitDeclarationOnly false"
-  },
-  "dependencies": {
-    "@react-email/components": "0.0.41",
-    "@t3-oss/env-nextjs": "catalog:",
-    "react": "catalog:react19",
-    "react-dom": "catalog:react19",
-    "resend": "^4.5.1",
-    "zod": "catalog:"
-  },
-  "devDependencies": {
-    "@lms/tsconfig": "workspace:*",
-    "typescript": "catalog:"
-  }
+	"name": "@lms/email",
+	"private": true,
+	"version": "0.1.0",
+	"type": "module",
+	"exports": {
+		".": "./src/index.ts",
+		"./env": "./env.ts"
+	},
+	"license": "MIT",
+	"scripts": {
+		"build": "tsc",
+		"clean": "git clean -xdf .cache .turbo dist node_modules",
+		"dev": "tsc",
+		"format:fix": "biome format --write .",
+		"format": "biome format .",
+		"lint": "biome lint .",
+		"lint:fix": "biome lint --write .",
+		"check": "biome check --write .",
+		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
+	},
+	"dependencies": {
+		"@react-email/components": "0.0.41",
+		"@t3-oss/env-nextjs": "catalog:",
+		"react": "catalog:react19",
+		"react-dom": "catalog:react19",
+		"resend": "^4.5.1",
+		"zod": "catalog:"
+	},
+	"devDependencies": {
+		"@lms/tsconfig": "workspace:*",
+		"typescript": "catalog:"
+	}
 }

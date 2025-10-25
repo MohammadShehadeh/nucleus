@@ -1,44 +1,44 @@
 {
-  "name": "@lms/db",
-  "version": "0.1.0",
-  "private": true,
-  "type": "module",
-  "exports": {
-    ".": "./src/index.ts",
-    "./client": "./src/client.ts",
-    "./schema": "./src/schema/index.ts",
-    "./env": "./env.ts"
-  },
-  "license": "MIT",
-  "scripts": {
-    "build": "tsc",
-    "clean": "git clean -xdf .cache .turbo dist node_modules",
-    "dev": "tsc",
-    "format": "biome format --write .",
-    "format:check": "biome format .",
-    "lint": "biome lint .",
-    "lint:fix": "biome lint --write .",
-    "check": "biome check --write .",
-    "push": "pnpm with-env drizzle-kit push",
-    "pull": "pnpm with-env drizzle-kit pull",
-    "drop": "pnpm with-env drizzle-kit drop",
-    "migrate": "pnpm with-env drizzle-kit migrate",
-    "generate": "pnpm with-env drizzle-kit generate",
-    "studio": "pnpm with-env drizzle-kit studio",
-    "typecheck": "tsc --noEmit --emitDeclarationOnly false",
-    "with-env": "dotenv -e ../../.env --"
-  },
-  "dependencies": {
-    "@t3-oss/env-nextjs": "catalog:",
-    "drizzle-orm": "^0.44.1",
-    "drizzle-zod": "^0.8.2",
-    "postgres": "^3.4.7",
-    "zod": "catalog:"
-  },
-  "devDependencies": {
-    "@lms/tsconfig": "workspace:*",
-    "dotenv-cli": "^8.0.0",
-    "drizzle-kit": "^0.31.1",
-    "typescript": "catalog:"
-  }
+	"name": "@lms/db",
+	"version": "0.1.0",
+	"private": true,
+	"type": "module",
+	"exports": {
+		".": "./src/index.ts",
+		"./client": "./src/client.ts",
+		"./schema": "./src/schema/index.ts",
+		"./env": "./env.ts"
+	},
+	"license": "MIT",
+	"scripts": {
+		"build": "tsc",
+		"clean": "git clean -xdf .cache .turbo dist node_modules",
+		"dev": "tsc",
+		"format:fix": "biome format --write .",
+		"format": "biome format .",
+		"lint": "biome lint .",
+		"lint:fix": "biome lint --write .",
+		"check": "biome check --write .",
+		"push": "pnpm with-env drizzle-kit push",
+		"pull": "pnpm with-env drizzle-kit pull",
+		"drop": "pnpm with-env drizzle-kit drop",
+		"migrate": "pnpm with-env drizzle-kit migrate",
+		"generate": "pnpm with-env drizzle-kit generate",
+		"studio": "pnpm with-env drizzle-kit studio",
+		"typecheck": "tsc --noEmit --emitDeclarationOnly false",
+		"with-env": "dotenv -e ../../.env --"
+	},
+	"dependencies": {
+		"@t3-oss/env-nextjs": "catalog:",
+		"drizzle-orm": "^0.44.1",
+		"drizzle-zod": "^0.8.2",
+		"postgres": "^3.4.7",
+		"zod": "catalog:"
+	},
+	"devDependencies": {
+		"@lms/tsconfig": "workspace:*",
+		"dotenv-cli": "^8.0.0",
+		"drizzle-kit": "^0.31.1",
+		"typescript": "catalog:"
+	}
 }
