@@ -104,7 +104,6 @@ export class Redis {
   async set<T>(key: string, value: T, options: CacheSetOptions = {}): Promise<void> {
     const { ttl = this.defaultTTL } = options;
     try {
-      await this.connect();
       const serializedValue = JSON.stringify(value);
 
       await this.client.setEx(key, ttl, serializedValue);
@@ -118,7 +117,6 @@ export class Redis {
    */
   async get<T>(key: string): Promise<T | null> {
     try {
-      await this.connect();
       const value = await this.client.get(key);
       if (value === null) return null;
       return JSON.parse(value) as T;
@@ -133,7 +131,6 @@ export class Redis {
    */
   async del(key: string): Promise<number> {
     try {
-      await this.connect();
       return await this.client.del(key);
     } catch (error) {
       console.error("Error deleting key:", error);
@@ -146,7 +143,6 @@ export class Redis {
    */
   async exists(key: string): Promise<boolean> {
     try {
-      await this.connect();
       const result = await this.client.exists(key);
       return result === 1;
     } catch (error) {
@@ -178,7 +174,6 @@ export class Redis {
    */
   async multi() {
     try {
-      await this.connect();
       return this.client.multi();
     } catch (error) {
       console.error("Error creating pipeline:", error);

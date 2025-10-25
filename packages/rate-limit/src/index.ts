@@ -8,7 +8,7 @@ export interface RateLimitOptions {
 export interface RateLimitResult {
   allowed: boolean;
   remaining: number;
-  resetTime: string;
+  resetTime: number;
 }
 
 export class RedisRateLimiter {
@@ -44,17 +44,17 @@ export class RedisRateLimiter {
         return {
           allowed: true,
           remaining: this.limit - 1,
-          resetTime: new Date(now + this.window).toLocaleString(),
+          resetTime: now + this.window,
         };
       }
 
       // Remove expired entries (older than window)
       pipeline.zRemRangeByScore(redisKey, 0, windowStart);
 
-      pipeline.zAdd(redisKey, { score: now, value: now.toString() });
-
-      // count remaining
+      // count remaining before adding current request
       pipeline.zCard(redisKey);
+
+      pipeline.zAdd(redisKey, { score: now, value: now.toString() });
 
       // expire key automatically
       pipeline.pExpire(redisKey, this.window);
@@ -67,23 +67,23 @@ export class RedisRateLimiter {
         return {
           allowed: true,
           remaining: this.limit - 1,
-          resetTime: new Date(now + this.window).toLocaleString(),
+          resetTime: now + this.window,
         };
       }
 
       const [_, __, currentCount] = results;
       const normalizedCount = this.normalizeCount(currentCount);
-      const allowed = normalizedCount < this.limit;
+      const allowed = normalizedCount <= this.limit;
       const remaining = Math.max(0, this.limit - normalizedCount);
 
-      return { allowed, remaining, resetTime: new Date(now + this.window).toLocaleString() };
+      return { allowed, remaining, resetTime: now + this.window };
     } catch (error) {
       console.error("Failed to check rate limit:", error);
 
       return {
         allowed: true,
         remaining: this.limit - 1,
-        resetTime: new Date(now + this.window).toLocaleString(),
+        resetTime: now + this.window,
       };
     }
   }
@@ -109,7 +109,7 @@ export class RedisRateLimiter {
         return {
           allowed: true,
           remaining: this.limit,
-          resetTime: new Date(now + this.window).toLocaleString(),
+          resetTime: now + this.window,
         };
       }
 
@@ -127,19 +127,19 @@ export class RedisRateLimiter {
         return {
           allowed: true,
           remaining: this.limit,
-          resetTime: new Date(now + this.window).toLocaleString(),
+          resetTime: now + this.window,
         };
       }
 
       const [, , currentCount] = results;
       const normalizedCount = this.normalizeCount(currentCount);
-      const allowed = normalizedCount < this.limit;
+      const allowed = normalizedCount <= this.limit;
       const remaining = Math.max(0, this.limit - normalizedCount);
 
       return {
         allowed,
         remaining,
-        resetTime: new Date(now + this.window).toLocaleString(),
+        resetTime: now + this.window,
       };
     } catch (error) {
       console.error("Failed to get status:", error);
@@ -147,7 +147,7 @@ export class RedisRateLimiter {
       return {
         allowed: true,
         remaining: this.limit,
-        resetTime: new Date(now + this.window).toLocaleString(),
+        resetTime: now + this.window,
       };
     }
   }
