@@ -1,9 +1,8 @@
-import type { TRPCRouterRecord } from "@trpc/server";
-import { TRPCError } from "@trpc/server";
-
 import { eq } from "@lms/db";
 import { db } from "@lms/db/client";
 import { course, courseInsertSchema, courseSelectSchema, courseUpdateSchema } from "@lms/db/schema";
+import type { TRPCRouterRecord } from "@trpc/server";
+import { TRPCError } from "@trpc/server";
 
 import { protectedProcedure, publicProcedure } from "../trpc";
 
