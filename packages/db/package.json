@@ -42,9 +42,9 @@
   },
   "dependencies": {
     "@t3-oss/env-nextjs": "catalog:",
-    "@vercel/postgres": "^0.10.0",
     "drizzle-orm": "^0.44.1",
     "drizzle-zod": "^0.8.2",
+    "postgres": "^3.4.7",
     "zod": "catalog:"
   },
   "devDependencies": {

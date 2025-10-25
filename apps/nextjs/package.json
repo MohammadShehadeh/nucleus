@@ -23,6 +23,7 @@
     "@lms/cache": "workspace:*",
     "@lms/db": "workspace:*",
     "@lms/email": "workspace:*",
+    "@lms/rate-limit": "workspace:*",
     "@lms/ui": "workspace:*",
     "@lms/validators": "workspace:*",
     "@t3-oss/env-nextjs": "catalog:",
