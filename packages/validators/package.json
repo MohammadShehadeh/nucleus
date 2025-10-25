@@ -1,28 +1,28 @@
 {
-  "name": "@lms/validators",
-  "private": true,
-  "version": "0.1.0",
-  "type": "module",
-  "exports": {
-    "./*": "./src/*.ts"
-  },
-  "license": "MIT",
-  "scripts": {
-    "build": "tsc",
-    "clean": "git clean -xdf .cache .turbo dist node_modules",
-    "dev": "tsc",
-    "format": "biome format --write .",
-    "format:check": "biome format .",
-    "lint": "biome lint .",
-    "lint:fix": "biome lint --write .",
-    "check": "biome check --write .",
-    "typecheck": "tsc --noEmit --emitDeclarationOnly false"
-  },
-  "dependencies": {
-    "zod": "catalog:"
-  },
-  "devDependencies": {
-    "@lms/tsconfig": "workspace:*",
-    "typescript": "catalog:"
-  }
+	"name": "@lms/validators",
+	"private": true,
+	"version": "0.1.0",
+	"type": "module",
+	"exports": {
+		"./*": "./src/*.ts"
+	},
+	"license": "MIT",
+	"scripts": {
+		"build": "tsc",
+		"clean": "git clean -xdf .cache .turbo dist node_modules",
+		"dev": "tsc",
+		"format": "biome format .",
+		"format:fix": "biome format --write .",
+		"lint": "biome lint .",
+		"lint:fix": "biome lint --write .",
+		"check": "biome check --write .",
+		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
+	},
+	"dependencies": {
+		"zod": "catalog:"
+	},
+	"devDependencies": {
+		"@lms/tsconfig": "workspace:*",
+		"typescript": "catalog:"
+	}
 }
