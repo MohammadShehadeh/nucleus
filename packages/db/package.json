@@ -29,16 +29,16 @@
 		"with-env": "dotenv -e ../../.env --"
 	},
 	"dependencies": {
-		"@t3-oss/env-nextjs": "catalog:",
-		"drizzle-orm": "^0.44.1",
-		"drizzle-zod": "^0.8.2",
+		"@t3-oss/env-core": "catalog:",
+		"drizzle-orm": "^0.44.7",
+		"drizzle-zod": "^0.8.3",
 		"postgres": "^3.4.7",
 		"zod": "catalog:"
 	},
 	"devDependencies": {
 		"@lms/tsconfig": "workspace:*",
 		"dotenv-cli": "^8.0.0",
-		"drizzle-kit": "^0.31.1",
+		"drizzle-kit": "^0.31.6",
 		"typescript": "catalog:"
 	}
 }

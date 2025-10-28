@@ -6,7 +6,7 @@
 	"scripts": {
 		"build": "pnpm with-env next build",
 		"clean": "git clean -xdf .cache .next .turbo node_modules",
-		"dev": "pnpm with-env next dev --turbopack",
+		"dev": "pnpm with-env next dev",
 		"format": "biome format .",
 		"format:fix": "biome format --write .",
 		"lint": "biome lint .",
@@ -17,7 +17,7 @@
 		"with-env": "dotenv -e ../../.env --"
 	},
 	"dependencies": {
-		"@hookform/resolvers": "^5.0.1",
+		"@hookform/resolvers": "^5.2.2",
 		"@lms/api": "workspace:*",
 		"@lms/auth": "workspace:*",
 		"@lms/cache": "workspace:*",
@@ -31,11 +31,11 @@
 		"@trpc/client": "catalog:",
 		"@trpc/server": "catalog:",
 		"@trpc/tanstack-react-query": "catalog:",
-		"motion": "^12.23.15",
-		"next": "^15.5.6",
+		"motion": "^12.23.24",
+		"next": "catalog:",
 		"react": "catalog:react19",
 		"react-dom": "catalog:react19",
-		"superjson": "2.2.2",
+		"superjson": "2.2.3",
 		"zod": "catalog:"
 	},
 	"devDependencies": {

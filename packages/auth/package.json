@@ -26,9 +26,9 @@
 		"@better-auth/expo": "catalog:",
 		"@lms/db": "workspace:*",
 		"@lms/email": "workspace:*",
-		"@t3-oss/env-nextjs": "catalog:",
+		"@t3-oss/env-core": "catalog:",
 		"better-auth": "catalog:",
-		"next": "^15.5.6",
+		"next": "catalog:",
 		"react": "catalog:react19",
 		"react-dom": "catalog:react19",
 		"zod": "catalog:"

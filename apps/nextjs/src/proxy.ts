@@ -10,7 +10,7 @@ const rateLimiter = new RedisRateLimiter(Redis.getInstance(), {
   window: 60_000,
 });
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const xffHeader = request.headers.get("x-forwarded-for");
   const clientIp = xffHeader?.split(",")[0] ?? "anonymous";
   const { allowed } = await rateLimiter.check(clientIp);
@@ -42,7 +42,6 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  runtime: "nodejs",
   matcher: [
     /*
      * Match all request paths except for the ones starting with:

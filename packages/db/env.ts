@@ -1,4 +1,4 @@
-import { createEnv } from "@t3-oss/env-nextjs";
+import { createEnv } from "@t3-oss/env-core";
 import { z } from "zod/v4";
 
 export function dbEnv() {
@@ -6,9 +6,7 @@ export function dbEnv() {
     server: {
       POSTGRES_URL: z.string().min(1),
     },
-    runtimeEnv: {
-      POSTGRES_URL: process.env.POSTGRES_URL,
-    },
+    runtimeEnv: process.env,
     skipValidation: !!process.env.CI || process.env.npm_lifecycle_event === "lint",
   });
 }

@@ -1,80 +1,91 @@
 ---
-description: "Environment configuration and validation patterns"
+description: 'Environment configuration and validation patterns'
 globs: env.ts,*.env*
 ---
 
 # Environment Configuration Guidelines
 
 ## Environment Schema Pattern
+
 - Use `@t3-oss/env-nextjs` for type-safe environment variable validation
 - Create package-specific env functions that return `createEnv()` configurations
 - Import Zod from `zod/v4` for consistency across the project
 
 Example from [packages/auth/env.ts](mdc:packages/auth/env.ts):
+
 ```typescript
-import { createEnv } from "@t3-oss/env-nextjs";
-import { z } from "zod/v4";
+import { createEnv } from '@t3-oss/env-core';
+import { z } from 'zod/v4';
 
 export function authEnv() {
-  return createEnv({
-    server: {
-      AUTH_SECRET: process.env.NODE_ENV === "production"
-        ? z.string().min(1)
-        : z.string().min(1).optional(),
-      GOOGLE_CLIENT_ID: z.string().min(1),
-      GOOGLE_CLIENT_SECRET: z.string().min(1),
-    },
-    runtimeEnv: {
-      AUTH_SECRET: process.env.AUTH_SECRET,
-      GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
-      GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
-    },
-    skipValidation: !!process.env.CI || process.env.npm_lifecycle_event === "lint",
-  });
+	return createEnv({
+		server: {
+			AUTH_SECRET:
+				process.env.NODE_ENV === 'production'
+					? z.string().min(1)
+					: z.string().min(1).optional(),
+			GOOGLE_CLIENT_ID: z.string().min(1),
+			GOOGLE_CLIENT_SECRET: z.string().min(1),
+		},
+		runtimeEnv: {
+			AUTH_SECRET: process.env.AUTH_SECRET,
+			GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
+			GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
+		},
+		skipValidation:
+			!!process.env.CI || process.env.npm_lifecycle_event === 'lint',
+	});
 }
 ```
 
 ## App-Level Environment Configuration
+
 - Extend package environments using the `extends` property
 - Include Vercel presets for deployment compatibility
 - Separate server and client environment variables clearly
 
 Example from [apps/nextjs/src/env.ts](mdc:apps/nextjs/src/env.ts):
+
 ```typescript
 export const env = createEnv({
-  extends: [authEnv(), vercel(), dbEnv(), cacheEnv(), emailEnv()],
-  server: {
-    VERCEL_ENV: z.enum(["development", "preview", "production"]).optional(),
-  },
-  client: {
-    // NEXT_PUBLIC_CLIENTVAR: z.string(),
-  },
-  experimental__runtimeEnv: {
-    NODE_ENV: process.env.NODE_ENV,
-    // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
-  },
+	extends: [authEnv(), vercel(), dbEnv(), cacheEnv(), emailEnv()],
+	server: {
+		VERCEL_ENV: z.enum(['development', 'preview', 'production']).optional(),
+	},
+	client: {
+		// NEXT_PUBLIC_CLIENTVAR: z.string(),
+	},
+	runtimeEnv: {
+		NODE_ENV: process.env.NODE_ENV,
+		// NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
+	},
 });
 ```
 
 ## Environment Variable Naming
+
 - Use SCREAMING_SNAKE_CASE for all environment variables
 - Prefix client-side variables with `NEXT_PUBLIC_`
 - Group related variables with consistent prefixes (e.g., `REDIS_*`, `GOOGLE_*`)
 
 ## Validation Patterns
+
 - Make production variables required, development optional where appropriate
 - Use `z.coerce.number()` for numeric environment variables
 - Include `skipValidation` for CI and lint environments
 - Always define `runtimeEnv` mapping for server variables
 
 ## Package Environment Structure
+
 Each package should have its own `env.ts` file that:
+
 - Exports a function returning the environment configuration
 - Only includes variables relevant to that package
 - Uses consistent validation patterns
 - Includes proper TypeScript types
 
 ## Security Considerations
+
 - Never commit actual environment values to version control
 - Use `.env.example` files to document required variables
 - Validate sensitive variables are present in production

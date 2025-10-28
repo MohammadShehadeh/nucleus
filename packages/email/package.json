@@ -21,10 +21,10 @@
 	},
 	"dependencies": {
 		"@react-email/components": "0.0.41",
-		"@t3-oss/env-nextjs": "catalog:",
+		"@t3-oss/env-core": "catalog:",
 		"react": "catalog:react19",
 		"react-dom": "catalog:react19",
-		"resend": "^4.5.1",
+		"resend": "^4.8.0",
 		"zod": "catalog:"
 	},
 	"devDependencies": {

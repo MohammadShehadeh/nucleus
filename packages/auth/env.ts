@@ -1,4 +1,4 @@
-import { createEnv } from "@t3-oss/env-nextjs";
+import { createEnv } from "@t3-oss/env-core";
 import { z } from "zod/v4";
 
 export function authEnv() {
@@ -10,12 +10,7 @@ export function authEnv() {
       GOOGLE_CLIENT_ID: z.string().min(1),
       GOOGLE_CLIENT_SECRET: z.string().min(1),
     },
-    runtimeEnv: {
-      AUTH_SECRET: process.env.AUTH_SECRET,
-      NODE_ENV: process.env.NODE_ENV,
-      GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
-      GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
-    },
+    runtimeEnv: process.env,
     skipValidation: !!process.env.CI || process.env.npm_lifecycle_event === "lint",
   });
 }

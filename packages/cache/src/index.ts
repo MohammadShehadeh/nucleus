@@ -172,7 +172,7 @@ export class Redis {
   /**
    * Create a new pipeline
    */
-  async multi() {
+  async multi(): Promise<ReturnType<RedisClient["multi"]> | null> {
     try {
       return this.client.multi();
     } catch (error) {
