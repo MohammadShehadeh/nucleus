@@ -1,40 +1,40 @@
 {
-  "name": "create-t3-turbo",
-  "private": true,
-  "engines": {
-    "node": ">=22.20.0",
-    "pnpm": ">=10.19.0"
-  },
-  "packageManager": "pnpm@10.19.0",
-  "scripts": {
-    "build": "turbo run build",
-    "clean": "git clean -xdf node_modules",
-    "clean:workspaces": "turbo run clean",
-    "auth:generate": "pnpm -F @lms/auth generate",
-    "db:push": "turbo -F @lms/db push",
-    "db:studio": "turbo -F @lms/db studio",
-    "dev": "turbo watch dev --continue",
-    "dev:next": "turbo watch dev -F @lms/nextjs...",
-    "format": "biome format --write .",
-    "format:check": "biome format .",
-    "lint": "biome lint .",
-    "lint:fix": "biome lint --write .",
-    "check": "biome check --write .",
-    "check:ci": "biome check .",
-    "lint:ws": "pnpm dlx sherif@latest",
-    "postinstall": "pnpm lint:ws",
-    "typecheck": "turbo run typecheck",
-    "ui-add": "turbo run ui-add",
-    "android": "expo run:android",
-    "ios": "expo run:ios",
-    "prepare": "husky"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "2.2.4",
-    "@turbo/gen": "^2.5.8",
-    "husky": "^9.1.7",
-    "lint-staged": "^16.1.2",
-    "turbo": "^2.5.8",
-    "typescript": "catalog:"
-  }
+	"name": "create-t3-turbo",
+	"private": true,
+	"engines": {
+		"node": ">=22.20.0",
+		"pnpm": ">=10.19.0"
+	},
+	"packageManager": "pnpm@10.19.0",
+	"scripts": {
+		"build": "turbo run build",
+		"clean": "git clean -xdf node_modules",
+		"clean:workspaces": "turbo run clean",
+		"auth:generate": "pnpm -F @lms/auth generate",
+		"db:push": "turbo -F @lms/db push",
+		"db:studio": "turbo -F @lms/db studio",
+		"dev": "turbo watch dev --continue",
+		"dev:next": "turbo watch dev -F @lms/nextjs...",
+		"format": "biome format .",
+		"format:fix": "biome format --write .",
+		"lint": "biome lint .",
+		"lint:fix": "biome lint --write .",
+		"check": "biome check --write .",
+		"check:ci": "biome check .",
+		"dep:check": "pnpm dlx sherif@latest",
+		"postinstall": "pnpm dep:check",
+		"typecheck": "turbo run typecheck",
+		"ui-add": "turbo run ui-add",
+		"android": "expo run:android",
+		"ios": "expo run:ios",
+		"prepare": "husky"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.2.4",
+		"@turbo/gen": "^2.5.8",
+		"husky": "^9.1.7",
+		"lint-staged": "^16.1.2",
+		"turbo": "^2.5.8",
+		"typescript": "catalog:"
+	}
 }

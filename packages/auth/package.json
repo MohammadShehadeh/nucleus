@@ -1,42 +1,42 @@
 {
-  "name": "@lms/auth",
-  "version": "0.1.0",
-  "private": true,
-  "type": "module",
-  "exports": {
-    ".": "./src/index.ts",
-    "./middleware": "./src/middleware.ts",
-    "./client": "./src/client.ts",
-    "./env": "./env.ts"
-  },
-  "license": "MIT",
-  "scripts": {
-    "build": "tsc",
-    "dev": "tsc",
-    "clean": "git clean -xdf .cache .turbo dist node_modules",
-    "format": "biome format --write .",
-    "format:check": "biome format .",
-    "lint": "biome lint .",
-    "lint:fix": "biome lint --write .",
-    "check": "biome check --write .",
-    "generate": "dotenv -e ../../.env -- pnpx @better-auth/cli generate --output ../db/src/auth-schema.ts",
-    "typecheck": "tsc --noEmit"
-  },
-  "dependencies": {
-    "@better-auth/expo": "catalog:",
-    "@lms/db": "workspace:*",
-    "@lms/email": "workspace:*",
-    "@t3-oss/env-nextjs": "catalog:",
-    "better-auth": "catalog:",
-    "next": "^15.5.6",
-    "react": "catalog:react19",
-    "react-dom": "catalog:react19",
-    "zod": "catalog:"
-  },
-  "devDependencies": {
-    "@better-auth/cli": "catalog:",
-    "@lms/tsconfig": "workspace:*",
-    "@types/react": "catalog:react19",
-    "typescript": "catalog:"
-  }
+	"name": "@lms/auth",
+	"version": "0.1.0",
+	"private": true,
+	"type": "module",
+	"exports": {
+		".": "./src/index.ts",
+		"./middleware": "./src/middleware.ts",
+		"./client": "./src/client.ts",
+		"./env": "./env.ts"
+	},
+	"license": "MIT",
+	"scripts": {
+		"build": "tsc",
+		"dev": "tsc",
+		"clean": "git clean -xdf .cache .turbo dist node_modules",
+		"format": "biome format .",
+		"format:fix": "biome format --write .",
+		"lint": "biome lint .",
+		"lint:fix": "biome lint --write .",
+		"check": "biome check --write .",
+		"generate": "dotenv -e ../../.env -- pnpx @better-auth/cli generate --output ../db/src/auth-schema.ts",
+		"typecheck": "tsc --noEmit"
+	},
+	"dependencies": {
+		"@better-auth/expo": "catalog:",
+		"@lms/db": "workspace:*",
+		"@lms/email": "workspace:*",
+		"@t3-oss/env-nextjs": "catalog:",
+		"better-auth": "catalog:",
+		"next": "^15.5.6",
+		"react": "catalog:react19",
+		"react-dom": "catalog:react19",
+		"zod": "catalog:"
+	},
+	"devDependencies": {
+		"@better-auth/cli": "catalog:",
+		"@lms/tsconfig": "workspace:*",
+		"@types/react": "catalog:react19",
+		"typescript": "catalog:"
+	}
 }
