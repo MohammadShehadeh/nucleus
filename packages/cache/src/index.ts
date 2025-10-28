@@ -44,7 +44,12 @@ export class Redis {
     this.defaultTTL = defaultTTL;
 
     // Create Redis client
-    this.client = createClient({ url });
+    this.client = createClient({
+      url,
+      socket: {
+        reconnectStrategy: (retries: number) => Math.min(retries * 100, 3000),
+      },
+    });
 
     // Set up error handling
     this.client.on("error", (err) => {
@@ -84,8 +89,13 @@ export class Redis {
    * Connect to Redis
    */
   async connect(): Promise<void> {
-    if (!this.isConnected) {
-      await this.client.connect();
+    if (!this.isConnected || !this.client.isOpen) {
+      try {
+        await this.client.connect();
+      } catch (err) {
+        console.error("Redis failed to connect, retrying...", err);
+        // @TODO: Retry logic with exponential backoff
+      }
     }
   }
 
@@ -155,12 +165,10 @@ export class Redis {
    * Clear all keys (use with caution!)
    */
   async clear(): Promise<void> {
-    await this.connect();
     await this.client.flushDb();
   }
 
   async wrapWithCache<T>(fn: () => Promise<T>, options: WrapWithCacheOptions): Promise<T> {
-    await this.connect();
     const { key, ttl = this.defaultTTL } = options;
     const value = await this.get<T>(key);
     if (value) return value;
