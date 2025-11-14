@@ -2,15 +2,13 @@ import { Redis } from ".";
 
 export const redis = Redis.getInstance();
 
-await redis.connect();
 await redis.set("user:123", { name: "John" });
 const user = await redis.get("user:123");
+console.log(user);
+
 const hasUser = await redis.exists("user:123");
 await redis.del("user:123");
-
-redis.destroy();
-
-console.log(user, hasUser);
+console.log(hasUser);
 
 const value = await redis.wrapWithCache(
   async () => {

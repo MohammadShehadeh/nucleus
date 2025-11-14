@@ -34,6 +34,7 @@ export class Redis {
   private defaultTTL: number;
   private isConnected = false;
   private static instance: Redis | null = null;
+  private connectingPromise: Promise<void> | null = null;
 
   private constructor(options: CacheOptions = {}) {
     const {
@@ -79,32 +80,74 @@ export class Redis {
   }
 
   /**
-   * Initialize the cache with options (call this once at app startup)
-   */
-  public static initialize(options?: CacheOptions): Redis {
-    return Redis.getInstance(options);
-  }
-
-  /**
-   * Connect to Redis
+   * Connect to Redis (call once at app startup)
    */
   async connect(): Promise<void> {
-    if (!this.isConnected || !this.client.isOpen) {
-      try {
-        await this.client.connect();
-      } catch (err) {
-        console.error("Redis failed to connect, retrying...", err);
-        // @TODO: Retry logic with exponential backoff
-      }
+    // If already connected, do nothing
+    if (this.isConnected && this.client.isOpen) {
+      return;
     }
+
+    // If currently connecting, wait for that promise
+    if (this.connectingPromise) {
+      return this.connectingPromise;
+    }
+
+    // Start new connection
+    this.connectingPromise = this.client
+      .connect()
+      .then(() => {
+        this.isConnected = true;
+        this.connectingPromise = null;
+      })
+      .catch((err) => {
+        this.connectingPromise = null;
+        this.isConnected = false;
+        console.error("Failed to connect to Redis:", err);
+      });
+
+    return this.connectingPromise;
   }
 
   /**
-   * Disconnect from Redis
+   * Ensure connection before operations (lazy connect)
    */
-  destroy(): void {
-    if (this.isConnected) {
-      this.client.destroy();
+  private async ensureConnected(): Promise<void> {
+    // If already connected, return immediately
+    if (this.client.isReady && this.client.isOpen) {
+      return;
+    }
+
+    // If currently connecting, wait for that promise
+    if (this.connectingPromise) {
+      return this.connectingPromise;
+    }
+
+    // Try to connect, but don't throw on failure
+    await this.connect();
+  }
+
+  /**
+   * Check if Redis is ready to accept commands
+   */
+  isReady(): boolean {
+    return this.client.isReady;
+  }
+
+  /**
+   * Check if the socket is open
+   */
+  isOpen(): boolean {
+    return this.client.isOpen;
+  }
+
+  /**
+   * Force disconnect immediately
+   */
+  async disconnect(): Promise<void> {
+    if (this.isConnected || this.client.isOpen) {
+      await this.client.destroy();
+      this.isConnected = false;
     }
   }
 
@@ -112,6 +155,7 @@ export class Redis {
    * Set a value in cache
    */
   async set<T>(key: string, value: T, options: CacheSetOptions = {}): Promise<void> {
+    await this.ensureConnected();
     const { ttl = this.defaultTTL } = options;
     try {
       const serializedValue = JSON.stringify(value);
@@ -126,6 +170,7 @@ export class Redis {
    * Get a value from cache
    */
   async get<T>(key: string): Promise<T | null> {
+    await this.ensureConnected();
     try {
       const value = await this.client.get(key);
       if (value === null) return null;
@@ -140,6 +185,7 @@ export class Redis {
    * Delete a key from cache
    */
   async del(key: string): Promise<number> {
+    await this.ensureConnected();
     try {
       return await this.client.del(key);
     } catch (error) {
@@ -152,6 +198,7 @@ export class Redis {
    * Check if a key exists
    */
   async exists(key: string): Promise<boolean> {
+    await this.ensureConnected();
     try {
       const result = await this.client.exists(key);
       return result === 1;
@@ -165,10 +212,12 @@ export class Redis {
    * Clear all keys (use with caution!)
    */
   async clear(): Promise<void> {
+    await this.ensureConnected();
     await this.client.flushDb();
   }
 
   async wrapWithCache<T>(fn: () => Promise<T>, options: WrapWithCacheOptions): Promise<T> {
+    await this.ensureConnected();
     const { key, ttl = this.defaultTTL } = options;
     const value = await this.get<T>(key);
     if (value) return value;
@@ -181,6 +230,7 @@ export class Redis {
    * Create a new pipeline
    */
   async multi(): Promise<ReturnType<RedisClient["multi"]> | null> {
+    await this.ensureConnected();
     try {
       return this.client.multi();
     } catch (error) {
