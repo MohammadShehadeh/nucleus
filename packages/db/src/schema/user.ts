@@ -1,11 +1,8 @@
 import { pgTable } from "drizzle-orm/pg-core";
 
-import { role } from "./role";
-
 export const user = pgTable("user", (t) => ({
   id: t.text().primaryKey(),
   name: t.text().notNull(),
-  role: role().notNull().default("member"),
   email: t.text().notNull().unique(),
   emailVerified: t.boolean().notNull(),
   image: t.text(),

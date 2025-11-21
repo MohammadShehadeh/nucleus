@@ -4,5 +4,4 @@ export * from "./course";
 export * from "./relations/course";
 export * from "./relations/user";
 // enums
-export * from "./role";
 export * from "./user";
