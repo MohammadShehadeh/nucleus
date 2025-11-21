@@ -18,3 +18,40 @@ const value = await redis.wrapWithCache(
 );
 
 console.log(value);
+
+// export interface RetryOptions {
+//   retries?: number;           // max attempts
+//   delayMs?: number;           // initial delay between attempts
+//   factor?: number;            // exponential backoff factor
+//   onRetry?: (err: unknown, attempt: number) => void; // callback on failure
+// }
+
+// export async function retry<T>(
+//   fn: () => Promise<T>,
+//   options: RetryOptions = {}
+// ): Promise<T> {
+//   const {
+//     retries = 5,
+//     delayMs = 1000,
+//     factor = 1,
+//     onRetry,
+//   } = options;
+
+//   let attempt = 0;
+
+//   while (true) {
+//     try {
+//       return await fn();
+//     } catch (err) {
+//       attempt++;
+//       if (attempt > retries) {
+//         throw err;
+//       }
+
+//       if (onRetry) onRetry(err, attempt);
+
+//       const waitTime = delayMs * Math.pow(factor, attempt - 1);
+//       await new Promise((resolve) => setTimeout(resolve, waitTime));
+//     }
+//   }
+// }
