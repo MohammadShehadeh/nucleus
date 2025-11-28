@@ -1,0 +1,56 @@
+# Dependencies
+node_modules
+**/node_modules
+.pnpm-store
+
+# Build outputs
+.next
+**/.next
+dist
+**/dist
+out
+**/out
+.turbo
+**/.turbo
+.cache
+**/.cache
+
+# Development files
+.env.local
+.env*.local
+*.log
+.DS_Store
+*.swp
+*.swo
+*~
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# IDE
+.vscode
+.idea
+*.code-workspace
+
+# Testing
+coverage
+**/coverage
+.nyc_output
+**/.nyc_output
+
+# Misc
+README.md
+LICENSE
+docs
+**/README.md
+
+# Expo (not needed for Next.js build)
+apps/expo
+**/expo
+
+# TypeScript build info
+*.tsbuildinfo
+**/*.tsbuildinfo
+

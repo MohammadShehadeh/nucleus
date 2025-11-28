@@ -17,6 +17,9 @@ const config = {
 
   /** We already do linting and typechecking as separate tasks in CI */
   typescript: { ignoreBuildErrors: true },
+
+  /** Output a standalone server for Docker */
+  output: "standalone",
 };
 
 export default config;
