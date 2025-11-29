@@ -41,7 +41,7 @@
 	"devDependencies": {
 		"@lms/tailwind-config": "workspace:*",
 		"@lms/tsconfig": "workspace:*",
-		"@types/node": "^22.18.10",
+		"@types/node": "^22.19.1",
 		"@types/react": "catalog:react19",
 		"@types/react-dom": "catalog:react19",
 		"dotenv-cli": "^8.0.0",
