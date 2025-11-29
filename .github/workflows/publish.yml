@@ -1,11 +1,9 @@
 name: Build and Push
 
 on:
-  pull_request:
-    branches: ["*"]
   push:
-    branches: ["main"]
-  merge_group:
+    branches:
+      - main
 
 env:
   GHCR_NAMESPACE: mohammadshehadeh/lms
