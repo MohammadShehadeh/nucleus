@@ -1,0 +1,23 @@
+name: Build and Push
+
+on:
+  pull_request:
+    branches: ["*"]
+  push:
+    branches: ["main"]
+  merge_group:
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Login to GHCR
+        run: echo ${{ secrets.ACCESS_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Build Image
+        run: docker build -t ghcr.io/${{ github.repository }}/nextjs:latest apps/nextjs
+
+      - name: Push Image
+        run: docker push ghcr.io/${{ github.repository }}/nextjs:latest
