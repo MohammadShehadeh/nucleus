@@ -27,7 +27,6 @@ FROM base AS builder
 COPY --from=prepare /app/out/json/ ./
 RUN pnpm install --frozen-lockfile
 COPY --from=prepare /app/out/full/ ./
-COPY .env ./.env
 RUN pnpm turbo run build --filter=@lms/nextjs...
 
 # -------------------
@@ -43,9 +42,6 @@ COPY --from=builder --chown=nextjs:nodejs /app/apps/nextjs/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/apps/nextjs/.next/static ./apps/nextjs/.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/apps/nextjs/public ./apps/nextjs/public
 
-# Copy .env to the working directory
-COPY --from=builder --chown=nextjs:nodejs /app/.env ./.env
-
 EXPOSE 3000
 
-CMD ["node", "--env-file=.env", "apps/nextjs/server.js"]
+CMD ["node", "apps/nextjs/server.js"]
