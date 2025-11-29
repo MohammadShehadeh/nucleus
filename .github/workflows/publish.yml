@@ -20,7 +20,7 @@ jobs:
         run: echo ${{ secrets.ACCESS_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
       - name: Build Image
-        run: docker build -t ghcr.io/$GHCR_NAMESPACE/nextjs:latest apps/nextjs
+        run: docker build -f apps/nextjs/Dockerfile -t ghcr.io/$GHCR_NAMESPACE/nextjs:latest .
 
       - name: Push Image
         run: docker push ghcr.io/$GHCR_NAMESPACE/nextjs:latest
