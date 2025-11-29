@@ -38,7 +38,7 @@
 	"devDependencies": {
 		"@lms/tsconfig": "workspace:*",
 		"dotenv-cli": "^8.0.0",
-		"drizzle-kit": "^0.31.6",
+		"drizzle-kit": "^0.31.7",
 		"typescript": "catalog:"
 	}
 }
