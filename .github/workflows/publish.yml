@@ -1,9 +1,7 @@
 name: Build and Push
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
 
 env:
   GHCR_NAMESPACE: mohammadshehadeh/lms
