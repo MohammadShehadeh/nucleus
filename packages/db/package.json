@@ -30,15 +30,15 @@
 	},
 	"dependencies": {
 		"@t3-oss/env-core": "catalog:",
-		"drizzle-orm": "^0.44.7",
+		"drizzle-orm": "^0.45.1",
 		"drizzle-zod": "^0.8.3",
 		"postgres": "^3.4.7",
 		"zod": "catalog:"
 	},
 	"devDependencies": {
 		"@lms/tsconfig": "workspace:*",
-		"dotenv-cli": "^8.0.0",
-		"drizzle-kit": "^0.31.7",
+		"dotenv-cli": "^11.0.0",
+		"drizzle-kit": "^0.31.8",
 		"typescript": "catalog:"
 	}
 }
