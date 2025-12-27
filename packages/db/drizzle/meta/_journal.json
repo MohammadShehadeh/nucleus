@@ -5,15 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1759346892621,
-      "tag": "0000_fine_ultimates",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1763761235634,
-      "tag": "0001_woozy_madripoor",
+      "when": 1766832247856,
+      "tag": "0000_tricky_famine",
       "breakpoints": true
     }
   ]

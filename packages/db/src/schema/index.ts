@@ -1,7 +1,5 @@
-// tables
-export * from "./course";
 // relations
-export * from "./relations/course";
 export * from "./relations/user";
-// enums
+
+// tables
 export * from "./user";

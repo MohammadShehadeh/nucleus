@@ -6,7 +6,7 @@ import { NextResponse } from "next/server";
 import { authRoutes, protectedRoutes } from "@/constants/routes";
 
 const rateLimiter = new RedisRateLimiter(Redis.getInstance(), {
-  limit: 20,
+  limit: 1000,
   window: 60_000,
 });
 

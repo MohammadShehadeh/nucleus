@@ -21,8 +21,15 @@ interface InitAuthOptions {
 export function initAuth(options: InitAuthOptions): ReturnType<typeof betterAuth> {
   const config = {
     appName: "Learning Management System (LMS)",
+    rateLimit: {
+      enabled: true,
+      max: 10,
+      window: 10,
+    },
     emailAndPassword: {
       enabled: true,
+      requireEmailVerification: true,
+      autoSignIn: false,
     },
     account: {
       accountLinking: {
