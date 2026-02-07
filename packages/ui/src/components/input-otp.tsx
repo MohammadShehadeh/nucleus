@@ -1,10 +1,9 @@
 "use client";
 
-import * as React from "react";
-import { OTPInput, OTPInputContext } from "@nucleus/ui/components/input-otp";
-import { MinusIcon } from "lucide-react";
-
 import { cn } from "@nucleus/ui/lib/utils";
+import { OTPInput, OTPInputContext } from "input-otp";
+import { MinusIcon } from "lucide-react";
+import * as React from "react";
 
 function InputOTP({
   className,

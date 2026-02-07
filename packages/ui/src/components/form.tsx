@@ -1,20 +1,19 @@
 "use client";
 
-import * as React from "react";
+import { Label } from "@nucleus/ui/components/label";
+import { cn } from "@nucleus/ui/lib/utils";
 import type { Label as LabelPrimitive } from "radix-ui";
 import { Slot } from "radix-ui";
+import * as React from "react";
 import {
   Controller,
-  FormProvider,
-  useFormContext,
-  useFormState,
   type ControllerProps,
   type FieldPath,
   type FieldValues,
+  FormProvider,
+  useFormContext,
+  useFormState,
 } from "react-hook-form";
-
-import { cn } from "@nucleus/ui/lib/utils";
-import { Label } from "@nucleus/ui/components/label";
 
 const Form = FormProvider;
 

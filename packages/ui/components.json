@@ -10,6 +10,7 @@
 		"cssVariables": true
 	},
 	"aliases": {
+		"ui": "src/components",
 		"components": "src/components",
 		"hooks": "src/hooks",
 		"utils": "src/lib/utils",
