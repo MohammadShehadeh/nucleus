@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@lms/ui/lib/utils";
+import { cn } from "@nucleus/ui/lib/utils";
 import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu";
 import { CheckIcon, ChevronRightIcon, CircleIcon } from "lucide-react";
 import type * as React from "react";

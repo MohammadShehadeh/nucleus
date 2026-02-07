@@ -1,5 +1,9 @@
 {
-  "extends": "@lms/tsconfig/base.json",
-  "include": ["."],
-  "exclude": ["node_modules"]
+  "extends": "@nucleus/tsconfig/base.json",
+  "include": [
+    "."
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }

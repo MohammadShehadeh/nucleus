@@ -1,6 +1,6 @@
-import type { ButtonProps } from "@lms/ui/components/button";
-import { buttonVariants } from "@lms/ui/components/button";
-import { cn } from "@lms/ui/lib/utils";
+import type { ButtonProps } from "@nucleus/ui/components/button";
+import { buttonVariants } from "@nucleus/ui/components/button";
+import { cn } from "@nucleus/ui/lib/utils";
 import { ChevronLeftIcon, ChevronRightIcon, DotsHorizontalIcon } from "@radix-ui/react-icons";
 import type * as React from "react";
 

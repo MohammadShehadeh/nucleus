@@ -1,8 +1,8 @@
 {
-  "name": "@lms/tsconfig",
-  "private": true,
-  "version": "0.1.0",
-  "files": [
-    "*.json"
-  ]
+	"name": "@nucleus/tsconfig",
+	"private": true,
+	"version": "0.1.0",
+	"files": [
+		"*.json"
+	]
 }

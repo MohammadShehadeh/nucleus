@@ -8,7 +8,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@lms/ui/components/sidebar";
+} from "@nucleus/ui/components/sidebar";
 import { BookOpen, Bot, Command, LifeBuoy, Send, Settings2, SquareTerminal } from "lucide-react";
 import type * as React from "react";
 

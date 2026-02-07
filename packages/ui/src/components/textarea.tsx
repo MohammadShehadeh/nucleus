@@ -1,4 +1,4 @@
-import { cn } from "@lms/ui/lib/utils";
+import { cn } from "@nucleus/ui/lib/utils";
 import type * as React from "react";
 
 interface TextareaProps extends React.ComponentProps<"textarea"> {

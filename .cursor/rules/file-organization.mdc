@@ -40,7 +40,7 @@ packages/{package-name}/
 - Use barrel exports in `index.ts` files
 - Prefer named exports over default exports
 - Group imports: external → internal packages → relative
-- Use absolute imports with workspace aliases (`@lms/...`)
+- Use absolute imports with workspace aliases (`@nucleus/...`)
 
 ## Route Organization
 - Use Next.js route groups for logical organization

@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@lms/ui/lib/utils";
+import { cn } from "@nucleus/ui/lib/utils";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { XIcon } from "lucide-react";
 import type * as React from "react";

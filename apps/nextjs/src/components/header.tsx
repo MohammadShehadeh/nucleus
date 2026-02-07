@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@lms/ui/components/button";
+import { Button } from "@nucleus/ui/components/button";
 import { ArrowRight, ChevronDown, Menu, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import Link from "next/link";
@@ -31,7 +31,11 @@ const navItems: NavItem[] = [
         href: "/course-2",
         description: "Course 2 description",
       },
-      { name: "Course 3", href: "/course-3", description: "Course 3 description" },
+      {
+        name: "Course 3",
+        href: "/course-3",
+        description: "Course 3 description",
+      },
     ],
   },
   { name: "Pricing", href: "/pricing" },

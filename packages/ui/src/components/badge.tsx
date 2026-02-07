@@ -1,4 +1,4 @@
-import { cn } from "@lms/ui/lib/utils";
+import { cn } from "@nucleus/ui/lib/utils";
 import type { VariantProps } from "class-variance-authority";
 import { cva } from "class-variance-authority";
 import type * as React from "react";

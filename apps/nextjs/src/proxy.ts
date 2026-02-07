@@ -1,5 +1,5 @@
-import { Redis } from "@lms/cache";
-import { RedisRateLimiter } from "@lms/rate-limit";
+import { Redis } from "@nucleus/cache";
+import { RedisRateLimiter } from "@nucleus/rate-limit";
 import { getSessionCookie } from "better-auth/cookies";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";

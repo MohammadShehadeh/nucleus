@@ -66,8 +66,8 @@ describe('LoginForm', () => {
 ```typescript
 import { createTRPCMsw } from 'msw-trpc';
 import { setupServer } from 'msw/node';
-import type { AppRouter } from '@lms/api';
-import { courseRouter } from '@lms/api/router/course';
+import type { AppRouter } from '@nucleus/api';
+import { courseRouter } from '@nucleus/api/router/course';
 
 const trpcMsw = createTRPCMsw<AppRouter>();
 const server = setupServer();
@@ -106,8 +106,8 @@ describe('Course API', () => {
 ## Database Testing
 ```typescript
 import { beforeEach, afterEach } from 'vitest';
-import { db } from '@lms/db/client';
-import { course } from '@lms/db/schema';
+import { db } from '@nucleus/db/client';
+import { course } from '@nucleus/db/schema';
 
 describe('Course Database Operations', () => {
   beforeEach(async () => {
@@ -165,7 +165,7 @@ Create reusable test utilities in `__tests__/utils/`:
 ```typescript
 // __tests__/utils/test-providers.tsx
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { trpc } from '@lms/api/react';
+import { trpc } from '@nucleus/api/react';
 
 export function TestProviders({ children }: { children: React.ReactNode }) {
   const queryClient = new QueryClient({

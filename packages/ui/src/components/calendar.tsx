@@ -1,7 +1,7 @@
 "use client";
 
-import { Button, buttonVariants } from "@lms/ui/components/button";
-import { cn } from "@lms/ui/lib/utils";
+import { Button, buttonVariants } from "@nucleus/ui/components/button";
+import { cn } from "@nucleus/ui/lib/utils";
 import { ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import * as React from "react";
 import type { DayButton } from "react-day-picker";

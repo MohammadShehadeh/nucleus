@@ -1,3 +1,3 @@
-@import "tailwindcss";
-@import "nativewind/theme";
-@import "@lms/tailwind-config/theme";
+@import 'tailwindcss';
+@import 'nativewind/theme';
+@import '@nucleus/tailwind-config/theme';

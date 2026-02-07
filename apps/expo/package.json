@@ -1,5 +1,5 @@
 {
-	"name": "@lms/expo",
+	"name": "@nucleus/expo",
 	"private": true,
 	"main": "index.ts",
 	"scripts": {
@@ -47,9 +47,9 @@
 		"superjson": "2.2.6"
 	},
 	"devDependencies": {
-		"@lms/api": "workspace:*",
-		"@lms/tailwind-config": "workspace:*",
-		"@lms/tsconfig": "workspace:*",
+		"@nucleus/api": "workspace:*",
+		"@nucleus/tailwind-config": "workspace:*",
+		"@nucleus/tsconfig": "workspace:*",
 		"@types/react": "catalog:react19",
 		"tailwindcss": "catalog:",
 		"typescript": "catalog:"

@@ -25,7 +25,7 @@ export const courseUpdateSchema = createUpdateSchema(course);
 Example from [apps/nextjs/src/app/(auth)/components/login-form.tsx](mdc:apps/nextjs/src/app/(auth)/components/login-form.tsx):
 ```typescript
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
-import { loginSchema } from "@lms/validators/authentication";
+import { loginSchema } from "@nucleus/validators/authentication";
 
 const form = useForm<LoginFormData>({
   resolver: standardSchemaResolver(loginSchema),
@@ -34,7 +34,7 @@ const form = useForm<LoginFormData>({
 
 ## API Input Validation
 - tRPC procedures should use database schemas for input validation
-- Import schemas from `@lms/db/schema` in API routers
+- Import schemas from `@nucleus/db/schema` in API routers
 - Use `.pick()`, `.omit()`, or `.required()` to modify schemas as needed
 
 Example from [packages/api/src/router/course.ts](mdc:packages/api/src/router/course.ts):

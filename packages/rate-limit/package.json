@@ -1,5 +1,5 @@
 {
-	"name": "@lms/rate-limit",
+	"name": "@nucleus/rate-limit",
 	"private": true,
 	"version": "0.1.0",
 	"type": "module",
@@ -19,12 +19,12 @@
 		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
 	},
 	"dependencies": {
-		"@lms/cache": "workspace:*",
+		"@nucleus/cache": "workspace:*",
 		"@t3-oss/env-core": "catalog:",
 		"zod": "catalog:"
 	},
 	"devDependencies": {
-		"@lms/tsconfig": "workspace:*",
+		"@nucleus/tsconfig": "workspace:*",
 		"typescript": "catalog:"
 	}
 }

@@ -13,7 +13,7 @@ globs: packages/api/**/*.ts
 ## Procedure Patterns
 - Use `publicProcedure` for unauthenticated endpoints
 - Use `protectedProcedure` for authenticated endpoints
-- Always validate inputs using database schemas from `@lms/db/schema`
+- Always validate inputs using database schemas from `@nucleus/db/schema`
 
 Example from [packages/api/src/router/course.ts](mdc:packages/api/src/router/course.ts):
 ```typescript
@@ -37,8 +37,8 @@ export const courseRouter = {
 - Use schema picking for queries: `.input(courseSelectSchema.pick({ id: true }))`
 
 ## Database Operations
-- Import `db` from `@lms/db/client`
-- Import query builders (`eq`, `and`, `or`) from `@lms/db`
+- Import `db` from `@nucleus/db/client`
+- Import query builders (`eq`, `and`, `or`) from `@nucleus/db`
 - Use proper error handling with `TRPCError`
 
 ## Error Handling

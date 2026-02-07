@@ -15,15 +15,15 @@ globs: *.ts,*.tsx
 Always use consistent import styles:
 ```typescript
 // Type-only imports
-import type { User } from "@lms/db/schema";
+import type { User } from "@nucleus/db/schema";
 import type { NextRequest } from "next/server";
 
 // Regular imports
 import { z } from "zod/v4";
-import { eq } from "@lms/db";
+import { eq } from "@nucleus/db";
 
 // Mixed imports (prefer separate lines)
-import { createTRPCRouter } from "@lms/api/trpc";
+import { createTRPCRouter } from "@nucleus/api/trpc";
 import type { TRPCRouterRecord } from "@trpc/server";
 ```
 

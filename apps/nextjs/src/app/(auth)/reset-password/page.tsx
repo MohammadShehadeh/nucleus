@@ -1,8 +1,14 @@
 "use client";
 
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
-import { Button } from "@lms/ui/components/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@lms/ui/components/card";
+import { Button } from "@nucleus/ui/components/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@nucleus/ui/components/card";
 import {
   Form,
   FormControl,
@@ -10,11 +16,11 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@lms/ui/components/form";
-import { Input } from "@lms/ui/components/input";
-import { cn } from "@lms/ui/lib/utils";
-import type { ResetPasswordFormData } from "@lms/validators/authentication";
-import { resetPasswordSchema } from "@lms/validators/authentication";
+} from "@nucleus/ui/components/form";
+import { Input } from "@nucleus/ui/components/input";
+import { cn } from "@nucleus/ui/lib/utils";
+import type { ResetPasswordFormData } from "@nucleus/validators/authentication";
+import { resetPasswordSchema } from "@nucleus/validators/authentication";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 

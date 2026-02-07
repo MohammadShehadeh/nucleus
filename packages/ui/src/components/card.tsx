@@ -1,4 +1,4 @@
-import { cn } from "@lms/ui/lib/utils";
+import { cn } from "@nucleus/ui/lib/utils";
 import type * as React from "react";
 
 interface CardProps extends React.HTMLAttributes<HTMLDivElement> {

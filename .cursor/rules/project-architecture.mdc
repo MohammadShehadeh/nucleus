@@ -42,8 +42,8 @@ Next.js app uses App Router with route groups:
 
 ## Import Patterns
 Always use workspace aliases:
-- `@lms/db` for database operations
-- `@lms/api` for tRPC client
-- `@lms/ui` for components
-- `@lms/validators` for schemas
-- `@lms/auth` for authentication
+- `@nucleus/db` for database operations
+- `@nucleus/api` for tRPC client
+- `@nucleus/ui` for components
+- `@nucleus/validators` for schemas
+- `@nucleus/auth` for authentication

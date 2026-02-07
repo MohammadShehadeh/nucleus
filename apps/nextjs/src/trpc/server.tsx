@@ -1,5 +1,5 @@
-import type { AppRouter } from "@lms/api";
-import { appRouter, createCaller, createTRPCContext } from "@lms/api";
+import type { AppRouter } from "@nucleus/api";
+import { appRouter, createCaller, createTRPCContext } from "@nucleus/api";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import type { TRPCQueryOptions } from "@trpc/tanstack-react-query";
 import { createTRPCOptionsProxy } from "@trpc/tanstack-react-query";

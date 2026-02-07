@@ -172,13 +172,13 @@ importers:
         specifier: 2.2.6
         version: 2.2.6
     devDependencies:
-      '@lms/api':
+      '@nucleus/api':
         specifier: workspace:*
         version: link:../../packages/api
-      '@lms/tailwind-config':
+      '@nucleus/tailwind-config':
         specifier: workspace:*
         version: link:../../tooling/tailwind
-      '@lms/tsconfig':
+      '@nucleus/tsconfig':
         specifier: workspace:*
         version: link:../../tooling/typescript
       '@types/react':
@@ -196,28 +196,28 @@ importers:
       '@hookform/resolvers':
         specifier: ^5.2.2
         version: 5.2.2(react-hook-form@7.69.0(react@19.2.3))
-      '@lms/api':
+      '@nucleus/api':
         specifier: workspace:*
         version: link:../../packages/api
-      '@lms/auth':
+      '@nucleus/auth':
         specifier: workspace:*
         version: link:../../packages/auth
-      '@lms/cache':
+      '@nucleus/cache':
         specifier: workspace:*
         version: link:../../packages/cache
-      '@lms/db':
+      '@nucleus/db':
         specifier: workspace:*
         version: link:../../packages/db
-      '@lms/email':
+      '@nucleus/email':
         specifier: workspace:*
         version: link:../../packages/email
-      '@lms/rate-limit':
+      '@nucleus/rate-limit':
         specifier: workspace:*
         version: link:../../packages/rate-limit
-      '@lms/ui':
+      '@nucleus/ui':
         specifier: workspace:*
         version: link:../../packages/ui
-      '@lms/validators':
+      '@nucleus/validators':
         specifier: workspace:*
         version: link:../../packages/validators
       '@t3-oss/env-nextjs':
@@ -254,10 +254,10 @@ importers:
         specifier: 'catalog:'
         version: 4.2.1
     devDependencies:
-      '@lms/tailwind-config':
+      '@nucleus/tailwind-config':
         specifier: workspace:*
         version: link:../../tooling/tailwind
-      '@lms/tsconfig':
+      '@nucleus/tsconfig':
         specifier: workspace:*
         version: link:../../tooling/typescript
       '@types/node':
@@ -287,13 +287,13 @@ importers:
 
   packages/api:
     dependencies:
-      '@lms/auth':
+      '@nucleus/auth':
         specifier: workspace:*
         version: link:../auth
-      '@lms/db':
+      '@nucleus/db':
         specifier: workspace:*
         version: link:../db
-      '@lms/validators':
+      '@nucleus/validators':
         specifier: workspace:*
         version: link:../validators
       '@trpc/server':
@@ -306,7 +306,7 @@ importers:
         specifier: 'catalog:'
         version: 4.2.1
     devDependencies:
-      '@lms/tsconfig':
+      '@nucleus/tsconfig':
         specifier: workspace:*
         version: link:../../tooling/typescript
       typescript:
@@ -318,10 +318,10 @@ importers:
       '@better-auth/expo':
         specifier: 'catalog:'
         version: 1.4.9(d460912d06a7e46cb1bff39eba8cdd71)
-      '@lms/db':
+      '@nucleus/db':
         specifier: workspace:*
         version: link:../db
-      '@lms/email':
+      '@nucleus/email':
         specifier: workspace:*
         version: link:../email
       '@t3-oss/env-core':
@@ -346,7 +346,7 @@ importers:
       '@better-auth/cli':
         specifier: 'catalog:'
         version: 1.4.9(@better-fetch/fetch@1.1.21)(@neondatabase/serverless@0.10.0)(@opentelemetry/api@1.9.0)(@planetscale/database@1.19.0)(@types/better-sqlite3@7.6.13)(@types/react@19.2.7)(@vercel/postgres@0.10.0)(better-call@1.1.7(zod@4.2.1))(drizzle-kit@0.31.8)(jose@6.1.3)(kysely@0.28.9)(mysql2@3.11.3)(nanostores@1.1.0)(next@16.1.1(@babel/core@7.28.5)(@opentelemetry/api@1.9.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(postgres@3.4.7)(prisma@5.22.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@lms/tsconfig':
+      '@nucleus/tsconfig':
         specifier: workspace:*
         version: link:../../tooling/typescript
       '@types/react':
@@ -362,7 +362,7 @@ importers:
         specifier: ^5.10.0
         version: 5.10.0
     devDependencies:
-      '@lms/tsconfig':
+      '@nucleus/tsconfig':
         specifier: workspace:*
         version: link:../../tooling/typescript
       typescript:
@@ -387,7 +387,7 @@ importers:
         specifier: 'catalog:'
         version: 4.2.1
     devDependencies:
-      '@lms/tsconfig':
+      '@nucleus/tsconfig':
         specifier: workspace:*
         version: link:../../tooling/typescript
       dotenv-cli:
@@ -421,7 +421,7 @@ importers:
         specifier: 'catalog:'
         version: 4.2.1
     devDependencies:
-      '@lms/tsconfig':
+      '@nucleus/tsconfig':
         specifier: workspace:*
         version: link:../../tooling/typescript
       typescript:
@@ -430,7 +430,7 @@ importers:
 
   packages/i18n:
     devDependencies:
-      '@lms/tsconfig':
+      '@nucleus/tsconfig':
         specifier: workspace:*
         version: link:../../tooling/typescript
       typescript:
@@ -439,7 +439,7 @@ importers:
 
   packages/rate-limit:
     dependencies:
-      '@lms/cache':
+      '@nucleus/cache':
         specifier: workspace:*
         version: link:../cache
       '@t3-oss/env-core':
@@ -449,7 +449,7 @@ importers:
         specifier: 'catalog:'
         version: 4.2.1
     devDependencies:
-      '@lms/tsconfig':
+      '@nucleus/tsconfig':
         specifier: workspace:*
         version: link:../../tooling/typescript
       typescript:
@@ -585,10 +585,10 @@ importers:
         specifier: ^1.1.2
         version: 1.1.2(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
     devDependencies:
-      '@lms/tailwind-config':
+      '@nucleus/tailwind-config':
         specifier: workspace:*
         version: link:../../tooling/tailwind
-      '@lms/tsconfig':
+      '@nucleus/tsconfig':
         specifier: workspace:*
         version: link:../../tooling/typescript
       '@types/react':
@@ -606,7 +606,7 @@ importers:
 
   packages/upload:
     devDependencies:
-      '@lms/tsconfig':
+      '@nucleus/tsconfig':
         specifier: workspace:*
         version: link:../../tooling/typescript
       typescript:
@@ -619,7 +619,7 @@ importers:
         specifier: 'catalog:'
         version: 4.2.1
     devDependencies:
-      '@lms/tsconfig':
+      '@nucleus/tsconfig':
         specifier: workspace:*
         version: link:../../tooling/typescript
       typescript:
@@ -640,7 +640,7 @@ importers:
         specifier: 'catalog:'
         version: 4.1.18
     devDependencies:
-      '@lms/tsconfig':
+      '@nucleus/tsconfig':
         specifier: workspace:*
         version: link:../typescript
       '@types/node':

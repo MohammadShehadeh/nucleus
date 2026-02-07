@@ -42,14 +42,14 @@ pnpm typecheck             # Type check all packages
 Target specific packages using Turbo filters:
 ```bash
 # Run script in specific package
-turbo run build -F @lms/db
-turbo run dev -F @lms/nextjs
+turbo run build -F @nucleus/db
+turbo run dev -F @nucleus/nextjs
 
 # Run script in package and its dependencies
-turbo run build -F @lms/nextjs...
+turbo run build -F @nucleus/nextjs...
 
 # Run script in package and its dependents
-turbo run test -F ...@lms/db
+turbo run test -F ...@nucleus/db
 ```
 
 ## Turbo Configuration Patterns
@@ -84,7 +84,7 @@ Define task dependencies in [turbo.json](mdc:turbo.json):
 
 ### Creating New Packages
 1. Use Turbo generators: `turbo gen workspace`
-2. Follow naming convention: `@lms/package-name`
+2. Follow naming convention: `@nucleus/package-name`
 3. Include standard files: `package.json`, `tsconfig.json`
 4. Export from `src/index.ts` with proper TypeScript types
 
@@ -96,13 +96,13 @@ Define task dependencies in [turbo.json](mdc:turbo.json):
 Example `package.json`:
 ```json
 {
-  "name": "@lms/new-package",
+  "name": "@nucleus/new-package",
   "dependencies": {
-    "@lms/db": "workspace:*",
+    "@nucleus/db": "workspace:*",
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@lms/tsconfig": "workspace:*"
+    "@nucleus/tsconfig": "workspace:*"
   }
 }
 ```
@@ -112,7 +112,7 @@ Extend shared configurations from `tooling/`:
 ```typescript
 // tsconfig.json
 {
-  "extends": "@lms/tsconfig/base.json",
+  "extends": "@nucleus/tsconfig/base.json",
   "compilerOptions": {
     "outDir": "dist"
   }
@@ -122,7 +122,7 @@ Extend shared configurations from `tooling/`:
 ## Development Best Practices
 
 ### Workspace Dependencies
-- Always use workspace aliases (`@lms/package`) in imports
+- Always use workspace aliases (`@nucleus/package`) in imports
 - Update dependencies using `pnpm up` from root
 - Use `pnpm install` from root to maintain lockfile consistency
 
@@ -148,7 +148,7 @@ Turbo automatically handles build order based on dependencies:
 ### Vercel Deployment
 - Deploy from `apps/nextjs/` directory
 - Use `turbo prune` to optimize bundle size
-- Configure build command: `cd ../.. && turbo build -F @lms/nextjs`
+- Configure build command: `cd ../.. && turbo build -F @nucleus/nextjs`
 
 ### Package Publishing
 - Build packages before publishing: `turbo build`
@@ -178,7 +178,7 @@ pnpm up -r
 ### Build Issues
 ```bash
 # Build specific package and dependencies
-turbo build -F @lms/package-name...
+turbo build -F @nucleus/package-name...
 
 # Force rebuild without cache
 turbo build --force

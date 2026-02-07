@@ -6,7 +6,9 @@ globs: **/auth/**/*.ts,**/auth/**/*.tsx
 # Authentication Guidelines
 
 ## Authentication Stack
+
 This project uses **better-auth** for authentication with the following features:
+
 - Email/password authentication
 - Google OAuth integration
 - Session management with cookies
@@ -16,7 +18,9 @@ This project uses **better-auth** for authentication with the following features
 ## Auth Configuration Pattern
 
 ### Package-Level Configuration
+
 Define auth initialization in [packages/auth/src/index.ts](mdc:packages/auth/src/index.ts):
+
 ```typescript
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
@@ -26,7 +30,7 @@ import { oAuthProxy } from "better-auth/plugins";
 
 export function initAuth(options: InitAuthOptions) {
   return betterAuth({
-    appName: "Learning Management System (LMS)",
+    appName: "Nucleus",
     emailAndPassword: { enabled: true },
     database: drizzleAdapter(db, { provider: "pg" }),
     socialProviders: {
@@ -49,12 +53,14 @@ export function initAuth(options: InitAuthOptions) {
 ```
 
 ### App-Level Server Configuration
+
 Initialize auth in [apps/nextjs/src/auth/server.ts](mdc:apps/nextjs/src/auth/server.ts):
+
 ```typescript
 import "server-only";
 import { cache } from "react";
 import { headers } from "next/headers";
-import { initAuth } from "@lms/auth";
+import { initAuth } from "@nucleus/auth";
 
 export const auth = initAuth({
   baseUrl: getBaseUrl(),
@@ -74,7 +80,9 @@ export const getSession = cache(async () =>
 ```
 
 ### Client-Side Configuration
+
 Create auth client in [apps/nextjs/src/auth/client.ts](mdc:apps/nextjs/src/auth/client.ts):
+
 ```typescript
 import { createAuthClient } from "better-auth/react";
 
@@ -84,6 +92,7 @@ export const { signIn, signUp, signOut } = createAuthClient();
 ## Authentication Patterns
 
 ### Login Implementation
+
 ```typescript
 // Email/Password Login
 await signIn.email({
@@ -100,6 +109,7 @@ await signIn.social({
 ```
 
 ### Sign Up Implementation
+
 ```typescript
 await signUp.email({
   email: data.email,
@@ -110,6 +120,7 @@ await signUp.email({
 ```
 
 ### Sign Out Implementation
+
 ```typescript
 await signOut({
   fetchOptions: {
@@ -123,6 +134,7 @@ await signOut({
 ## Session Management
 
 ### Server-Side Session Access
+
 ```typescript
 import { getSession } from "~/auth/server";
 
@@ -138,6 +150,7 @@ export default async function ProtectedPage() {
 ```
 
 ### Client-Side Session Access
+
 ```typescript
 import { useSession } from "better-auth/react";
 
@@ -154,6 +167,7 @@ export function UserProfile() {
 ## Authorization Patterns
 
 ### tRPC Protected Procedures
+
 ```typescript
 import { TRPCError } from "@trpc/server";
 
@@ -177,6 +191,7 @@ export const protectedProcedure = publicProcedure.use(
 ```
 
 ### Route Protection with Middleware
+
 ```typescript
 // middleware.ts
 import { NextResponse } from "next/server";
@@ -202,14 +217,18 @@ export const config = {
 ```
 
 ## Database Schema Integration
+
 Better-auth automatically creates required tables when using Drizzle adapter:
+
 - `user` - User accounts
 - `session` - Active sessions
 - `account` - OAuth account linking
 - `verification` - Email verification tokens
 
 ## Environment Variables
+
 Required environment variables for authentication:
+
 ```bash
 # Required for production
 AUTH_SECRET=your-secret-key
@@ -224,6 +243,7 @@ VERCEL_PROJECT_PRODUCTION_URL=your-production-url
 ```
 
 ## Error Handling
+
 ```typescript
 try {
   await signIn.email({
@@ -243,12 +263,14 @@ try {
 ```
 
 ## Cross-Platform Considerations
+
 - Use `expo()` plugin for React Native compatibility
 - Configure `trustedOrigins: ["expo://"]` for mobile apps
 - Use OAuth proxy for development environments
 - Ensure consistent session handling across platforms
 
 ## Security Best Practices
+
 - Always validate sessions on server-side
 - Use HTTPS in production
 - Implement proper CSRF protection

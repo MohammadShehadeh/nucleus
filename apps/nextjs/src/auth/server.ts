@@ -1,6 +1,6 @@
 import "server-only";
 
-import { initAuth } from "@lms/auth";
+import { initAuth } from "@nucleus/auth";
 import { headers } from "next/headers";
 import { cache } from "react";
 

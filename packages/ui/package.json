@@ -1,5 +1,5 @@
 {
-	"name": "@lms/ui",
+	"name": "@nucleus/ui",
 	"private": true,
 	"version": "0.1.0",
 	"type": "module",
@@ -66,8 +66,8 @@
 		"vaul": "^1.1.2"
 	},
 	"devDependencies": {
-		"@lms/tailwind-config": "workspace:*",
-		"@lms/tsconfig": "workspace:*",
+		"@nucleus/tailwind-config": "workspace:*",
+		"@nucleus/tsconfig": "workspace:*",
 		"@types/react": "catalog:react19",
 		"react": "catalog:react19",
 		"typescript": "catalog:",

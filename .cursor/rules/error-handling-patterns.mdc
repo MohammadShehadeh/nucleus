@@ -78,7 +78,7 @@ export const courseRouter = {
 
 ### React Query Error Handling
 ```typescript
-import { toast } from "@lms/ui/components/sonner";
+import { toast } from "@nucleus/ui/components/sonner";
 
 export function CourseList() {
   const { data: courses, error, isError } = api.course.getAll.useQuery();
@@ -110,7 +110,7 @@ export function CourseList() {
 ### Form Error Handling
 ```typescript
 import { useForm } from "react-hook-form";
-import { toast } from "@lms/ui/components/sonner";
+import { toast } from "@nucleus/ui/components/sonner";
 
 export function CreateCourseForm() {
   const form = useForm<CourseFormData>();
@@ -153,8 +153,8 @@ export function CreateCourseForm() {
 
 ### Drizzle Error Patterns
 ```typescript
-import { eq } from "@lms/db";
-import { db } from "@lms/db/client";
+import { eq } from "@nucleus/db";
+import { db } from "@nucleus/db/client";
 
 export async function updateCourse(id: string, data: Partial<Course>) {
   try {

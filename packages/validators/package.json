@@ -1,5 +1,5 @@
 {
-	"name": "@lms/validators",
+	"name": "@nucleus/validators",
 	"private": true,
 	"version": "0.1.0",
 	"type": "module",
@@ -22,7 +22,7 @@
 		"zod": "catalog:"
 	},
 	"devDependencies": {
-		"@lms/tsconfig": "workspace:*",
+		"@nucleus/tsconfig": "workspace:*",
 		"typescript": "catalog:"
 	}
 }

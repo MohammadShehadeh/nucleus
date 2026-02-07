@@ -1,4 +1,4 @@
-import { SidebarInset, SidebarProvider } from "@lms/ui/components/sidebar";
+import { SidebarInset, SidebarProvider } from "@nucleus/ui/components/sidebar";
 
 import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";

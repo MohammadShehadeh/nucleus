@@ -1,24 +1,24 @@
 "use client";
 
-import { Button } from "@lms/ui/components/button";
-import { Input } from "@lms/ui/components/input";
-import { Separator } from "@lms/ui/components/separator";
+import { Button } from "@nucleus/ui/components/button";
+import { Input } from "@nucleus/ui/components/input";
+import { Separator } from "@nucleus/ui/components/separator";
 import {
   Sheet,
   SheetContent,
   SheetDescription,
   SheetHeader,
   SheetTitle,
-} from "@lms/ui/components/sheet";
-import { Skeleton } from "@lms/ui/components/skeleton";
+} from "@nucleus/ui/components/sheet";
+import { Skeleton } from "@nucleus/ui/components/skeleton";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@lms/ui/components/tooltip";
-import { useIsMobile } from "@lms/ui/hooks/use-mobile";
-import { cn } from "@lms/ui/lib/utils";
+} from "@nucleus/ui/components/tooltip";
+import { useIsMobile } from "@nucleus/ui/hooks/use-mobile";
+import { cn } from "@nucleus/ui/lib/utils";
 import { Slot } from "@radix-ui/react-slot";
 import type { VariantProps } from "class-variance-authority";
 import { cva } from "class-variance-authority";

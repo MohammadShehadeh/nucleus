@@ -1,5 +1,5 @@
 {
-	"name": "@lms/cache",
+	"name": "@nucleus/cache",
 	"private": true,
 	"version": "0.1.0",
 	"type": "module",
@@ -20,7 +20,7 @@
 		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
 	},
 	"devDependencies": {
-		"@lms/tsconfig": "workspace:*",
+		"@nucleus/tsconfig": "workspace:*",
 		"typescript": "catalog:"
 	},
 	"dependencies": {

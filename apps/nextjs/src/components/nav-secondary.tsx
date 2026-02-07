@@ -4,7 +4,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@lms/ui/components/sidebar";
+} from "@nucleus/ui/components/sidebar";
 import type { LucideIcon } from "lucide-react";
 import type * as React from "react";
 

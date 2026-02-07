@@ -6,12 +6,12 @@ globs: *.tsx,*.jsx
 # Component Development Guidelines
 
 ## UI Component Usage
-- Use components from `@lms/ui/components` (shadcn/ui based)
-- Always import utility function `cn` from `@lms/ui/lib/utils` for className concatenation
+- Use components from `@nucleus/ui/components` (shadcn/ui based)
+- Always import utility function `cn` from `@nucleus/ui/lib/utils` for className concatenation
 - Prefer composition over complex prop interfaces
 
 ## Form Components
-- Use the `Form` component wrapper from `@lms/ui/components/form`
+- Use the `Form` component wrapper from `@nucleus/ui/components/form`
 - Structure forms with `FormField`, `FormItem`, `FormLabel`, `FormControl`, `FormMessage`
 - Always provide proper TypeScript types for form data
 
@@ -40,7 +40,7 @@ Example pattern from [apps/nextjs/src/app/(auth)/components/login-form.tsx](mdc:
 
 ## Styling Guidelines
 - Use Tailwind CSS for styling
-- Leverage the design system tokens in `@lms/ui`
+- Leverage the design system tokens in `@nucleus/ui`
 - Use `cn()` utility for conditional classes
 - Follow mobile-first responsive design patterns
 
@@ -54,7 +54,7 @@ Components should be organized by route groups:
 Order imports as follows:
 1. React and Next.js imports
 2. Third-party libraries
-3. Internal package imports (`@lms/...`)
+3. Internal package imports (`@nucleus/...`)
 4. Relative imports (`~/...`)
 
 ## State Management Patterns
