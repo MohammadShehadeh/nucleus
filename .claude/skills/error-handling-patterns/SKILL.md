@@ -1,6 +1,6 @@
 ---
-description: "Error handling and logging patterns"
-globs: *.ts,*.tsx
+name: error-handling-patterns
+description: Outlines error handling and logging patterns for the API and client. Use when implementing try/catch blocks, handling API errors, or logging.
 ---
 
 # Error Handling Guidelines
@@ -14,50 +14,53 @@ globs: *.ts,*.tsx
 ## tRPC Error Handling
 
 ### API Error Patterns
+A hypothetical `userRouter` showing error handling patterns.
 ```typescript
 import { TRPCError } from "@trpc/server";
+import { user, userInsertSchema } from "@nucleus/db/schema";
+import { eq } from "@nucleus/db";
 
-export const courseRouter = {
+export const userRouter = {
   getById: publicProcedure
-    .input(courseSelectSchema.pick({ id: true }))
-    .query(async ({ input }) => {
-      const results = await db
-        .select()
-        .from(course)
-        .where(eq(course.id, input.id))
-        .limit(1);
+    .input(z.object({ id: z.string() }))
+    .query(async ({ input, ctx }) => {
+      const result = await ctx.db.query.user.findFirst({
+        where: eq(user.id, input.id),
+      });
 
-      if (!results[0]) {
+      if (!result) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: "Course not found",
-          cause: new Error(`Course with id ${input.id} does not exist`),
+          message: "User not found",
+          cause: new Error(`User with id ${input.id} does not exist`),
         });
       }
 
-      return results[0];
+      return result;
     }),
 
   create: protectedProcedure
-    .input(courseInsertSchema)
+    .input(userInsertSchema)
     .mutation(async ({ input, ctx }) => {
       try {
-        return await db.insert(course).values({
+        const result = await ctx.db.insert(user).values({
           ...input,
-          instructorId: ctx.user.id,
+          // other required fields
         }).returning();
+        return result[0];
       } catch (error) {
+        // Example of catching a specific database constraint error
         if (error instanceof Error && error.message.includes('duplicate key')) {
           throw new TRPCError({
             code: "CONFLICT",
-            message: "A course with this slug already exists",
+            message: "A user with this email already exists",
             cause: error,
           });
         }
         
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to create course",
+          message: "Failed to create user",
           cause: error,
         });
       }
@@ -66,83 +69,83 @@ export const courseRouter = {
 ```
 
 ### Common tRPC Error Codes
-- `BAD_REQUEST` - Invalid input data
-- `UNAUTHORIZED` - Authentication required
-- `FORBIDDEN` - Insufficient permissions
-- `NOT_FOUND` - Resource doesn't exist
-- `CONFLICT` - Resource already exists or constraint violation
-- `INTERNAL_SERVER_ERROR` - Unexpected server errors
-- `TOO_MANY_REQUESTS` - Rate limiting
+- `BAD_REQUEST` - Invalid input data (Zod validation will trigger this automatically).
+- `UNAUTHORIZED` - Authentication required (triggered by `protectedProcedure`).
+- `FORBIDDEN` - Insufficient permissions.
+- `NOT_FOUND` - Resource doesn't exist.
+- `CONFLICT` - Resource already exists or a unique constraint is violated.
+- `INTERNAL_SERVER_ERROR` - Unexpected server errors.
+- `TOO_MANY_REQUESTS` - Rate limiting.
 
 ## Client-Side Error Handling
 
 ### React Query Error Handling
+This example assumes you have a `useQuery` hook for a `user.getById` procedure.
 ```typescript
 import { toast } from "@nucleus/ui/components/sonner";
+import { api } from "~/trpc/react";
 
-export function CourseList() {
-  const { data: courses, error, isError } = api.course.getAll.useQuery();
+export function UserProfile({ userId }: { userId: string }) {
+  const { data: user, error, isError } = api.user.getById.useQuery({ id: userId });
 
   if (isError) {
-    // Handle different error types
+    // Handle different error types from the API
     if (error.data?.code === "UNAUTHORIZED") {
-      return <div>Please Login to view courses</div>;
+      return <div>Please log in to view this profile.</div>;
     }
     
-    if (error.data?.code === "FORBIDDEN") {
-      return <div>You don't have permission to view courses</div>;
-    }
-
     // Generic error fallback
-    return <div>Failed to load courses. Please try again.</div>;
+    toast.error(error.message || "Failed to load user profile.");
+    return <div>Could not load user profile. Please try again.</div>;
   }
 
   return (
     <div>
-      {courses?.map(course => (
-        <CourseCard key={course.id} course={course} />
-      ))}
+      <h1>{user?.name}</h1>
+      <p>{user?.email}</p>
     </div>
   );
 }
 ```
 
 ### Form Error Handling
+This example shows handling a `CONFLICT` error from the API when creating a user.
 ```typescript
 import { useForm } from "react-hook-form";
 import { toast } from "@nucleus/ui/components/sonner";
+import { userInsertSchema } from "@nucleus/db/schema";
+import type { z } from "zod";
+import { Form } from "@nucleus/ui/form";
+import { api } from "~/trpc/react";
 
-export function CreateCourseForm() {
-  const form = useForm<CourseFormData>();
-  const createCourse = api.course.create.useMutation({
+type UserFormData = z.infer<typeof userInsertSchema>;
+
+export function CreateUserForm() {
+  const form = useForm<UserFormData>();
+  const createUser = api.user.create.useMutation({
     onSuccess: () => {
-      toast.success("Course created successfully!");
+      toast.success("User created successfully!");
       form.reset();
     },
     onError: (error) => {
       if (error.data?.code === "CONFLICT") {
-        form.setError("slug", {
-          message: "This course slug is already taken",
+        form.setError("email", {
+          message: "This email address is already in use.",
         });
       } else {
-        toast.error("Failed to create course. Please try again.");
+        toast.error(error.message || "Failed to create user. Please try again.");
       }
     },
   });
 
-  const onSubmit = async (data: CourseFormData) => {
-    try {
-      await createCourse.mutateAsync(data);
-    } catch (error) {
-      // Error is already handled by onError callback
-      console.error("Course creation failed:", error);
-    }
+  const onSubmit = (data: UserFormData) => {
+    createUser.mutate(data);
   };
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
-        {/* Form fields */}
+        {/* Form fields for name, email, password etc. */}
       </form>
     </Form>
   );
@@ -156,16 +159,16 @@ export function CreateCourseForm() {
 import { eq } from "@nucleus/db";
 import { db } from "@nucleus/db/client";
 
-export async function updateCourse(id: string, data: Partial<Course>) {
+export async function updateUser(id: string, data: Partial<User>) {
   try {
     const result = await db
-      .update(course)
+      .update(user)
       .set(data)
-      .where(eq(course.id, id))
+      .where(eq(user.id, id))
       .returning();
 
     if (result.length === 0) {
-      throw new Error(`Course with id ${id} not found`);
+      throw new Error(`User with id ${id} not found`);
     }
 
     return result[0];
@@ -173,11 +176,11 @@ export async function updateCourse(id: string, data: Partial<Course>) {
     if (error instanceof Error) {
       // Handle specific database errors
       if (error.message.includes('foreign key constraint')) {
-        throw new Error('Cannot update course: referenced by other records');
+        throw new Error('Cannot update user: referenced by other records');
       }
       
       if (error.message.includes('unique constraint')) {
-        throw new Error('Course slug must be unique');
+        throw new Error('User email must be unique');
       }
     }
     
@@ -282,7 +285,7 @@ export class ErrorBoundary extends Component<
 ### Server-Side Logging
 ```typescript
 // Use structured logging
-console.error("Course creation failed", {
+console.error("User creation failed", {
   userId: ctx.user.id,
   input: input,
   error: error.message,
@@ -290,7 +293,7 @@ console.error("Course creation failed", {
 });
 
 // For production, use a proper logging service
-// logger.error("Course creation failed", {
+// logger.error("User creation failed", {
 //   userId: ctx.user.id,
 //   error: error.message,
 //   stack: error.stack,
@@ -302,7 +305,7 @@ console.error("Course creation failed", {
 // Log client errors for debugging
 if (process.env.NODE_ENV === "development") {
   console.error("API call failed:", {
-    endpoint: "course.create",
+    endpoint: "user.create",
     error: error.message,
     data: error.data,
   });
@@ -310,7 +313,7 @@ if (process.env.NODE_ENV === "development") {
 
 // In production, send to error reporting service
 // errorReporter.captureException(error, {
-//   tags: { component: "CreateCourseForm" },
+//   tags: { component: "CreateUserForm" },
 //   extra: { formData: data },
 // });
 ```
@@ -343,7 +346,7 @@ try {
 ## Best Practices
 
 ### Error Message Guidelines
-- **Be specific**: "Course not found" vs "An error occurred"
+- **Be specific**: "User not found" vs "An error occurred"
 - **Be actionable**: Tell users what they can do next
 - **Be consistent**: Use the same tone and format across the app
 - **Be secure**: Don't expose sensitive information in error messages

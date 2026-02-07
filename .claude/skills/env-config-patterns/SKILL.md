@@ -1,6 +1,6 @@
 ---
-description: 'Environment configuration and validation patterns'
-globs: env.ts,*.env*
+name: env-config-patterns
+description: Defines environment configuration and validation patterns. Use when adding or modifying environment variables.
 ---
 
 # Environment Configuration Guidelines

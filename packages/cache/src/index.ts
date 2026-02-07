@@ -17,19 +17,41 @@ export type RedisClient = RedisClientType<
 
 export interface CacheOptions {
   url?: string;
-  defaultTTL?: number; // Default TTL in seconds
+  /**
+   * Default TTL in seconds
+   * @default 3600 * 24 * 1 (1 day)
+   */
+  defaultTTL?: number;
 }
 
 export interface CacheSetOptions {
-  ttl?: number; // TTL in seconds
+  /**
+   * TTL in seconds
+   * @default 3600 * 24 * 1 (1 day)
+   */
+  ttl?: number;
 }
 
 export interface WrapWithCacheOptions {
-  key: string; // Key to use for the cache
-  ttl?: number; // TTL in seconds
+  /**
+   * Key to use for the cache
+   */
+  key: string;
+  /**
+   * TTL in seconds
+   * @default 3600 * 24 * 1 (1 day)
+   */
+  ttl?: number;
 }
 
 export class Redis {
+  // IMPORTANT: All cached values are serialized/deserialized using JSON.stringify/JSON.parse.
+  // This means that complex types like Date, Map, Set, or custom classes will not be
+  // preserved correctly. They will be converted to their JSON representation.
+  // For Dates, this means they will become ISO 8601 strings.
+  // If you need to cache complex objects with their original type integrity,
+  // consider implementing custom serialization/deserialization logic or using a library
+  // like superjson within the set/get methods.
   private client: RedisClient;
   private defaultTTL: number;
   private isConnected = false;
@@ -37,10 +59,7 @@ export class Redis {
   private connectingPromise: Promise<void> | null = null;
 
   private constructor(options: CacheOptions = {}) {
-    const {
-      url = env.REDIS_CONNECTION_STRING,
-      defaultTTL = 3600 * 24 * 7, // 7 days default
-    } = options;
+    const { url = env.REDIS_CONNECTION_STRING, defaultTTL = 3600 * 24 * 1 } = options;
 
     this.defaultTTL = defaultTTL;
 
@@ -83,7 +102,6 @@ export class Redis {
    * Connect to Redis (call once at app startup)
    */
   async connect(): Promise<void> {
-    // If already connected, do nothing
     if (this.isConnected && this.client.isOpen) {
       return;
     }
@@ -101,7 +119,11 @@ export class Redis {
         this.connectingPromise = null;
       })
       .catch((err) => {
-        this.connectingPromise = null;
+        // Keep the promise in a failed state for a short period
+        // to prevent immediate retries from all requests.
+        setTimeout(() => {
+          this.connectingPromise = null;
+        }, 2000);
         this.isConnected = false;
         console.error("Failed to connect to Redis:", err);
       });
@@ -109,16 +131,11 @@ export class Redis {
     return this.connectingPromise;
   }
 
-  /**
-   * Ensure connection before operations (lazy connect)
-   */
   private async ensureConnected(): Promise<void> {
-    // If already connected, return immediately
     if (this.client.isReady && this.client.isOpen) {
       return;
     }
 
-    // If currently connecting, wait for that promise
     if (this.connectingPromise) {
       return this.connectingPromise;
     }
@@ -127,33 +144,21 @@ export class Redis {
     await this.connect();
   }
 
-  /**
-   * Check if Redis is ready to accept commands
-   */
   isReady(): boolean {
     return this.client.isReady;
   }
 
-  /**
-   * Check if the socket is open
-   */
   isOpen(): boolean {
     return this.client.isOpen;
   }
 
-  /**
-   * Force disconnect immediately
-   */
   async disconnect(): Promise<void> {
     if (this.isConnected || this.client.isOpen) {
-      await this.client.destroy();
+      await this.client.disconnect();
       this.isConnected = false;
     }
   }
 
-  /**
-   * Set a value in cache
-   */
   async set<T>(key: string, value: T, options: CacheSetOptions = {}): Promise<void> {
     await this.ensureConnected();
     const { ttl = this.defaultTTL } = options;
@@ -166,9 +171,6 @@ export class Redis {
     }
   }
 
-  /**
-   * Get a value from cache
-   */
   async get<T>(key: string): Promise<T | null> {
     await this.ensureConnected();
     try {
@@ -181,9 +183,6 @@ export class Redis {
     }
   }
 
-  /**
-   * Delete a key from cache
-   */
   async del(key: string): Promise<number> {
     await this.ensureConnected();
     try {
@@ -194,9 +193,6 @@ export class Redis {
     }
   }
 
-  /**
-   * Check if a key exists
-   */
   async exists(key: string): Promise<boolean> {
     await this.ensureConnected();
     try {
@@ -208,9 +204,6 @@ export class Redis {
     }
   }
 
-  /**
-   * Clear all keys (use with caution!)
-   */
   async clear(): Promise<void> {
     await this.ensureConnected();
     await this.client.flushDb();
@@ -226,9 +219,6 @@ export class Redis {
     return result;
   }
 
-  /**
-   * Create a new pipeline
-   */
   async multi(): Promise<ReturnType<RedisClient["multi"]> | null> {
     await this.ensureConnected();
     try {

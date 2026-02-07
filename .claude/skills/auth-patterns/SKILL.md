@@ -1,6 +1,6 @@
 ---
-description: "Authentication and authorization patterns using better-auth"
-globs: **/auth/**/*.ts,**/auth/**/*.tsx
+name: auth-patterns
+description: Defines authentication and authorization patterns using better-auth. Use when working with user sessions, login, sign-up, or route protection.
 ---
 
 # Authentication Guidelines

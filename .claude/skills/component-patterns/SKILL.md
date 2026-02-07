@@ -1,6 +1,6 @@
 ---
-description: "React component patterns and UI guidelines"
-globs: *.tsx,*.jsx
+name: component-patterns
+description: Contains React component patterns and UI guidelines. Use when creating or modifying React components, especially forms and UI elements.
 ---
 
 # Component Development Guidelines

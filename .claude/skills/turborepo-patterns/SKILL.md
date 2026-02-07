@@ -1,6 +1,6 @@
 ---
-description: "Turborepo development workflow and patterns"
-globs: turbo.json,package.json
+name: turborepo-patterns
+description: Outlines the Turborepo development workflow and patterns. Use as a reference for pnpm scripts and monorepo development tasks.
 ---
 
 # Turborepo Development Guidelines
@@ -33,8 +33,8 @@ pnpm db:studio             # Open Drizzle Studio
 pnpm lint                  # Lint all packages (Biome)
 pnpm lint:fix              # Fix linting issues (Biome)
 pnpm format                # Format all files (Biome)
-pnpm format:check          # Check formatting (Biome)
-pnpm check                 # Lint + format + organize imports (Biome)
+pnpm check:ci              # Check formatting, linting, and imports for CI
+pnpm check                 # Fix all checkable issues (format, lint, imports)
 pnpm typecheck             # Type check all packages
 ```
 
