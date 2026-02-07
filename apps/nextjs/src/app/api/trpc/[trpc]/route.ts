@@ -1,4 +1,4 @@
-import { appRouter, createTRPCContext } from "@lms/api";
+import { appRouter, createTRPCContext } from "@nucleus/api";
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
 import type { NextRequest } from "next/server";
 

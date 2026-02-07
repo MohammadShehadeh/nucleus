@@ -7,8 +7,8 @@
  * The pieces you will need to use are documented accordingly near the end
  */
 
-import type { Auth } from "@lms/auth";
-import { db } from "@lms/db/client";
+import type { Auth } from "@nucleus/auth";
+import { db } from "@nucleus/db/client";
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError, z } from "zod/v4";

@@ -1,5 +1,5 @@
 import { expo } from "@better-auth/expo";
-import { db } from "@lms/db/client";
+import { db } from "@nucleus/db/client";
 import type { BetterAuthOptions } from "better-auth";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
@@ -20,7 +20,7 @@ interface InitAuthOptions {
 
 export function initAuth(options: InitAuthOptions): ReturnType<typeof betterAuth> {
   const config = {
-    appName: "Learning Management System (LMS)",
+    appName: "Nucleus",
     rateLimit: {
       enabled: true,
       max: 10,

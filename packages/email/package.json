@@ -1,5 +1,5 @@
 {
-	"name": "@lms/email",
+	"name": "@nucleus/email",
 	"private": true,
 	"version": "0.1.0",
 	"type": "module",
@@ -20,15 +20,15 @@
 		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
 	},
 	"dependencies": {
-		"@react-email/components": "1.0.2",
+		"@react-email/components": "1.0.7",
 		"@t3-oss/env-core": "catalog:",
 		"react": "catalog:react19",
 		"react-dom": "catalog:react19",
-		"resend": "^6.6.0",
+		"resend": "^6.9.1",
 		"zod": "catalog:"
 	},
 	"devDependencies": {
-		"@lms/tsconfig": "workspace:*",
+		"@nucleus/tsconfig": "workspace:*",
 		"typescript": "catalog:"
 	}
 }

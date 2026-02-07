@@ -1,5 +1,9 @@
 {
-  "extends": "@lms/tsconfig/internal-package.json",
-  "include": ["src"],
-  "exclude": ["node_modules"]
+  "extends": "@nucleus/tsconfig/internal-package.json",
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }

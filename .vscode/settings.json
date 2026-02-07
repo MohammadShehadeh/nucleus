@@ -6,7 +6,10 @@
     "source.fixAll.biome": "explicit"
   },
   "typescript.tsdk": "node_modules\\typescript\\lib",
-  "[json][typescriptreact][javascript][typescript][jsonc][javascript]": {
+  "[typescript]": {
     "editor.defaultFormatter": "biomejs.biome"
-  }
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
 }

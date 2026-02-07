@@ -1,5 +1,5 @@
 {
-	"name": "@lms/tailwind-config",
+	"name": "@nucleus/tailwind-config",
 	"private": true,
 	"type": "module",
 	"exports": {
@@ -22,8 +22,8 @@
 		"tailwindcss": "catalog:"
 	},
 	"devDependencies": {
-		"@lms/tsconfig": "workspace:*",
-		"@types/node": "^25.0.3",
+		"@nucleus/tsconfig": "workspace:*",
+		"@types/node": "^25.2.1",
 		"typescript": "catalog:"
 	}
 }

@@ -7,10 +7,10 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@lms/ui/components/breadcrumb";
-import { Button } from "@lms/ui/components/button";
-import { Separator } from "@lms/ui/components/separator";
-import { useSidebar } from "@lms/ui/components/sidebar";
+} from "@nucleus/ui/components/breadcrumb";
+import { Button } from "@nucleus/ui/components/button";
+import { Separator } from "@nucleus/ui/components/separator";
+import { useSidebar } from "@nucleus/ui/components/sidebar";
 import { SidebarIcon } from "lucide-react";
 
 import { SearchForm } from "./search-form";

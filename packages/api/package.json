@@ -1,5 +1,5 @@
 {
-	"name": "@lms/api",
+	"name": "@nucleus/api",
 	"version": "0.1.0",
 	"private": true,
 	"type": "module",
@@ -19,15 +19,15 @@
 		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
 	},
 	"dependencies": {
-		"@lms/auth": "workspace:*",
-		"@lms/db": "workspace:*",
-		"@lms/validators": "workspace:*",
+		"@nucleus/auth": "workspace:*",
+		"@nucleus/db": "workspace:*",
+		"@nucleus/validators": "workspace:*",
 		"@trpc/server": "catalog:",
 		"superjson": "2.2.6",
 		"zod": "catalog:"
 	},
 	"devDependencies": {
-		"@lms/tsconfig": "workspace:*",
+		"@nucleus/tsconfig": "workspace:*",
 		"typescript": "catalog:"
 	}
 }

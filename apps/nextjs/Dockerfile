@@ -20,7 +20,7 @@ FROM base AS prepare
 RUN pnpm install -g turbo@^2.5.8
 
 COPY . .
-RUN turbo prune @lms/nextjs --docker
+RUN turbo prune @nucleus/nextjs --docker
 
 # -------------------
 FROM base AS builder
@@ -28,7 +28,7 @@ COPY --from=prepare /app/out/json/ ./
 RUN pnpm install --frozen-lockfile
 COPY --from=prepare /app/out/full/ ./
 COPY .env ./.env
-RUN pnpm turbo run build --filter=@lms/nextjs...
+RUN pnpm turbo run build --filter=@nucleus/nextjs...
 
 # -------------------
 FROM node:24-alpine AS runner

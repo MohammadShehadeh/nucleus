@@ -1,7 +1,7 @@
-import { authEnv } from "@lms/auth/env";
-import { cacheEnv } from "@lms/cache/env";
-import { dbEnv } from "@lms/db/env";
-import { emailEnv } from "@lms/email/env";
+import { authEnv } from "@nucleus/auth/env";
+import { cacheEnv } from "@nucleus/cache/env";
+import { dbEnv } from "@nucleus/db/env";
+import { emailEnv } from "@nucleus/email/env";
 import { createEnv } from "@t3-oss/env-nextjs";
 import { vercel } from "@t3-oss/env-nextjs/presets-zod";
 import { z } from "zod/v4";

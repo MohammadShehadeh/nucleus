@@ -1,5 +1,5 @@
 {
-	"name": "@lms/upload",
+	"name": "@nucleus/upload",
 	"private": true,
 	"version": "0.1.0",
 	"type": "module",
@@ -19,7 +19,7 @@
 		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
 	},
 	"devDependencies": {
-		"@lms/tsconfig": "workspace:*",
+		"@nucleus/tsconfig": "workspace:*",
 		"typescript": "catalog:"
 	}
 }

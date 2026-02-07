@@ -1,7 +1,7 @@
 "use client";
 
-import { Button } from "@lms/ui/components/button";
-import { Input } from "@lms/ui/components/input";
+import { Button } from "@nucleus/ui/components/button";
+import { Input } from "@nucleus/ui/components/input";
 import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { cn } from "../lib/utils";

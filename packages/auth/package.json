@@ -1,5 +1,5 @@
 {
-	"name": "@lms/auth",
+	"name": "@nucleus/auth",
 	"version": "0.1.0",
 	"private": true,
 	"type": "module",
@@ -24,8 +24,8 @@
 	},
 	"dependencies": {
 		"@better-auth/expo": "catalog:",
-		"@lms/db": "workspace:*",
-		"@lms/email": "workspace:*",
+		"@nucleus/db": "workspace:*",
+		"@nucleus/email": "workspace:*",
 		"@t3-oss/env-core": "catalog:",
 		"better-auth": "catalog:",
 		"next": "catalog:",
@@ -35,7 +35,7 @@
 	},
 	"devDependencies": {
 		"@better-auth/cli": "catalog:",
-		"@lms/tsconfig": "workspace:*",
+		"@nucleus/tsconfig": "workspace:*",
 		"@types/react": "catalog:react19",
 		"typescript": "catalog:"
 	}

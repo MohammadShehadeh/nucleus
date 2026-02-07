@@ -1,5 +1,5 @@
 {
-	"name": "@lms/db",
+	"name": "@nucleus/db",
 	"version": "0.1.0",
 	"private": true,
 	"type": "module",
@@ -32,11 +32,11 @@
 		"@t3-oss/env-core": "catalog:",
 		"drizzle-orm": "^0.45.1",
 		"drizzle-zod": "^0.8.3",
-		"postgres": "^3.4.7",
+		"postgres": "^3.4.8",
 		"zod": "catalog:"
 	},
 	"devDependencies": {
-		"@lms/tsconfig": "workspace:*",
+		"@nucleus/tsconfig": "workspace:*",
 		"dotenv-cli": "^11.0.0",
 		"drizzle-kit": "^0.31.8",
 		"typescript": "catalog:"

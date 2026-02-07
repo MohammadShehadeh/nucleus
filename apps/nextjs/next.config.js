@@ -8,7 +8,13 @@ await jiti.import("./src/env");
 /** @type {import("next").NextConfig} */
 const config = {
   /** Enables hot reloading for local packages without a build step */
-  transpilePackages: ["@lms/api", "@lms/auth", "@lms/db", "@lms/ui", "@lms/validators"],
+  transpilePackages: [
+    "@nucleus/api",
+    "@nucleus/auth",
+    "@nucleus/db",
+    "@nucleus/ui",
+    "@nucleus/validators",
+  ],
 
   // images
   images: {

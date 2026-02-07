@@ -1,4 +1,5 @@
 import { pgTable } from "drizzle-orm/pg-core";
+import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 
 export const user = pgTable("user", (t) => ({
   id: t.text().primaryKey(),
@@ -9,6 +10,9 @@ export const user = pgTable("user", (t) => ({
   createdAt: t.timestamp().notNull().defaultNow(),
   updatedAt: t.timestamp({ mode: "date", withTimezone: true }).$onUpdateFn(() => new Date()),
 }));
+
+export const userInsertSchema = createInsertSchema(user);
+export const userSelectSchema = createSelectSchema(user);
 
 export const session = pgTable("session", (t) => ({
   id: t.text().primaryKey(),
@@ -23,6 +27,9 @@ export const session = pgTable("session", (t) => ({
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
 }));
+
+export const sessionInsertSchema = createInsertSchema(session);
+export const sessionSelectSchema = createSelectSchema(session);
 
 export const account = pgTable("account", (t) => ({
   id: t.text().primaryKey(),
@@ -43,6 +50,9 @@ export const account = pgTable("account", (t) => ({
   updatedAt: t.timestamp({ mode: "date", withTimezone: true }).$onUpdateFn(() => new Date()),
 }));
 
+export const accountInsertSchema = createInsertSchema(account);
+export const accountSelectSchema = createSelectSchema(account);
+
 export const verification = pgTable("verification", (t) => ({
   id: t.text().primaryKey(),
   identifier: t.text().notNull(),
@@ -51,3 +61,6 @@ export const verification = pgTable("verification", (t) => ({
   createdAt: t.timestamp().defaultNow(),
   updatedAt: t.timestamp({ mode: "date", withTimezone: true }).$onUpdateFn(() => new Date()),
 }));
+
+export const verificationInsertSchema = createInsertSchema(verification);
+export const verificationSelectSchema = createSelectSchema(verification);

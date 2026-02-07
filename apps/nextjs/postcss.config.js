@@ -1,1 +1,1 @@
-export { default } from "@lms/tailwind-config/postcss-config";
+export { default } from "@nucleus/tailwind-config/postcss-config";

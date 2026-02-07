@@ -1,5 +1,5 @@
 {
-	"name": "@lms/expo",
+	"name": "@nucleus/expo",
 	"private": true,
 	"main": "index.ts",
 	"scripts": {
@@ -24,11 +24,11 @@
 		"@trpc/server": "catalog:",
 		"@trpc/tanstack-react-query": "catalog:",
 		"better-auth": "catalog:",
-		"expo": "~54.0.30",
-		"expo-constants": "~18.0.12",
+		"expo": "~54.0.33",
+		"expo-constants": "~18.0.13",
 		"expo-dev-client": "~6.0.20",
 		"expo-linking": "~8.0.11",
-		"expo-router": "~6.0.21",
+		"expo-router": "~6.0.23",
 		"expo-secure-store": "~15.0.8",
 		"expo-splash-screen": "~31.0.13",
 		"expo-status-bar": "~3.0.9",
@@ -42,14 +42,14 @@
 		"react-native-gesture-handler": "~2.30.0",
 		"react-native-reanimated": "~4.2.1",
 		"react-native-safe-area-context": "~5.6.2",
-		"react-native-screens": "~4.19.0",
-		"react-native-worklets": "~0.7.1",
+		"react-native-screens": "~4.23.0",
+		"react-native-worklets": "~0.7.2",
 		"superjson": "2.2.6"
 	},
 	"devDependencies": {
-		"@lms/api": "workspace:*",
-		"@lms/tailwind-config": "workspace:*",
-		"@lms/tsconfig": "workspace:*",
+		"@nucleus/api": "workspace:*",
+		"@nucleus/tailwind-config": "workspace:*",
+		"@nucleus/tsconfig": "workspace:*",
 		"@types/react": "catalog:react19",
 		"tailwindcss": "catalog:",
 		"typescript": "catalog:"

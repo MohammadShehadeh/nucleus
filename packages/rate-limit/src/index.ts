@@ -1,4 +1,4 @@
-import type { Redis } from "@lms/cache";
+import type { Redis } from "@nucleus/cache";
 
 export interface RateLimitOptions {
   limit: number; // Number of requests allowed

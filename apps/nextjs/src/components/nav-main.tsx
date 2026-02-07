@@ -4,7 +4,7 @@ import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "@lms/ui/components/collapsible";
+} from "@nucleus/ui/components/collapsible";
 import {
   SidebarGroup,
   SidebarGroupLabel,
@@ -15,7 +15,7 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
-} from "@lms/ui/components/sidebar";
+} from "@nucleus/ui/components/sidebar";
 import type { LucideIcon } from "lucide-react";
 import { ChevronRight } from "lucide-react";
 
