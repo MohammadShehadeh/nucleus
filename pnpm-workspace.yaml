@@ -17,7 +17,7 @@ catalog:
   next: ^16.1.6
   tailwindcss: ^4.1.18
   typescript: ^5.9.3
-  zod: ^4.3.6
+  zod: 4.3.6
 
 catalogs:
   react19:

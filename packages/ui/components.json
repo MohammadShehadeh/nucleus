@@ -5,15 +5,14 @@
 	"tsx": true,
 	"tailwind": {
 		"config": "",
-		"css": "",
+		"css": "../../tooling/tailwind/theme.css",
 		"baseColor": "zinc",
 		"cssVariables": true
 	},
 	"aliases": {
-		"components": "@nucleus/ui/components",
-		"utils": "@nucleus/ui/lib/utils",
-		"hooks": "@nucleus/ui/hooks",
-		"lib": "@nucleus/ui/lib",
-		"ui": "src/components"
+		"components": "src/components",
+		"hooks": "src/hooks",
+		"utils": "src/lib/utils",
+		"lib": "src/lib"
 	}
 }
