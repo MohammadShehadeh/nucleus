@@ -30,6 +30,17 @@ jobs:
       - name: Run Biome
         run: pnpm check:ci
 
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup
+        uses: ./tooling/github/setup
+
+      - name: Build
+        run: pnpm build --filter "./packages/*"
+
   typecheck:
     runs-on: ubuntu-latest
     steps:
