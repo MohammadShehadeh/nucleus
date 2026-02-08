@@ -4,8 +4,14 @@
 	"version": "0.1.0",
 	"type": "module",
 	"exports": {
-		".": "./src/index.ts",
-		"./env": "./env.ts"
+		".": {
+			"types": "./dist/src/index.d.ts",
+			"default": "./src/index.ts"
+		},
+		"./env": {
+			"types": "./dist/env.d.ts",
+			"default": "./env.ts"
+		}
 	},
 	"license": "MIT",
 	"scripts": {

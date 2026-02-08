@@ -4,7 +4,10 @@
 	"version": "0.1.0",
 	"type": "module",
 	"exports": {
-		"./*": "./src/*.ts"
+		"./*": {
+			"types": "./dist/*.d.ts",
+			"default": "./src/*.ts"
+		}
 	},
 	"license": "MIT",
 	"scripts": {

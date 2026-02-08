@@ -4,10 +4,22 @@
 	"private": true,
 	"type": "module",
 	"exports": {
-		".": "./src/index.ts",
-		"./middleware": "./src/middleware.ts",
-		"./client": "./src/client.ts",
-		"./env": "./env.ts"
+		".": {
+			"types": "./dist/src/index.d.ts",
+			"default": "./src/index.ts"
+		},
+		"./middleware": {
+			"types": "./dist/src/middleware.d.ts",
+			"default": "./src/middleware.ts"
+		},
+		"./client": {
+			"types": "./dist/src/client.d.ts",
+			"default": "./src/client.ts"
+		},
+		"./env": {
+			"types": "./dist/env.d.ts",
+			"default": "./env.ts"
+		}
 	},
 	"license": "MIT",
 	"scripts": {

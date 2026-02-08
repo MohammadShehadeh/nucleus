@@ -5,12 +5,22 @@
 	"type": "module",
 	"exports": {
 		"./styles.css": "./src/styles.css",
-		"./components/*": "./src/components/*.tsx",
-		"./hooks/*": "./src/hooks/*.ts",
-		"./lib/*": "./src/lib/*.ts"
+		"./components/*": {
+			"types": "./dist/src/components/*.d.ts",
+			"default": "./src/components/*.tsx"
+		},
+		"./hooks/*": {
+			"types": "./dist/src/hooks/*.d.ts",
+			"default": "./src/hooks/*.ts"
+		},
+		"./lib/*": {
+			"types": "./dist/src/lib/*.d.ts",
+			"default": "./src/lib/*.ts"
+		}
 	},
 	"license": "MIT",
 	"scripts": {
+		"build": "tsc",
 		"clean": "git clean -xdf .cache .turbo dist node_modules",
 		"format": "biome format .",
 		"format:fix": "biome format --write .",
