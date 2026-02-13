@@ -14,17 +14,9 @@
       "cache": false,
       "persistent": false
     },
-    "format": {
-      "outputs": [".cache/.biomecache"],
-      "outputLogs": "new-only"
-    },
-    "lint": {
-      "dependsOn": ["^topo", "^build"],
-      "outputs": [".cache/.biomecache"]
-    },
-    "check": {
-      "dependsOn": ["^topo", "^build"],
-      "outputs": [".cache/.biomecache"]
+    "//#format-and-lint": {},
+    "//#format-and-lint:fix": {
+      "cache": false
     },
     "typecheck": {
       "dependsOn": ["^topo", "^build"],

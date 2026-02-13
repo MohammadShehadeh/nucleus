@@ -1,54 +1,51 @@
 {
-	"name": "@nucleus/auth",
-	"version": "0.1.0",
-	"private": true,
-	"type": "module",
-	"exports": {
-		".": {
-			"types": "./dist/src/index.d.ts",
-			"default": "./src/index.ts"
-		},
-		"./middleware": {
-			"types": "./dist/src/middleware.d.ts",
-			"default": "./src/middleware.ts"
-		},
-		"./client": {
-			"types": "./dist/src/client.d.ts",
-			"default": "./src/client.ts"
-		},
-		"./env": {
-			"types": "./dist/env.d.ts",
-			"default": "./env.ts"
-		}
-	},
-	"license": "MIT",
-	"scripts": {
-		"build": "tsc",
-		"dev": "tsc",
-		"clean": "git clean -xdf .cache .turbo dist node_modules",
-		"format": "biome format .",
-		"format:fix": "biome format --write .",
-		"lint": "biome lint .",
-		"lint:fix": "biome lint --write .",
-		"check": "biome check --write .",
-		"generate": "dotenv -e ../../.env -- pnpx @better-auth/cli generate --output ../db/src/auth-schema.ts",
-		"typecheck": "tsc --noEmit"
-	},
-	"dependencies": {
-		"@better-auth/expo": "catalog:",
-		"@nucleus/db": "workspace:*",
-		"@nucleus/email": "workspace:*",
-		"@t3-oss/env-core": "catalog:",
-		"better-auth": "catalog:",
-		"next": "catalog:",
-		"react": "catalog:react19",
-		"react-dom": "catalog:react19",
-		"zod": "catalog:"
-	},
-	"devDependencies": {
-		"@better-auth/cli": "catalog:",
-		"@nucleus/tsconfig": "workspace:*",
-		"@types/react": "catalog:react19",
-		"typescript": "catalog:"
-	}
+  "name": "@nucleus/auth",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "default": "./src/index.ts"
+    },
+    "./middleware": {
+      "types": "./dist/src/middleware.d.ts",
+      "default": "./src/middleware.ts"
+    },
+    "./client": {
+      "types": "./dist/src/client.d.ts",
+      "default": "./src/client.ts"
+    },
+    "./env": {
+      "types": "./dist/env.d.ts",
+      "default": "./env.ts"
+    }
+  },
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc",
+    "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "format-and-lint": "biome check .",
+    "format-and-lint:fix": "biome check . --write",
+    "generate": "dotenv -e ../../.env -- pnpx @better-auth/cli generate --output ../db/src/auth-schema.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@better-auth/expo": "catalog:",
+    "@nucleus/db": "workspace:*",
+    "@nucleus/email": "workspace:*",
+    "@t3-oss/env-core": "catalog:",
+    "better-auth": "catalog:",
+    "next": "catalog:",
+    "react": "catalog:react19",
+    "react-dom": "catalog:react19",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@better-auth/cli": "catalog:",
+    "@nucleus/tsconfig": "workspace:*",
+    "@types/react": "catalog:react19",
+    "typescript": "catalog:"
+  }
 }

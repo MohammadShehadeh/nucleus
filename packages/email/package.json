@@ -1,40 +1,37 @@
 {
-	"name": "@nucleus/email",
-	"private": true,
-	"version": "0.1.0",
-	"type": "module",
-	"exports": {
-		".": {
-			"types": "./dist/src/index.d.ts",
-			"default": "./src/index.ts"
-		},
-		"./env": {
-			"types": "./dist/env.d.ts",
-			"default": "./env.ts"
-		}
-	},
-	"license": "MIT",
-	"scripts": {
-		"build": "tsc",
-		"clean": "git clean -xdf .cache .turbo dist node_modules",
-		"dev": "tsc",
-		"format": "biome format .",
-		"format:fix": "biome format --write .",
-		"lint": "biome lint .",
-		"lint:fix": "biome lint --write .",
-		"check": "biome check --write .",
-		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
-	},
-	"dependencies": {
-		"@react-email/components": "1.0.7",
-		"@t3-oss/env-core": "catalog:",
-		"react": "catalog:react19",
-		"react-dom": "catalog:react19",
-		"resend": "^6.9.1",
-		"zod": "catalog:"
-	},
-	"devDependencies": {
-		"@nucleus/tsconfig": "workspace:*",
-		"typescript": "catalog:"
-	}
+  "name": "@nucleus/email",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "default": "./src/index.ts"
+    },
+    "./env": {
+      "types": "./dist/env.d.ts",
+      "default": "./env.ts"
+    }
+  },
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc",
+    "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "dev": "tsc",
+    "format-and-lint": "biome check .",
+    "format-and-lint:fix": "biome check . --write",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false"
+  },
+  "dependencies": {
+    "@react-email/components": "1.0.7",
+    "@t3-oss/env-core": "catalog:",
+    "react": "catalog:react19",
+    "react-dom": "catalog:react19",
+    "resend": "^6.9.1",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@nucleus/tsconfig": "workspace:*",
+    "typescript": "catalog:"
+  }
 }

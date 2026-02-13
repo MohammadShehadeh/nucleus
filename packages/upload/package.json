@@ -1,28 +1,25 @@
 {
-	"name": "@nucleus/upload",
-	"private": true,
-	"version": "0.1.0",
-	"type": "module",
-	"exports": {
-		".": {
-			"types": "./dist/index.d.ts",
-			"default": "./src/index.ts"
-		}
-	},
-	"license": "MIT",
-	"scripts": {
-		"build": "tsc",
-		"clean": "git clean -xdf .cache .turbo dist node_modules",
-		"dev": "tsc",
-		"format": "biome format .",
-		"format:fix": "biome format --write .",
-		"lint": "biome lint .",
-		"lint:fix": "biome lint --write .",
-		"check": "biome check --write .",
-		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
-	},
-	"devDependencies": {
-		"@nucleus/tsconfig": "workspace:*",
-		"typescript": "catalog:"
-	}
+  "name": "@nucleus/upload",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc",
+    "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "dev": "tsc",
+    "format-and-lint": "biome check .",
+    "format-and-lint:fix": "biome check . --write",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false"
+  },
+  "devDependencies": {
+    "@nucleus/tsconfig": "workspace:*",
+    "typescript": "catalog:"
+  }
 }

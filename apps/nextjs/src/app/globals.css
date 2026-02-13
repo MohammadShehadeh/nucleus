@@ -1,29 +1,30 @@
-@import 'tailwindcss';
-@import 'tw-animate-css';
-@import '@nucleus/tailwind-config/theme';
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "@nucleus/tailwind-config/theme";
+@import "@nucleus/ui/styles/tiptap-prose";
 
-@source '../../../../packages/ui/src/**/*.{ts,tsx}';
+@source "../../../../packages/ui/src/**/*.{ts,tsx}";
 
 @custom-variant dark (&:is(.dark *));
 
 @utility container {
-	margin-inline: auto;
-	padding-inline: 2rem;
+  padding-inline: 2rem;
+  margin-inline: auto;
 
-	@media (width >= --theme(--breakpoint-sm)) {
-		max-width: none;
-	}
+  @media (width >= --theme(--breakpoint-sm)) {
+    max-width: none;
+  }
 
-	@media (width >= 1400px) {
-		max-width: 1400px;
-	}
+  @media (width >= 1400px) {
+    max-width: 1400px;
+  }
 }
 
 @layer base {
-	* {
-		@apply border-border;
-	}
-	body {
-		letter-spacing: var(--tracking-normal);
-	}
+  * {
+    @apply border-border;
+  }
+  body {
+    letter-spacing: var(--tracking-normal);
+  }
 }

@@ -1,8 +1,12 @@
 {
-	"name": "@nucleus/tsconfig",
-	"private": true,
-	"version": "0.1.0",
-	"files": [
-		"*.json"
-	]
+  "name": "@nucleus/tsconfig",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "format-and-lint": "biome check .",
+    "format-and-lint:fix": "biome check . --write"
+  },
+  "files": [
+    "*.json"
+  ]
 }

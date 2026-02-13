@@ -1,0 +1,116 @@
+.tiptap-editor .ProseMirror {
+  color: var(--foreground);
+  @apply focus:outline-none min-h-[150px] px-3 py-2;
+}
+
+.tiptap-editor .ProseMirror:focus,
+.tiptap-editor .ProseMirror.ProseMirror-focused {
+  @apply outline-none;
+}
+
+.tiptap-editor .ProseMirror h1 {
+  color: var(--foreground);
+  @apply text-3xl font-bold mt-6 mb-3;
+}
+
+.tiptap-editor .ProseMirror h2 {
+  color: var(--foreground);
+  @apply text-2xl font-semibold mt-5 mb-2;
+}
+
+.tiptap-editor .ProseMirror h3 {
+  color: var(--foreground);
+  @apply text-xl font-semibold mt-4 mb-2;
+}
+
+.tiptap-editor .ProseMirror p {
+  @apply my-3 text-base leading-7;
+}
+
+.tiptap-editor .ProseMirror p:first-child {
+  @apply mt-0;
+}
+
+.tiptap-editor .ProseMirror p:last-child {
+  @apply mb-0;
+}
+
+.tiptap-editor .ProseMirror ul {
+  @apply my-3 ml-6 list-disc;
+}
+
+.tiptap-editor .ProseMirror ol {
+  @apply my-3 ml-6 list-decimal;
+}
+
+.tiptap-editor .ProseMirror li {
+  @apply my-1;
+}
+
+.tiptap-editor .ProseMirror li p {
+  @apply my-0;
+}
+
+.tiptap-editor .ProseMirror a {
+  @apply text-primary underline underline-offset-2 hover:text-primary/80 transition-colors;
+}
+
+.tiptap-editor .ProseMirror code {
+  color: var(--foreground);
+  @apply bg-muted px-1.5 py-0.5 rounded text-sm font-mono before:content-[''] after:content-[''];
+}
+
+.tiptap-editor .ProseMirror pre {
+  @apply bg-muted p-4 rounded-lg overflow-x-auto my-3 border border-border;
+}
+
+.tiptap-editor .ProseMirror pre code {
+  @apply bg-transparent p-0 text-sm leading-relaxed;
+}
+
+.tiptap-editor .ProseMirror blockquote {
+  @apply border-l-4 border-primary pl-4 italic my-3 text-muted-foreground;
+}
+
+.tiptap-editor .ProseMirror hr {
+  @apply my-6 border-t border-border;
+}
+
+.tiptap-editor .ProseMirror img {
+  @apply rounded-lg max-w-full h-auto my-4 border border-border;
+}
+
+.tiptap-editor .ProseMirror mark {
+  @apply bg-yellow-200 dark:bg-yellow-800 rounded-sm px-0.5;
+}
+
+.tiptap-editor .ProseMirror ::selection {
+  @apply bg-primary/20;
+}
+
+.tiptap-editor .ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  @apply text-muted-foreground pointer-events-none float-left h-0;
+}
+
+.tiptap-editor .ProseMirror .fake-selection {
+  @apply bg-primary/20 rounded-sm;
+}
+
+@media (max-width: 640px) {
+  .tiptap-editor .ProseMirror h1 {
+    @apply text-2xl;
+  }
+
+  .tiptap-editor .ProseMirror h2 {
+    @apply text-xl;
+  }
+
+  .tiptap-editor .ProseMirror h3 {
+    @apply text-lg;
+  }
+
+  .tiptap-editor .ProseMirror pre {
+    @apply text-xs;
+  }
+}

@@ -1,29 +1,20 @@
 {
-	"name": "@nucleus/tailwind-config",
-	"private": true,
-	"type": "module",
-	"exports": {
-		"./theme": "./theme.css",
-		"./postcss-config": "./postcss-config.js"
-	},
-	"license": "MIT",
-	"scripts": {
-		"clean": "git clean -xdf .cache .turbo node_modules",
-		"format:fix": "biome format --write .",
-		"format": "biome format .",
-		"lint": "biome lint .",
-		"lint:fix": "biome lint --write .",
-		"check": "biome check --write .",
-		"typecheck": "tsc --noEmit"
-	},
-	"dependencies": {
-		"@tailwindcss/postcss": "catalog:",
-		"postcss": "^8.5.6",
-		"tailwindcss": "catalog:"
-	},
-	"devDependencies": {
-		"@nucleus/tsconfig": "workspace:*",
-		"@types/node": "^25.2.1",
-		"typescript": "catalog:"
-	}
+  "name": "@nucleus/tailwind-config",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./theme": "./theme.css",
+    "./postcss-config": "./postcss-config.js"
+  },
+  "license": "MIT",
+  "scripts": {
+    "clean": "git clean -xdf .cache .turbo node_modules",
+    "format-and-lint": "biome check .",
+    "format-and-lint:fix": "biome check . --write"
+  },
+  "dependencies": {
+    "@tailwindcss/postcss": "catalog:",
+    "postcss": "^8.5.6",
+    "tailwindcss": "catalog:"
+  }
 }

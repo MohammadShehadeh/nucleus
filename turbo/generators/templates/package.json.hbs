@@ -11,11 +11,8 @@
     "build": "tsc",
     "clean": "git clean -xdf .cache .turbo dist node_modules",
     "dev": "tsc",
-    "format:fix": "biome format --write .",
-    "format": "biome format .",
-    "lint": "biome lint .",
-    "lint:fix": "biome lint --write .",
-    "check": "biome check --write .",
+		"format-and-lint": "biome check .",
+		"format-and-lint:fix": "biome check . --write",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false"
   },
   "devDependencies": {

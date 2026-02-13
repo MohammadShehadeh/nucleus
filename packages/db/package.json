@@ -1,56 +1,53 @@
 {
-	"name": "@nucleus/db",
-	"version": "0.1.0",
-	"private": true,
-	"type": "module",
-	"exports": {
-		".": {
-			"types": "./dist/src/index.d.ts",
-			"default": "./src/index.ts"
-		},
-		"./client": {
-			"types": "./dist/src/client.d.ts",
-			"default": "./src/client.ts"
-		},
-		"./schema": {
-			"types": "./dist/src/schema/index.d.ts",
-			"default": "./src/schema/index.ts"
-		},
-		"./env": {
-			"types": "./dist/env.d.ts",
-			"default": "./env.ts"
-		}
-	},
-	"license": "MIT",
-	"scripts": {
-		"build": "tsc",
-		"clean": "git clean -xdf .cache .turbo dist node_modules",
-		"dev": "tsc",
-		"format": "biome format .",
-		"format:fix": "biome format --write .",
-		"lint": "biome lint .",
-		"lint:fix": "biome lint --write .",
-		"check": "biome check --write .",
-		"push": "pnpm with-env drizzle-kit push",
-		"pull": "pnpm with-env drizzle-kit pull",
-		"drop": "pnpm with-env drizzle-kit drop",
-		"migrate": "pnpm with-env drizzle-kit migrate",
-		"generate": "pnpm with-env drizzle-kit generate",
-		"studio": "pnpm with-env drizzle-kit studio",
-		"typecheck": "tsc --noEmit --emitDeclarationOnly false",
-		"with-env": "dotenv -e ../../.env --"
-	},
-	"dependencies": {
-		"@t3-oss/env-core": "catalog:",
-		"drizzle-orm": "^0.45.1",
-		"drizzle-zod": "^0.8.3",
-		"postgres": "^3.4.8",
-		"zod": "catalog:"
-	},
-	"devDependencies": {
-		"@nucleus/tsconfig": "workspace:*",
-		"dotenv-cli": "^11.0.0",
-		"drizzle-kit": "^0.31.8",
-		"typescript": "catalog:"
-	}
+  "name": "@nucleus/db",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "default": "./src/index.ts"
+    },
+    "./client": {
+      "types": "./dist/src/client.d.ts",
+      "default": "./src/client.ts"
+    },
+    "./schema": {
+      "types": "./dist/src/schema/index.d.ts",
+      "default": "./src/schema/index.ts"
+    },
+    "./env": {
+      "types": "./dist/env.d.ts",
+      "default": "./env.ts"
+    }
+  },
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc",
+    "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "dev": "tsc",
+    "format-and-lint": "biome check .",
+    "format-and-lint:fix": "biome check . --write",
+    "push": "pnpm with-env drizzle-kit push",
+    "pull": "pnpm with-env drizzle-kit pull",
+    "drop": "pnpm with-env drizzle-kit drop",
+    "migrate": "pnpm with-env drizzle-kit migrate",
+    "generate": "pnpm with-env drizzle-kit generate",
+    "studio": "pnpm with-env drizzle-kit studio",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false",
+    "with-env": "dotenv -e ../../.env --"
+  },
+  "dependencies": {
+    "@t3-oss/env-core": "catalog:",
+    "drizzle-orm": "^0.45.1",
+    "drizzle-zod": "^0.8.3",
+    "postgres": "^3.4.8",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@nucleus/tsconfig": "workspace:*",
+    "dotenv-cli": "^11.0.0",
+    "drizzle-kit": "^0.31.8",
+    "typescript": "catalog:"
+  }
 }

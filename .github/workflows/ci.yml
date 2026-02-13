@@ -28,7 +28,7 @@ jobs:
         uses: ./tooling/github/setup
 
       - name: Run Biome
-        run: pnpm check:ci
+        run: pnpm format-and-lint
 
   build:
     runs-on: ubuntu-latest
