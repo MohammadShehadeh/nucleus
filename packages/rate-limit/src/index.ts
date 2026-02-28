@@ -100,8 +100,6 @@ export class RedisRateLimiter {
     const redisKey = `rate_limit:${key}`;
 
     try {
-      await this.redis.connect();
-
       // Use pipeline for atomic operations
       const pipeline = await this.redis.multi();
       if (!pipeline) {
