@@ -56,7 +56,6 @@ export class Redis {
   private defaultTTL: number;
   private isConnected = false;
   private static instance: Redis | null = null;
-  private connectingPromise: Promise<void> | null = null;
 
   private constructor(options: CacheOptions = {}) {
     const { url = env.REDIS_CONNECTION_STRING, defaultTTL = 3600 * 24 * 1 } = options;
@@ -67,7 +66,7 @@ export class Redis {
     this.client = createClient({
       url,
       socket: {
-        reconnectStrategy: (retries: number) => Math.min(retries * 100, 3000),
+        reconnectStrategy: (retries: number) => Math.min(retries * 100, 5000),
       },
     });
 
@@ -98,52 +97,6 @@ export class Redis {
     return Redis.instance;
   }
 
-  /**
-   * Connect to Redis (call once at app startup)
-   */
-  async connect(): Promise<void> {
-    if (this.isConnected && this.client.isOpen) {
-      return;
-    }
-
-    // If currently connecting, wait for that promise
-    if (this.connectingPromise) {
-      return this.connectingPromise;
-    }
-
-    // Start new connection
-    this.connectingPromise = this.client
-      .connect()
-      .then(() => {
-        this.isConnected = true;
-        this.connectingPromise = null;
-      })
-      .catch((err) => {
-        // Keep the promise in a failed state for a short period
-        // to prevent immediate retries from all requests.
-        setTimeout(() => {
-          this.connectingPromise = null;
-        }, 2000);
-        this.isConnected = false;
-        console.error("Failed to connect to Redis:", err);
-      });
-
-    return this.connectingPromise;
-  }
-
-  private async ensureConnected(): Promise<void> {
-    if (this.client.isReady && this.client.isOpen) {
-      return;
-    }
-
-    if (this.connectingPromise) {
-      return this.connectingPromise;
-    }
-
-    // Try to connect, but don't throw on failure
-    await this.connect();
-  }
-
   isReady(): boolean {
     return this.client.isReady;
   }
@@ -160,7 +113,6 @@ export class Redis {
   }
 
   async set<T>(key: string, value: T, options: CacheSetOptions = {}): Promise<void> {
-    await this.ensureConnected();
     const { ttl = this.defaultTTL } = options;
     try {
       const serializedValue = JSON.stringify(value);
@@ -172,7 +124,6 @@ export class Redis {
   }
 
   async get<T>(key: string): Promise<T | null> {
-    await this.ensureConnected();
     try {
       const value = await this.client.get(key);
       if (value === null) return null;
@@ -184,7 +135,6 @@ export class Redis {
   }
 
   async del(key: string): Promise<number> {
-    await this.ensureConnected();
     try {
       return await this.client.del(key);
     } catch (error) {
@@ -194,7 +144,6 @@ export class Redis {
   }
 
   async exists(key: string): Promise<boolean> {
-    await this.ensureConnected();
     try {
       const result = await this.client.exists(key);
       return result === 1;
@@ -205,12 +154,10 @@ export class Redis {
   }
 
   async clear(): Promise<void> {
-    await this.ensureConnected();
     await this.client.flushDb();
   }
 
   async wrapWithCache<T>(fn: () => Promise<T>, options: WrapWithCacheOptions): Promise<T> {
-    await this.ensureConnected();
     const { key, ttl = this.defaultTTL } = options;
     const value = await this.get<T>(key);
     if (value) return value;
@@ -220,7 +167,6 @@ export class Redis {
   }
 
   async multi(): Promise<ReturnType<RedisClient["multi"]> | null> {
-    await this.ensureConnected();
     try {
       return this.client.multi();
     } catch (error) {
