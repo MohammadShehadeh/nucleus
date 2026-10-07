@@ -2,10 +2,10 @@
   "name": "nucleus",
   "private": true,
   "engines": {
-    "node": ">=22.20.0",
-    "pnpm": ">=10.19.0"
+    "node": ">=24",
+    "pnpm": ">=12"
   },
-  "packageManager": "pnpm@10.19.0",
+  "packageManager": "pnpm@12.10.1",
   "scripts": {
     "build": "turbo run build",
     "clean": "git clean -xdf node_modules",
@@ -28,11 +28,11 @@
     "prepare": "husky"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.5.0",
-    "@turbo/gen": "^2.9.18",
+    "@biomejs/biome": "2.5.15",
+    "@turbo/gen": "^2.11.7",
     "husky": "^9.1.7",
-    "lint-staged": "^17.0.7",
-    "turbo": "^2.9.18",
+    "lint-staged": "^17.6.0",
+    "turbo": "^2.11.7",
     "typescript": "catalog:"
   }
 }

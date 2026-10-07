@@ -14,7 +14,7 @@
     "with-env": "dotenv -e ../../.env --"
   },
   "dependencies": {
-    "@hookform/resolvers": "^5.4.0",
+    "@hookform/resolvers": "^5.9.1",
     "@nucleus/api": "workspace:*",
     "@nucleus/auth": "workspace:*",
     "@nucleus/cache": "workspace:*",
@@ -28,7 +28,7 @@
     "@trpc/client": "catalog:",
     "@trpc/server": "catalog:",
     "@trpc/tanstack-react-query": "catalog:",
-    "motion": "^12.40.0",
+    "motion": "^14.0.0",
     "next": "catalog:",
     "react": "catalog:react19",
     "react-dom": "catalog:react19",
@@ -38,7 +38,7 @@
   "devDependencies": {
     "@nucleus/tailwind-config": "workspace:*",
     "@nucleus/tsconfig": "workspace:*",
-    "@types/node": "^25.9.3",
+    "@types/node": "^26.6.4",
     "@types/react": "catalog:react19",
     "@types/react-dom": "catalog:react19",
     "dotenv-cli": "^11.0.0",

@@ -52,7 +52,7 @@
     "@nucleus/validators": "workspace:*",
     "@t3-oss/env-core": "catalog:",
     "date-fns": "^4.4.0",
-    "drizzle-orm": "^0.45.2",
+    "drizzle-orm": "^0.45.3",
     "drizzle-zod": "^0.8.3",
     "postgres": "^3.4.9",
     "zod": "catalog:"
@@ -60,8 +60,8 @@
   "devDependencies": {
     "@nucleus/tsconfig": "workspace:*",
     "dotenv-cli": "^11.0.0",
-    "drizzle-kit": "^0.31.10",
-    "tsx": "^4.22.4",
+    "drizzle-kit": "^0.31.11",
+    "tsx": "^4.23.15",
     "typescript": "catalog:",
     "vitest": "catalog:"
   }
