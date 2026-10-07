@@ -217,17 +217,24 @@ const HeroSection = () => {
         </p>
         <div className="mt-10 flex flex-col items-center gap-4">
           <div className="flex w-full flex-col justify-center gap-3 sm:w-auto sm:flex-row">
-            <Button size="lg" className="h-11 px-6" asChild>
-              <Link href={GITHUB_URL} target="_blank" rel="noopener noreferrer">
-                <GitHubIcon className="size-4" />
-                View on GitHub
-              </Link>
+            <Button
+              size="lg"
+              className="h-11 px-6"
+              nativeButton={false}
+              render={<Link href={GITHUB_URL} target="_blank" rel="noopener noreferrer" />}
+            >
+              <GitHubIcon className="size-4" />
+              View on GitHub
             </Button>
-            <Button size="lg" variant="outline" className="h-11 px-6" asChild>
-              <Link href="#features">
-                Explore features
-                <ArrowRight className="size-4" />
-              </Link>
+            <Button
+              size="lg"
+              variant="outline"
+              className="h-11 px-6"
+              nativeButton={false}
+              render={<Link href="#features" />}
+            >
+              Explore features
+              <ArrowRight className="size-4" />
             </Button>
           </div>
           <CloneCommand command={CLONE_COMMAND} />
@@ -374,14 +381,23 @@ const CtaSection = () => {
             infrastructure setup.
           </p>
           <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <Button size="lg" className="h-11 px-6" asChild>
-              <Link href={GITHUB_URL} target="_blank" rel="noopener noreferrer">
-                <GitHubIcon className="size-4" />
-                Clone Nucleus
-              </Link>
+            <Button
+              size="lg"
+              className="h-11 px-6"
+              nativeButton={false}
+              render={<Link href={GITHUB_URL} target="_blank" rel="noopener noreferrer" />}
+            >
+              <GitHubIcon className="size-4" />
+              Clone Nucleus
             </Button>
-            <Button size="lg" variant="outline" className="h-11 px-6" asChild>
-              <Link href="/register">Create an account</Link>
+            <Button
+              size="lg"
+              variant="outline"
+              className="h-11 px-6"
+              nativeButton={false}
+              render={<Link href="/register" />}
+            >
+              Create an account
             </Button>
           </div>
         </div>

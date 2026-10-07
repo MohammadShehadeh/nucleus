@@ -40,19 +40,21 @@ export const DataTableViewOptions = <TData extends RowData>({
 
   return (
     <Popover>
-      <PopoverTrigger asChild>
-        <Button
-          aria-label={labels.toggleColumns}
-          role="combobox"
-          variant="outline"
-          size="sm"
-          data-slot="data-table-view-options"
-          className="ms-auto hidden h-8 font-normal lg:flex"
-          disabled={disabled}
-        >
-          <Settings2 className="text-muted-foreground" />
-          {labels.view}
-        </Button>
+      <PopoverTrigger
+        render={
+          <Button
+            aria-label={labels.toggleColumns}
+            role="combobox"
+            variant="outline"
+            size="sm"
+            data-slot="data-table-view-options"
+            className="ms-auto hidden h-8 font-normal lg:flex"
+            disabled={disabled}
+          />
+        }
+      >
+        <Settings2 className="text-muted-foreground" />
+        {labels.view}
       </PopoverTrigger>
       <PopoverContent className="w-44 p-0" {...props}>
         <Command>

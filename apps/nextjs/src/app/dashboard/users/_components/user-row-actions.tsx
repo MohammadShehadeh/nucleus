@@ -49,21 +49,19 @@ export const UserRowActions = ({ user }: UserRowActionsProps) => {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon">
-          <MoreHorizontal className="size-4" />
-          <span className="sr-only">Open actions</span>
-        </Button>
+      <DropdownMenuTrigger render={<Button variant="ghost" size="icon" />}>
+        <MoreHorizontal className="size-4" />
+        <span className="sr-only">Open actions</span>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuLabel>Assign role</DropdownMenuLabel>
-        <DropdownMenuSeparator />
         <DropdownMenuRadioGroup
           value={user.roleId ?? "none"}
           onValueChange={(value) =>
             setRole.mutate({ userId: user.id, roleId: value === "none" ? null : value })
           }
         >
+          <DropdownMenuLabel>Assign role</DropdownMenuLabel>
+          <DropdownMenuSeparator />
           <DropdownMenuRadioItem value="none">No role</DropdownMenuRadioItem>
           {rolesQuery.data?.map((role) => (
             <DropdownMenuRadioItem key={role.id} value={role.id}>

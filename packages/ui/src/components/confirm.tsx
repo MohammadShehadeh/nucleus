@@ -1,9 +1,6 @@
 "use client";
 
-import * as React from "react";
-
-import { createSafeContext } from "../lib/create-safe-context";
-import { cn } from "../lib/utils";
+import type { AlertDialog as AlertDialogPrimitive } from "@base-ui/react/alert-dialog";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -13,9 +10,12 @@ import {
   AlertDialogHeader,
   AlertDialogMedia,
   AlertDialogTitle,
-} from "./alert-dialog";
-import { Button } from "./button";
-import { Spinner } from "./spinner";
+} from "@nucleus/ui/components/alert-dialog";
+import { Button } from "@nucleus/ui/components/button";
+import { Spinner } from "@nucleus/ui/components/spinner";
+import { createSafeContext } from "@nucleus/ui/lib/create-safe-context";
+import { cn } from "@nucleus/ui/lib/utils";
+import * as React from "react";
 
 export type ConfirmTone = "default" | "destructive";
 
@@ -104,14 +104,6 @@ export const ConfirmProvider = ({ children, defaultOptions }: ConfirmProviderPro
       );
   }, [settle]);
 
-  const handleOpenChange = React.useCallback(
-    (next: boolean) => {
-      if (next || pending) return;
-      settle(false);
-    },
-    [pending, settle]
-  );
-
   const options: ConfirmOptions = {
     confirmText: "Confirm",
     cancelText: "Cancel",
@@ -123,6 +115,15 @@ export const ConfirmProvider = ({ children, defaultOptions }: ConfirmProviderPro
 
   const tone = options.tone ?? "default";
   const dismissible = options.dismissible ?? true;
+
+  const handleOpenChange = (
+    next: boolean,
+    details: AlertDialogPrimitive.Root.ChangeEventDetails
+  ) => {
+    if (next || pending) return;
+    if (!dismissible && details.reason === "escape-key") return;
+    settle(false);
+  };
   const hasDescription = options.description != null;
   const hasTitle = options.title != null && options.title !== "";
 
@@ -130,13 +131,7 @@ export const ConfirmProvider = ({ children, defaultOptions }: ConfirmProviderPro
     <ConfirmContextProvider value={confirm}>
       {children}
       <AlertDialog open={open} onOpenChange={handleOpenChange}>
-        <AlertDialogContent
-          data-tone={tone}
-          onEscapeKeyDown={(event) => {
-            if (!dismissible || pending) event.preventDefault();
-          }}
-          {...(hasDescription ? {} : { "aria-describedby": undefined })}
-        >
+        <AlertDialogContent data-tone={tone}>
           <AlertDialogHeader>
             {options.icon != null ? (
               <AlertDialogMedia

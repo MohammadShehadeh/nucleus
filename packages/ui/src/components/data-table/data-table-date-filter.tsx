@@ -190,16 +190,18 @@ export const DataTableDateFilter = <TData extends RowData>({
             <XCircle />
           </Button>
         ) : null}
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            size="sm"
-            data-slot="data-table-date-filter"
-            className={cn("border-dashed font-normal", hasValue && "rounded-s-none")}
-          >
-            {hasValue ? null : <CalendarIcon />}
-            {label}
-          </Button>
+        <PopoverTrigger
+          render={
+            <Button
+              variant="outline"
+              size="sm"
+              data-slot="data-table-date-filter"
+              className={cn("border-dashed font-normal", hasValue && "rounded-s-none")}
+            />
+          }
+        >
+          {hasValue ? null : <CalendarIcon />}
+          {label}
         </PopoverTrigger>
       </div>
       <PopoverContent className="w-auto p-0" align="start">

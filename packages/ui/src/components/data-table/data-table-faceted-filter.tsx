@@ -84,49 +84,51 @@ export const DataTableFacetedFilter = <TData extends RowData, TValue extends Cel
             <XCircle />
           </Button>
         ) : null}
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            size="sm"
-            data-slot="data-table-faceted-filter"
-            className={cn(
-              "border-dashed font-normal",
-              selectedValues?.size > 0 && "rounded-s-none"
-            )}
-          >
-            {selectedValues?.size > 0 ? null : <PlusCircle />}
-            {title}
-            {selectedValues?.size > 0 && (
-              <>
-                <Separator
-                  orientation="vertical"
-                  className="mx-0.5 data-[orientation=vertical]:h-4"
-                />
-                <Badge variant="secondary" className="rounded-sm px-1 font-normal lg:hidden">
-                  {selectedValues.size}
-                </Badge>
-                <div className="hidden items-center gap-1 lg:flex">
-                  {selectedValues.size > 2 ? (
-                    <Badge variant="secondary" className="rounded-sm px-1 font-normal">
-                      {labels.selectedCount(selectedValues.size)}
-                    </Badge>
-                  ) : (
-                    options
-                      .filter((option) => selectedValues.has(option.value))
-                      .map((option) => (
-                        <Badge
-                          variant="secondary"
-                          key={option.value}
-                          className="rounded-sm px-1 font-normal"
-                        >
-                          {option.label}
-                        </Badge>
-                      ))
-                  )}
-                </div>
-              </>
-            )}
-          </Button>
+        <PopoverTrigger
+          render={
+            <Button
+              variant="outline"
+              size="sm"
+              data-slot="data-table-faceted-filter"
+              className={cn(
+                "border-dashed font-normal",
+                selectedValues?.size > 0 && "rounded-s-none"
+              )}
+            />
+          }
+        >
+          {selectedValues?.size > 0 ? null : <PlusCircle />}
+          {title}
+          {selectedValues?.size > 0 && (
+            <>
+              <Separator
+                orientation="vertical"
+                className="mx-0.5 data-[orientation=vertical]:h-4"
+              />
+              <Badge variant="secondary" className="rounded-sm px-1 font-normal lg:hidden">
+                {selectedValues.size}
+              </Badge>
+              <div className="hidden items-center gap-1 lg:flex">
+                {selectedValues.size > 2 ? (
+                  <Badge variant="secondary" className="rounded-sm px-1 font-normal">
+                    {labels.selectedCount(selectedValues.size)}
+                  </Badge>
+                ) : (
+                  options
+                    .filter((option) => selectedValues.has(option.value))
+                    .map((option) => (
+                      <Badge
+                        variant="secondary"
+                        key={option.value}
+                        className="rounded-sm px-1 font-normal"
+                      >
+                        {option.label}
+                      </Badge>
+                    ))
+                )}
+              </div>
+            </>
+          )}
         </PopoverTrigger>
       </div>
       <PopoverContent className="w-50 p-0" align="start">

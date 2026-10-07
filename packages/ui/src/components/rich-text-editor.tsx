@@ -142,16 +142,18 @@ const ToolbarButton = ({
 }: ToolbarButtonProps) => {
   return (
     <Tooltip>
-      <TooltipTrigger asChild>
-        <Toggle
-          size="sm"
-          aria-label={tooltip}
-          pressed={pressed}
-          onPressedChange={onPressedChange}
-          disabled={disabled}
-        >
-          {children}
-        </Toggle>
+      <TooltipTrigger
+        render={
+          <Toggle
+            size="sm"
+            aria-label={tooltip}
+            pressed={pressed}
+            onPressedChange={onPressedChange}
+            disabled={disabled}
+          />
+        }
+      >
+        {children}
       </TooltipTrigger>
       <TooltipContent side="top">{tooltip}</TooltipContent>
     </Tooltip>
@@ -197,29 +199,19 @@ const LinkPopover = ({ editor }: LinkPopoverProps) => {
   return (
     <Popover open={open} onOpenChange={handleOpen}>
       <Tooltip>
-        <TooltipTrigger asChild>
-          <PopoverTrigger asChild>
-            <Toggle
-              size="sm"
-              aria-label="Link"
-              pressed={editor.isActive("link")}
-              onPressedChange={() => handleOpen(!open)}
-            >
-              <LinkIcon className="size-4" />
-            </Toggle>
-          </PopoverTrigger>
+        <TooltipTrigger
+          render={
+            <PopoverTrigger
+              render={<Toggle size="sm" aria-label="Link" pressed={editor.isActive("link")} />}
+            />
+          }
+        >
+          <LinkIcon className="size-4" />
         </TooltipTrigger>
         <TooltipContent side="top">Link</TooltipContent>
       </Tooltip>
 
-      <PopoverContent
-        className="w-80 p-3"
-        align="start"
-        onOpenAutoFocus={(e) => {
-          e.preventDefault();
-          inputRef.current?.focus();
-        }}
-      >
+      <PopoverContent className="w-80 p-3" align="start" initialFocus={inputRef}>
         <form
           className="flex items-center gap-2"
           onSubmit={(e) => {

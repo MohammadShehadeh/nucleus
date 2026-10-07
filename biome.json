@@ -109,6 +109,20 @@
           }
         }
       }
+    },
+    {
+      "includes": ["packages/ui/src/components/**"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noDoubleEquals": "warn"
+          },
+          "a11y": {
+            "noLabelWithoutControl": "warn",
+            "noRedundantRoles": "warn"
+          }
+        }
+      }
     }
   ]
 }

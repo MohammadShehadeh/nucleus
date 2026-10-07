@@ -125,7 +125,7 @@ export const DataTableSliderFilter = <TData extends RowData>({
   }, [toDraft, column, max, range]);
 
   const onSliderValueChange = React.useCallback(
-    (value: RangeValue) => {
+    (value: number | readonly number[]) => {
       if (Array.isArray(value) && value.length === 2) {
         setFromDraft(null);
         setToDraft(null);
@@ -163,26 +163,28 @@ export const DataTableSliderFilter = <TData extends RowData>({
             <XCircle />
           </Button>
         ) : null}
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            size="sm"
-            data-slot="data-table-slider-filter"
-            className={cn("border-dashed font-normal", columnFilterValue && "rounded-s-none")}
-          >
-            {columnFilterValue ? null : <PlusCircle />}
-            <span>{title}</span>
-            {columnFilterValue ? (
-              <>
-                <Separator
-                  orientation="vertical"
-                  className="mx-0.5 data-[orientation=vertical]:h-4"
-                />
-                {formatValue(columnFilterValue[0])} - {formatValue(columnFilterValue[1])}
-                {unit ? ` ${unit}` : ""}
-              </>
-            ) : null}
-          </Button>
+        <PopoverTrigger
+          render={
+            <Button
+              variant="outline"
+              size="sm"
+              data-slot="data-table-slider-filter"
+              className={cn("border-dashed font-normal", columnFilterValue && "rounded-s-none")}
+            />
+          }
+        >
+          {columnFilterValue ? null : <PlusCircle />}
+          <span>{title}</span>
+          {columnFilterValue ? (
+            <>
+              <Separator
+                orientation="vertical"
+                className="mx-0.5 data-[orientation=vertical]:h-4"
+              />
+              {formatValue(columnFilterValue[0])} - {formatValue(columnFilterValue[1])}
+              {unit ? ` ${unit}` : ""}
+            </>
+          ) : null}
         </PopoverTrigger>
       </div>
       <PopoverContent align="start" className="flex w-auto flex-col gap-4">

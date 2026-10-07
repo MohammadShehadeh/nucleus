@@ -85,11 +85,9 @@ export const RoleRowActions = ({ role }: RoleRowActionsProps) => {
   return (
     <>
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon">
-            <MoreHorizontal className="size-4" />
-            <span className="sr-only">Open actions</span>
-          </Button>
+        <DropdownMenuTrigger render={<Button variant="ghost" size="icon" />}>
+          <MoreHorizontal className="size-4" />
+          <span className="sr-only">Open actions</span>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           {canUpdate && <DropdownMenuItem onClick={() => setEditOpen(true)}>Edit</DropdownMenuItem>}

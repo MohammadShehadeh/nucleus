@@ -25,7 +25,7 @@ pnpm workspaces (`apps/*`, `packages/*`, `tooling/*`) + Turborepo. Node >= 24, p
 | `@nucleus/rate-limit` | `RedisRateLimiter` (used in `proxy.ts`) |
 | `@nucleus/email` | Email templates + sending |
 | `@nucleus/i18n` | i18n setup |
-| `@nucleus/ui` | shadcn/ui components, data-table components/hooks, `cn`, formatters, providers |
+| `@nucleus/ui` | shadcn/ui components on **Base UI** (style `base-vega`, add/update with `pnpm ui-add`), data-table components/hooks, `cn`, formatters, providers. Compose with the `render` prop (`<DialogTrigger render={<Button />} />`, links: `<Button nativeButton={false} render={<Link href="/" />} />`), never Radix `asChild`; state selectors are Base UI ones (`data-popup-open:`, `data-panel-open:`), and menu labels live inside a `DropdownMenuGroup`/`RadioGroup`. |
 | `@nucleus/upload` | File upload utilities |
 | `@nucleus/validators` | zod schemas shared by client and server (`authentication.ts`, `data-table.ts`) |
 

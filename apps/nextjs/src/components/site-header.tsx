@@ -43,9 +43,7 @@ export const SiteHeader = () => {
         <Breadcrumb className="hidden sm:block">
           <BreadcrumbList>
             <BreadcrumbItem>
-              <BreadcrumbLink asChild>
-                <Link href="/dashboard">Dashboard</Link>
-              </BreadcrumbLink>
+              <BreadcrumbLink render={<Link href="/dashboard" />}>Dashboard</BreadcrumbLink>
             </BreadcrumbItem>
             {title && (
               <>

@@ -45,31 +45,51 @@ export const Header = () => {
         <Logo />
 
         <div className="flex items-center gap-1">
-          <Button variant="ghost" size="icon" asChild title="Dashboard" aria-label="Dashboard">
-            <Link prefetch={false} href="/dashboard">
-              <LayoutDashboard className="size-4" />
-            </Link>
+          <Button
+            variant="ghost"
+            size="icon"
+            title="Dashboard"
+            aria-label="Dashboard"
+            nativeButton={false}
+            render={<Link prefetch={false} href="/dashboard" />}
+          >
+            <LayoutDashboard className="size-4" />
           </Button>
-          <Button variant="ghost" size="icon" asChild title="Log in" aria-label="Log in">
-            <Link prefetch={false} href="/login">
-              <LogIn className="size-4" />
-            </Link>
+          <Button
+            variant="ghost"
+            size="icon"
+            title="Log in"
+            aria-label="Log in"
+            nativeButton={false}
+            render={<Link prefetch={false} href="/login" />}
+          >
+            <LogIn className="size-4" />
           </Button>
-          <Button variant="ghost" size="icon" asChild title="Get started" aria-label="Get started">
-            <Link prefetch={false} href="/register">
-              <UserPlus className="size-4" />
-            </Link>
+          <Button
+            variant="ghost"
+            size="icon"
+            title="Get started"
+            aria-label="Get started"
+            nativeButton={false}
+            render={<Link prefetch={false} href="/register" />}
+          >
+            <UserPlus className="size-4" />
           </Button>
-          <Button variant="ghost" size="sm" asChild>
-            <Link
-              href={GITHUB_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Star Nucleus on GitHub"
-            >
-              <Star className="size-4" />
-              {stars !== null && <span className="text-xs tabular-nums">{formatStars(stars)}</span>}
-            </Link>
+          <Button
+            variant="ghost"
+            size="sm"
+            nativeButton={false}
+            render={
+              <Link
+                href={GITHUB_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Star Nucleus on GitHub"
+              />
+            }
+          >
+            <Star className="size-4" />
+            {stars !== null && <span className="text-xs tabular-nums">{formatStars(stars)}</span>}
           </Button>
           <ThemeToggle />
         </div>

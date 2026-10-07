@@ -2,6 +2,7 @@ import "./globals.css";
 import { ConfirmProvider } from "@nucleus/ui/components/confirm";
 import { ThemeProvider } from "@nucleus/ui/components/theme";
 import { Toaster } from "@nucleus/ui/components/toast";
+import { TooltipProvider } from "@nucleus/ui/components/tooltip";
 import { cn } from "@nucleus/ui/lib/utils";
 import { NuqsAdapter } from "@nucleus/ui/providers/nuqs";
 import type { Metadata, Viewport } from "next";
@@ -69,7 +70,9 @@ export default function RootLayout({ children }: RootLayoutProps) {
             <TRPCReactProvider>
               <HydrateClient>
                 <ConfirmProvider>
-                  <div className="flex min-h-screen flex-col">{children}</div>
+                  <TooltipProvider>
+                    <div className="flex min-h-screen flex-col">{children}</div>
+                  </TooltipProvider>
                 </ConfirmProvider>
               </HydrateClient>
             </TRPCReactProvider>
