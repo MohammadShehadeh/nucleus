@@ -15,11 +15,16 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { MoreHorizontal } from "lucide-react";
 import { toast } from "sonner";
 import { usePermissions } from "@/components/permissions-provider";
+import { getErrorMessage } from "@/lib/error-messages";
 import { useTRPC } from "@/trpc/react";
 
 type User = RouterOutputs["users"]["list"]["data"][number];
 
-export function UserRowActions({ user }: { user: User }) {
+interface UserRowActionsProps {
+  user: User;
+}
+
+export const UserRowActions = ({ user }: UserRowActionsProps) => {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const { can } = usePermissions();
@@ -36,7 +41,7 @@ export function UserRowActions({ user }: { user: User }) {
         queryClient.invalidateQueries(trpc.users.list.queryFilter());
         toast.success("Role updated");
       },
-      onError: (error) => toast.error(error.message),
+      onError: (error) => toast.error(getErrorMessage(error)),
     })
   );
 
@@ -44,21 +49,19 @@ export function UserRowActions({ user }: { user: User }) {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon">
-          <MoreHorizontal className="size-4" />
-          <span className="sr-only">Open actions</span>
-        </Button>
+      <DropdownMenuTrigger render={<Button variant="ghost" size="icon" />}>
+        <MoreHorizontal className="size-4" />
+        <span className="sr-only">Open actions</span>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuLabel>Assign role</DropdownMenuLabel>
-        <DropdownMenuSeparator />
         <DropdownMenuRadioGroup
           value={user.roleId ?? "none"}
           onValueChange={(value) =>
             setRole.mutate({ userId: user.id, roleId: value === "none" ? null : value })
           }
         >
+          <DropdownMenuLabel>Assign role</DropdownMenuLabel>
+          <DropdownMenuSeparator />
           <DropdownMenuRadioItem value="none">No role</DropdownMenuRadioItem>
           {rolesQuery.data?.map((role) => (
             <DropdownMenuRadioItem key={role.id} value={role.id}>
@@ -69,4 +72,4 @@ export function UserRowActions({ user }: { user: User }) {
       </DropdownMenuContent>
     </DropdownMenu>
   );
-}
+};

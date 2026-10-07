@@ -1,14 +1,7 @@
 {
   "extends": "@nucleus/tsconfig/internal-package.json",
   "compilerOptions": {
-    "lib": ["ESNext"],
-    "jsx": "preserve",
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ],
-    "module": "esnext"
+    "jsx": "preserve"
   },
   "include": ["src", "*.ts"],
   "exclude": ["node_modules", "dist"]

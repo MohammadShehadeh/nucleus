@@ -10,7 +10,8 @@ import {
 
 type User = RouterOutputs["users"]["list"]["data"][number];
 
-export const searchParamsCache = createSearchParamsCache({
+// Shared by the server prefetch and the client query so both build the same query key.
+export const usersSearchParams = {
   page: parseAsInteger.withDefault(1),
   perPage: parseAsInteger.withDefault(10),
   sort: getSortingStateParser<User>().withDefault([{ id: "createdAt", desc: true }]),
@@ -18,6 +19,8 @@ export const searchParamsCache = createSearchParamsCache({
   name: parseAsString.withDefault(""),
   email: parseAsString.withDefault(""),
   emailVerified: parseAsArrayOf(parseAsStringEnum(["true", "false"])).withDefault([]),
-});
+};
+
+export const searchParamsCache = createSearchParamsCache(usersSearchParams);
 
 export type GetUsersSchema = Awaited<ReturnType<typeof searchParamsCache.parse>>;

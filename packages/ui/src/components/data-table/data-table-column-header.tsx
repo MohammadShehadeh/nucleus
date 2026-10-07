@@ -1,3 +1,4 @@
+"use no memo";
 "use client";
 
 import {
@@ -7,31 +8,43 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@nucleus/ui/components/dropdown-menu";
+import type { DataTableFeatures } from "@nucleus/ui/lib/data-table";
+import { useDataTableLabels } from "@nucleus/ui/lib/data-table-labels";
 import { cn } from "@nucleus/ui/lib/utils";
-import type { Column } from "@tanstack/react-table";
+import type { CellData, Column, RowData } from "@tanstack/react-table";
 import { ChevronDown, ChevronsUpDown, ChevronUp, EyeOff, X } from "lucide-react";
 
-interface DataTableColumnHeaderProps<TData, TValue>
+interface DataTableColumnHeaderProps<TData extends RowData, TValue extends CellData>
   extends React.ComponentProps<typeof DropdownMenuTrigger> {
-  column: Column<TData, TValue>;
+  column: Column<DataTableFeatures, TData, TValue>;
   label: string;
 }
 
-export function DataTableColumnHeader<TData, TValue>({
+export const DataTableColumnHeader = <TData extends RowData, TValue extends CellData>({
   column,
   label,
   className,
   ...props
-}: DataTableColumnHeaderProps<TData, TValue>) {
+}: DataTableColumnHeaderProps<TData, TValue>) => {
+  const labels = useDataTableLabels();
   if (!column.getCanSort() && !column.getCanHide()) {
-    return <div className={cn(className)}>{label}</div>;
+    return (
+      <div
+        data-slot="data-table-column-header"
+        className={cn(className)}
+        {...(props as React.ComponentProps<"div">)}
+      >
+        {label}
+      </div>
+    );
   }
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
+        data-slot="data-table-column-header"
         className={cn(
-          "-ml-1.5 flex h-8 items-center gap-1.5 rounded-md px-2 py-1.5 hover:bg-accent focus:outline-none focus:ring-1 focus:ring-ring data-[state=open]:bg-accent [&_svg]:size-4 [&_svg]:shrink-0 [&_svg]:text-muted-foreground",
+          "-ms-1.5 flex h-8 items-center gap-1.5 rounded-md px-2 py-1.5 hover:bg-accent focus:ring-1 focus:ring-ring focus:outline-none data-popup-open:bg-accent [&_svg]:size-4 [&_svg]:shrink-0 [&_svg]:text-muted-foreground",
           className
         )}
         {...props}
@@ -50,43 +63,43 @@ export function DataTableColumnHeader<TData, TValue>({
         {column.getCanSort() && (
           <>
             <DropdownMenuCheckboxItem
-              className="relative pr-8 pl-2 [&>span:first-child]:right-2 [&>span:first-child]:left-auto [&_svg]:text-muted-foreground"
+              className="relative ps-2 pe-8 [&_svg]:text-muted-foreground [&>span:first-child]:start-auto [&>span:first-child]:end-2"
               checked={column.getIsSorted() === "asc"}
               onClick={() => column.toggleSorting(false)}
             >
               <ChevronUp />
-              Asc
+              {labels.sortAscending}
             </DropdownMenuCheckboxItem>
             <DropdownMenuCheckboxItem
-              className="relative pr-8 pl-2 [&>span:first-child]:right-2 [&>span:first-child]:left-auto [&_svg]:text-muted-foreground"
+              className="relative ps-2 pe-8 [&_svg]:text-muted-foreground [&>span:first-child]:start-auto [&>span:first-child]:end-2"
               checked={column.getIsSorted() === "desc"}
               onClick={() => column.toggleSorting(true)}
             >
               <ChevronDown />
-              Desc
+              {labels.sortDescending}
             </DropdownMenuCheckboxItem>
             {column.getIsSorted() && (
               <DropdownMenuItem
-                className="pl-2 [&_svg]:text-muted-foreground"
+                className="ps-2 [&_svg]:text-muted-foreground"
                 onClick={() => column.clearSorting()}
               >
                 <X />
-                Reset
+                {labels.resetSorting}
               </DropdownMenuItem>
             )}
           </>
         )}
         {column.getCanHide() && (
           <DropdownMenuCheckboxItem
-            className="relative pr-8 pl-2 [&>span:first-child]:right-2 [&>span:first-child]:left-auto [&_svg]:text-muted-foreground"
+            className="relative ps-2 pe-8 [&_svg]:text-muted-foreground [&>span:first-child]:start-auto [&>span:first-child]:end-2"
             checked={!column.getIsVisible()}
             onClick={() => column.toggleVisibility(false)}
           >
             <EyeOff />
-            Hide
+            {labels.hideColumn}
           </DropdownMenuCheckboxItem>
         )}
       </DropdownMenuContent>
     </DropdownMenu>
   );
-}
+};

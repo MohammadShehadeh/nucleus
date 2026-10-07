@@ -28,7 +28,7 @@
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": true,
+      "preset": "recommended",
       "a11y": {
         "useKeyWithClickEvents": "warn",
         "useValidAnchor": "warn",
@@ -106,6 +106,20 @@
         "rules": {
           "suspicious": {
             "noUnknownAtRules": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/ui/src/components/**"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noDoubleEquals": "warn"
+          },
+          "a11y": {
+            "noLabelWithoutControl": "warn",
+            "noRedundantRoles": "warn"
           }
         }
       }

@@ -1,13 +1,9 @@
-"use client";
-
 import { Badge } from "@nucleus/ui/components/badge";
 import { Button } from "@nucleus/ui/components/button";
 import { cn } from "@nucleus/ui/lib/utils";
 import type { LucideIcon } from "lucide-react";
 import {
   ArrowRight,
-  Check,
-  Copy,
   Database,
   Flag,
   KeyRound,
@@ -21,21 +17,26 @@ import {
   Zap,
 } from "lucide-react";
 import Link from "next/link";
-import { useCallback, useState } from "react";
+import { CloneCommand } from "./_components/clone-command";
 
 const GITHUB_URL = "https://github.com/mohammadshehadeh/nucleus";
-const CLONE_COMMAND = "git clone https://github.com/niccoborg/nucleus.git";
+const CLONE_COMMAND = `git clone ${GITHUB_URL}.git`;
 
-type Feature = {
+interface Feature {
   icon: LucideIcon;
   title: string;
   description: string;
-};
+}
 
-type StackPackage = {
+interface StackPackage {
   name: string;
   desc: string;
-};
+}
+
+interface WorkflowItem {
+  title: string;
+  description: string;
+}
 
 const features: Feature[] = [
   {
@@ -130,7 +131,7 @@ const packages: StackPackage[] = [
   { name: "upload", desc: "File upload service" },
 ];
 
-const workflowItems = [
+const workflowItems: WorkflowItem[] = [
   {
     title: "Build Fast",
     description:
@@ -148,36 +149,37 @@ const workflowItems = [
   },
 ];
 
-function GitHubIcon({ className }: { className?: string }) {
+interface GitHubIconProps {
+  className?: string;
+}
+
+const GitHubIcon = ({ className }: GitHubIconProps) => {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true">
       <title>GitHub</title>
       <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12" />
     </svg>
   );
-}
+};
 
-function SectionContainer({
-  children,
-  className,
-}: {
+interface SectionContainerProps {
   children: React.ReactNode;
   className?: string;
-}) {
+}
+
+const SectionContainer = ({ children, className }: SectionContainerProps) => {
   return (
     <div className={cn("mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8", className)}>{children}</div>
   );
-}
+};
 
-function SectionHeader({
-  eyebrow,
-  title,
-  description,
-}: {
+interface SectionHeaderProps {
   eyebrow: string;
   title: string;
   description: string;
-}) {
+}
+
+const SectionHeader = ({ eyebrow, title, description }: SectionHeaderProps) => {
   return (
     <div className="mx-auto max-w-3xl text-center">
       <p className="text-primary text-sm font-medium">{eyebrow}</p>
@@ -185,39 +187,17 @@ function SectionHeader({
       <p className="text-muted-foreground mt-4 text-lg leading-relaxed">{description}</p>
     </div>
   );
-}
+};
 
-function CloneCommand() {
-  const [copied, setCopied] = useState(false);
-
-  const handleCopy = useCallback(() => {
-    void navigator.clipboard.writeText(CLONE_COMMAND);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  }, []);
-
-  return (
-    <Button variant="outline" onClick={handleCopy} className="gap-3 font-mono text-sm">
-      <span className="text-primary shrink-0 select-none">$</span>
-      <span className="min-w-0 truncate text-left">{CLONE_COMMAND}</span>
-      {copied ? (
-        <Check className="size-4 shrink-0 text-emerald-500" />
-      ) : (
-        <Copy className="text-muted-foreground size-4 shrink-0" />
-      )}
-    </Button>
-  );
-}
-
-function HeroSection() {
+const HeroSection = () => {
   return (
     <section className="relative overflow-hidden border-b py-24 sm:py-32 lg:py-40">
       <div
-        className="absolute inset-0 -z-20 bg-[radial-gradient(circle_at_top,hsl(var(--primary)/0.15),transparent_50%)]"
+        className="absolute inset-0 -z-20 bg-[radial-gradient(circle_at_top,color-mix(in_oklab,var(--primary)_15%,transparent),transparent_50%)]"
         aria-hidden="true"
       />
       <div
-        className="absolute inset-0 -z-10 bg-[linear-gradient(to_right,hsl(var(--border))_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border))_1px,transparent_1px)] bg-size-[4rem_4rem] opacity-30"
+        className="absolute inset-0 -z-10 bg-[linear-gradient(to_right,var(--border)_1px,transparent_1px),linear-gradient(to_bottom,var(--border)_1px,transparent_1px)] bg-size-[4rem_4rem] opacity-30"
         aria-hidden="true"
       />
 
@@ -237,39 +217,50 @@ function HeroSection() {
         </p>
         <div className="mt-10 flex flex-col items-center gap-4">
           <div className="flex w-full flex-col justify-center gap-3 sm:w-auto sm:flex-row">
-            <Button size="lg" className="h-11 px-6" asChild>
-              <Link href={GITHUB_URL} target="_blank" rel="noopener noreferrer">
-                <GitHubIcon className="size-4" />
-                View on GitHub
-              </Link>
+            <Button
+              size="lg"
+              className="h-11 px-6"
+              nativeButton={false}
+              render={<Link href={GITHUB_URL} target="_blank" rel="noopener noreferrer" />}
+            >
+              <GitHubIcon className="size-4" />
+              View on GitHub
             </Button>
-            <Button size="lg" variant="outline" className="h-11 px-6" asChild>
-              <Link href="#features">
-                Explore features
-                <ArrowRight className="size-4" />
-              </Link>
+            <Button
+              size="lg"
+              variant="outline"
+              className="h-11 px-6"
+              nativeButton={false}
+              render={<Link href="#features" />}
+            >
+              Explore features
+              <ArrowRight className="size-4" />
             </Button>
           </div>
-          <CloneCommand />
+          <CloneCommand command={CLONE_COMMAND} />
         </div>
       </SectionContainer>
     </section>
   );
+};
+
+interface FeatureCardProps {
+  feature: Feature;
 }
 
-function FeatureCard({ feature }: { feature: Feature }) {
+const FeatureCard = ({ feature }: FeatureCardProps) => {
   return (
     <article className="bg-card text-card-foreground rounded-lg border border-border p-6 transition-shadow hover:shadow-lg">
-      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
+      <div className="mb-4 flex size-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
         <feature.icon className="size-5" />
       </div>
       <h3 className="text-lg font-semibold">{feature.title}</h3>
       <p className="text-muted-foreground mt-2 text-sm leading-relaxed">{feature.description}</p>
     </article>
   );
-}
+};
 
-function FeatureGridSection() {
+const FeatureGridSection = () => {
   return (
     <section id="features" className="border-b py-16 sm:py-24">
       <SectionContainer>
@@ -286,9 +277,9 @@ function FeatureGridSection() {
       </SectionContainer>
     </section>
   );
-}
+};
 
-function StackBadges() {
+const StackBadges = () => {
   return (
     <div className="mt-8 flex flex-wrap gap-2">
       {stack.map((tech) => (
@@ -298,9 +289,9 @@ function StackBadges() {
       ))}
     </div>
   );
-}
+};
 
-function PackageTree() {
+const PackageTree = () => {
   return (
     <div className="bg-card rounded-lg border border-border">
       <div className="bg-muted/50 flex items-center gap-2 rounded-t-lg border-b px-4 py-3">
@@ -324,9 +315,9 @@ function PackageTree() {
       </div>
     </div>
   );
-}
+};
 
-function ArchitectureSection() {
+const ArchitectureSection = () => {
   return (
     <section className="border-b py-16 sm:py-24">
       <SectionContainer>
@@ -347,9 +338,9 @@ function ArchitectureSection() {
       </SectionContainer>
     </section>
   );
-}
+};
 
-function WorkflowSection() {
+const WorkflowSection = () => {
   return (
     <section className="border-b py-16 sm:py-24">
       <SectionContainer>
@@ -361,7 +352,7 @@ function WorkflowSection() {
         <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-3">
           {workflowItems.map((item, index) => (
             <article key={item.title} className="bg-card rounded-lg border border-border p-6">
-              <div className="mb-4 inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">
+              <div className="mb-4 inline-flex size-8 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">
                 {index + 1}
               </div>
               <h3 className="text-xl font-semibold">{item.title}</h3>
@@ -374,9 +365,9 @@ function WorkflowSection() {
       </SectionContainer>
     </section>
   );
-}
+};
 
-function CtaSection() {
+const CtaSection = () => {
   return (
     <section className="py-16 sm:py-24">
       <SectionContainer>
@@ -390,21 +381,30 @@ function CtaSection() {
             infrastructure setup.
           </p>
           <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <Button size="lg" className="h-11 px-6" asChild>
-              <Link href={GITHUB_URL} target="_blank" rel="noopener noreferrer">
-                <GitHubIcon className="size-4" />
-                Clone Nucleus
-              </Link>
+            <Button
+              size="lg"
+              className="h-11 px-6"
+              nativeButton={false}
+              render={<Link href={GITHUB_URL} target="_blank" rel="noopener noreferrer" />}
+            >
+              <GitHubIcon className="size-4" />
+              Clone Nucleus
             </Button>
-            <Button size="lg" variant="outline" className="h-11 px-6" asChild>
-              <Link href="/register">Create an account</Link>
+            <Button
+              size="lg"
+              variant="outline"
+              className="h-11 px-6"
+              nativeButton={false}
+              render={<Link href="/register" />}
+            >
+              Create an account
             </Button>
           </div>
         </div>
       </SectionContainer>
     </section>
   );
-}
+};
 
 export default function HomePage() {
   return (

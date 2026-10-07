@@ -1,11 +1,13 @@
 import { randomUUID } from "node:crypto";
 import { Redis } from "@nucleus/cache";
-import { roleCacheKey, SUPER_ADMIN_SLUG } from "@nucleus/db/rbac";
-import { permissionKeySchema, role } from "@nucleus/db/schema";
+import { roleCacheKey } from "@nucleus/db/rbac/cache";
+import { SUPER_ADMIN_SLUG } from "@nucleus/db/rbac/roles";
+import { permissionKeySchema, role } from "@nucleus/db/schema/rbac";
 import { checkPostgresErrorCode, takeFirstOrNull } from "@nucleus/db/utils";
 import { TRPCError, type TRPCRouterRecord } from "@trpc/server";
 import { and, asc, count, desc, eq, ilike, ne, or } from "drizzle-orm";
 import { z } from "zod/v4";
+import type { ErrorKey } from "../error-keys";
 import { assertCanGrant, requirePermission } from "../trpc";
 
 /** Drops a role's cached permissions so the next session read reflects the change. */
@@ -122,7 +124,7 @@ export const rolesRouter = {
       if (existing) {
         throw new TRPCError({
           code: "CONFLICT",
-          message: "A role with a similar name already exists.",
+          message: "ROLE_NAME_TAKEN" satisfies ErrorKey,
         });
       }
 
@@ -144,7 +146,7 @@ export const rolesRouter = {
         if (checkPostgresErrorCode(error, "unique_violation")) {
           throw new TRPCError({
             code: "CONFLICT",
-            message: "A role with a similar name already exists.",
+            message: "ROLE_NAME_TAKEN" satisfies ErrorKey,
           });
         }
         throw error;
@@ -158,17 +160,20 @@ export const rolesRouter = {
         await ctx.db.select().from(role).where(eq(role.id, input.id))
       );
       if (!existing) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Role not found." });
+        throw new TRPCError({ code: "NOT_FOUND", message: "ROLE_NOT_FOUND" satisfies ErrorKey });
       }
       // The super admin role is wildcard-based and must never be reshaped via the API.
       if (existing.slug === SUPER_ADMIN_SLUG) {
         throw new TRPCError({
           code: "FORBIDDEN",
-          message: "The super admin role cannot be modified.",
+          message: "ROLE_SUPER_ADMIN_IMMUTABLE" satisfies ErrorKey,
         });
       }
       if (existing.isSystem && input.name && input.name !== existing.name) {
-        throw new TRPCError({ code: "FORBIDDEN", message: "System role names cannot be changed." });
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "ROLE_SYSTEM_NAME_LOCKED" satisfies ErrorKey,
+        });
       }
       if (input.permissions) {
         assertCanGrant(ctx.session.user.permissions ?? [], input.permissions);
@@ -196,16 +201,19 @@ export const rolesRouter = {
         await ctx.db.select().from(role).where(eq(role.id, input.id))
       );
       if (!existing) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Role not found." });
+        throw new TRPCError({ code: "NOT_FOUND", message: "ROLE_NOT_FOUND" satisfies ErrorKey });
       }
       if (existing.isSystem) {
-        throw new TRPCError({ code: "FORBIDDEN", message: "System roles cannot be deleted." });
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "ROLE_SYSTEM_UNDELETABLE" satisfies ErrorKey,
+        });
       }
       // A deleted default would leave new signups with no role (no permissions).
       if (existing.isDefault) {
         throw new TRPCError({
           code: "BAD_REQUEST",
-          message: "Set another role as default before deleting this one.",
+          message: "ROLE_IS_DEFAULT" satisfies ErrorKey,
         });
       }
       // Users holding this role have their role_id nulled via the FK (ON DELETE SET NULL).
@@ -220,12 +228,12 @@ export const rolesRouter = {
     .mutation(async ({ ctx, input }) => {
       const target = takeFirstOrNull(await ctx.db.select().from(role).where(eq(role.id, input.id)));
       if (!target) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Role not found." });
+        throw new TRPCError({ code: "NOT_FOUND", message: "ROLE_NOT_FOUND" satisfies ErrorKey });
       }
       if (target.slug === SUPER_ADMIN_SLUG) {
         throw new TRPCError({
           code: "FORBIDDEN",
-          message: "The super admin role cannot be the default.",
+          message: "ROLE_SUPER_ADMIN_NOT_DEFAULTABLE" satisfies ErrorKey,
         });
       }
 

@@ -1,8 +1,6 @@
 "use client";
 
-import * as React from "react";
-
-import { cn } from "../lib/utils";
+import type { AlertDialog as AlertDialogPrimitive } from "@base-ui/react/alert-dialog";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -12,13 +10,16 @@ import {
   AlertDialogHeader,
   AlertDialogMedia,
   AlertDialogTitle,
-} from "./alert-dialog";
-import { Button } from "./button";
-import { Spinner } from "./spinner";
+} from "@nucleus/ui/components/alert-dialog";
+import { Button } from "@nucleus/ui/components/button";
+import { Spinner } from "@nucleus/ui/components/spinner";
+import { createSafeContext } from "@nucleus/ui/lib/create-safe-context";
+import { cn } from "@nucleus/ui/lib/utils";
+import * as React from "react";
 
 export type ConfirmTone = "default" | "destructive";
 
-export type ConfirmOptions = {
+export interface ConfirmOptions {
   title?: React.ReactNode;
   description?: React.ReactNode;
   confirmText?: React.ReactNode;
@@ -27,33 +28,27 @@ export type ConfirmOptions = {
   icon?: React.ReactNode;
   dismissible?: boolean;
   onConfirm?: () => void | Promise<void>;
-};
+}
 
 export type ConfirmFn = (options?: ConfirmOptions) => Promise<boolean>;
 
-const ConfirmContext = React.createContext<ConfirmFn | null>(null);
+const [ConfirmContextProvider, useConfirm] = createSafeContext<ConfirmFn>(
+  "useConfirm must be used inside <ConfirmProvider>"
+);
 
-function useConfirm(): ConfirmFn {
-  const ctx = React.useContext(ConfirmContext);
-  if (!ctx) {
-    throw new Error("useConfirm must be used inside <ConfirmProvider>");
-  }
-  return ctx;
-}
-
-type ConfirmRequest = {
+interface ConfirmRequest {
   options: ConfirmOptions;
   resolve: (value: boolean) => void;
-};
+}
 
-export type ConfirmProviderProps = {
+export interface ConfirmProviderProps {
   children: React.ReactNode;
   defaultOptions?: Pick<ConfirmOptions, "confirmText" | "cancelText" | "tone" | "dismissible">;
-};
+}
 
 const CLOSE_DURATION = 200;
 
-function ConfirmProvider({ children, defaultOptions }: ConfirmProviderProps) {
+export const ConfirmProvider = ({ children, defaultOptions }: ConfirmProviderProps) => {
   const [open, setOpen] = React.useState(false);
   const [pending, setPending] = React.useState(false);
   const [active, setActive] = React.useState<ConfirmRequest | null>(null);
@@ -109,14 +104,6 @@ function ConfirmProvider({ children, defaultOptions }: ConfirmProviderProps) {
       );
   }, [settle]);
 
-  const handleOpenChange = React.useCallback(
-    (next: boolean) => {
-      if (next || pending) return;
-      settle(false);
-    },
-    [pending, settle]
-  );
-
   const options: ConfirmOptions = {
     confirmText: "Confirm",
     cancelText: "Cancel",
@@ -128,19 +115,23 @@ function ConfirmProvider({ children, defaultOptions }: ConfirmProviderProps) {
 
   const tone = options.tone ?? "default";
   const dismissible = options.dismissible ?? true;
+
+  const handleOpenChange = (
+    next: boolean,
+    details: AlertDialogPrimitive.Root.ChangeEventDetails
+  ) => {
+    if (next || pending) return;
+    if (!dismissible && details.reason === "escape-key") return;
+    settle(false);
+  };
   const hasDescription = options.description != null;
+  const hasTitle = options.title != null && options.title !== "";
 
   return (
-    <ConfirmContext.Provider value={confirm}>
+    <ConfirmContextProvider value={confirm}>
       {children}
       <AlertDialog open={open} onOpenChange={handleOpenChange}>
-        <AlertDialogContent
-          data-tone={tone}
-          onEscapeKeyDown={(event) => {
-            if (!dismissible || pending) event.preventDefault();
-          }}
-          {...(hasDescription ? {} : { "aria-describedby": undefined })}
-        >
+        <AlertDialogContent data-tone={tone}>
           <AlertDialogHeader>
             {options.icon != null ? (
               <AlertDialogMedia
@@ -149,7 +140,11 @@ function ConfirmProvider({ children, defaultOptions }: ConfirmProviderProps) {
                 {options.icon}
               </AlertDialogMedia>
             ) : null}
-            <AlertDialogTitle>{options.title}</AlertDialogTitle>
+            {hasTitle ? (
+              <AlertDialogTitle>{options.title}</AlertDialogTitle>
+            ) : (
+              <AlertDialogTitle className="sr-only">Confirm action</AlertDialogTitle>
+            )}
             {hasDescription ? (
               <AlertDialogDescription>{options.description}</AlertDialogDescription>
             ) : null}
@@ -170,8 +165,8 @@ function ConfirmProvider({ children, defaultOptions }: ConfirmProviderProps) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </ConfirmContext.Provider>
+    </ConfirmContextProvider>
   );
-}
+};
 
-export { ConfirmProvider, useConfirm };
+export { useConfirm };

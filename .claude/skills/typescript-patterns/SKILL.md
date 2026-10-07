@@ -1,167 +1,74 @@
 ---
 name: typescript-patterns
-description: Contains TypeScript patterns and code quality guidelines. Use as a reference for types, interfaces, and general TypeScript best practices.
+description: TypeScript rules for Nucleus - interface for object shapes and type for unions, no inline type literals, no enum, no any, derive types from zod/drizzle/tRPC instead of restating them, status unions over parallel booleans, and React 19 ref-as-prop instead of forwardRef. Use when declaring types, props, state, or reviewing type quality.
 ---
 
-# TypeScript Guidelines
+# TypeScript Patterns
 
-## Type Safety Principles
-- Prefer explicit types over `any`. If a type is unknown, use `unknown` and perform type checking.
-- Use the strict TypeScript configuration defined in the shared `tooling/typescript/base.json`.
-- Leverage type inference for local variables and function return types when it improves readability, but prefer explicit types for public APIs.
-- Use branded types for domain-specific primitive values like IDs to prevent accidental mixing.
+Code style follows the `pxkit:pxkit-conventions` skill; this skill covers repo-specific patterns. On conflict, pxkit wins. (pxkit reference: `typescript.md`.)
 
-## Import Patterns
-Always use consistent import styles:
-```typescript
-// Type-only imports should use the `import type` syntax.
-import type { User } from "@nucleus/db/schema";
-import type { NextRequest } from "next/server";
+Strict mode comes from `@nucleus/tsconfig` (`tooling/typescript/base.json`); TypeScript 7. Biome enforces `noUnusedImports`/`noUnusedVariables`. Run `pnpm typecheck`.
 
-// Regular value imports
-import { z } from "zod/v4";
-import { eq } from "drizzle-orm";
+## interface vs type
 
-// Mixed imports are discouraged, prefer separate lines.
-import { createTRPCRouter } from "@nucleus/api/trpc";
-import type { TRPCRouterRecord } from "@trpc/server";
-```
+- `interface` for object shapes (props, context values, options). Props are `interface <Component>Props`, no `I` prefix.
+- `type` for unions, aliases, and derived types.
+- **Never inline a type literal.** Declare it above first use.
 
-## Zod Integration
-Always import Zod from `zod/v4` for consistency across the project. Use `z.infer` to create TypeScript types from your Zod schemas.
-```typescript
-import { z } from "zod/v4";
-import { loginSchema } from "@nucleus/validators";
-import { userInsertSchema } from "@nucleus/db/schema";
+```tsx
+// Bad
+export function UserRowActions({ user }: { user: User }) {}
+export function HydrateClient(props: { children: React.ReactNode }) {}
 
-// Type inference from Zod schemas
-export type LoginFormData = z.infer<typeof loginSchema>;
-export type UserInsert = z.infer<typeof userInsertSchema>;
-```
-
-## Function Patterns
-
-### Async Function Types
-```typescript
-import { user, userInsertSchema, type User } from "@nucleus/db/schema";
-import { db } from "@nucleus/db";
-import { eq } from "drizzle-orm";
-
-// Prefer explicit return types for public APIs and functions.
-export async function createUser(data: UserInsert): Promise<User> {
-  const newUser = await db.insert(user).values(data).returning();
-  return newUser[0];
+// Good
+interface UserRowActionsProps {
+  user: User;
 }
 
-// Always handle potential null/undefined returns.
-export async function getUserById(id: string): Promise<User | null> {
-  try {
-    const result = await db.query.user.findFirst({
-      where: eq(user.id, id),
-    });
-    return result ?? null;
-  } catch (error) {
-    console.error("Failed to get user:", error);
-    return null; // or re-throw as a domain-specific error
-  }
-}
+export const UserRowActions = ({ user }: UserRowActionsProps) => { ... };
 ```
 
-## React Component Types
+Composing declared names inline is fine: `RouterOutputs["users"]["list"]`, `Promise<SearchParams>`.
 
-### Component Props
-```typescript
-import * as React from "react";
-import { cn } from "@nucleus/ui/lib/utils";
+## Derive, don't restate
 
-// Use React.ComponentProps to inherit all standard HTML attributes.
-interface ButtonProps extends React.ComponentProps<"button"> {
-  variant?: "primary" | "secondary";
-}
+The sources of truth already exist - derive from them:
 
-// Use React.ReactNode for the `children` prop.
-interface LayoutProps {
-  children: React.ReactNode;
-}
+| Source | Derive with |
+| --- | --- |
+| tRPC procedure output/input | `RouterOutputs["users"]["list"]["data"][number]`, `RouterInputs[...]` from `@nucleus/api` |
+| Drizzle table | `typeof role.$inferSelect` / `$inferInsert` |
+| zod schema | `z.infer<typeof loginSchema>` (`import { z } from "zod/v4"`) |
+| nuqs cache | `Awaited<ReturnType<typeof searchParamsCache.parse>>` |
+| `as const` catalog | `keyof typeof X`, `(typeof X)[number]` (see `PermissionKey` in `packages/db/src/rbac/permissions.ts`) |
 
-// Forward refs properly with types.
-const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, ...props }, ref) => {
-    return (
-      <button
-        ref={ref}
-        className={cn("base-class", variant, className)}
-        {...props}
-      />
-    );
-  }
-);
-Button.displayName = "Button";
+Annotate only real contracts: params, exported signatures, mapper returns. Let initialized consts and obvious returns infer.
+
+## Unions, never enum
+
+```ts
+type Status = "idle" | "loading" | "success" | "error";
+const [status, setStatus] = useState<Status>("idle");
 ```
 
-## Utility Types
+- String-literal unions or `as const` + derived type. **No `enum`.**
+- One `status` union per async flow - never parallel `isLoading`/`isError`/`isSuccess` booleans. For tRPC calls use TanStack Query's own `status`/`isPending`; don't mirror them into state.
+- Model invalid states out (discriminated unions when a payload belongs to a state, e.g. `{ status: "error"; errorKey: ErrorKey }`).
 
-### Common Patterns
-```typescript
-import type { User } from "@nucleus/db/schema";
+## any / unknown
 
-// Pick specific fields for a public-facing user object.
-export type UserPublic = Pick<User, "id" | "name" | "image">;
+- `unknown` over `any`; narrow with type guards (`checkPostgresErrorCode` in `@nucleus/db/utils` is the model).
+- If `any` is truly unavoidable (e.g. the generic `prefetch` in `apps/nextjs/src/trpc/server.tsx`), add a lint-ignore comment explaining why.
+- No `Function`, `object`, or `{}` types.
 
-// Omit sensitive fields.
-export type UserSafe = Omit<User, "emailVerified">;
+## React 19
 
-// Use branded types for type-safe IDs.
-export type UserId = string & { readonly __brand: "UserId" };
-export type CourseId = string & { readonly __brand: "CourseId" };
+- **No `forwardRef`.** `ref` is a regular prop: `interface InputProps extends React.ComponentProps<"input"> {}` already includes it.
+- `children: React.ReactNode`.
+- React Compiler is **not** enabled: `useMemo`/`useCallback` only for measured hot paths or referential stability a dependency needs (e.g. module-level `columns` for `useDataTable`).
 
-function example(id: UserId) { /* ... */ }
-const courseId = "abc" as CourseId;
-// example(courseId); // This would be a type error.
-```
+## Misc
 
-### Database Types
-Infer types directly from your Drizzle schemas to ensure they are always in sync.
-```typescript
-import { type user } from "@nucleus/db/schema";
-
-export type User = typeof user.$inferSelect;
-export type NewUser = typeof user.$inferInsert;
-```
-
-## Best Practices
-
-### Type Guards
-Use type guards to narrow down `unknown` or union types.
-```typescript
-import type { User } from "@nucleus/db/schema";
-
-export function isUser(obj: unknown): obj is User {
-  return (
-    typeof obj === "object" &&
-    obj !== null &&
-    "id" in obj &&
-    "email" in obj &&
-    typeof (obj as User).id === "string" &&
-    typeof (obj as User).email === "string"
-  );
-}
-```
-
-### `const` Assertions
-Use `as const` to create readonly arrays or objects, allowing for more specific type inference.
-```typescript
-export const USER_ROLES = ["student", "instructor", "admin"] as const;
-export type UserRole = (typeof USER_ROLES)[number]; // "student" | "instructor" | "admin"
-
-export const API_ENDPOINTS = {
-  users: "/api/users",
-  auth: "/api/auth",
-} as const;
-```
-
-### Avoid Common Pitfalls
-- **Don't use `any`**: Use `unknown` for unknown values and perform type checking.
-- **Don't use `Function`**: Use specific function signatures like `() => void`.
-- **Don't use `object` or `{}`**: Use `Record<string, unknown>` or a specific interface.
-- **Always handle `null`/`undefined` cases**: Enable `strictNullChecks` and write code that accounts for these values.
+- `import type` for type-only imports.
+- Array syntax: follow the surrounding file (`T[]` is dominant here); don't churn.
+- JSDoc only where the contract isn't obvious (see `requirePermission` in `packages/api/src/trpc.ts`).

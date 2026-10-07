@@ -9,10 +9,13 @@
 
 import type { Auth } from "@nucleus/auth";
 import { db } from "@nucleus/db/client";
-import { hasAllPermissions, type PermissionKey } from "@nucleus/db/rbac";
-import { initTRPC, TRPCError } from "@trpc/server";
+import { hasAllPermissions } from "@nucleus/db/rbac/check";
+import type { PermissionKey } from "@nucleus/db/rbac/permissions";
+import { initTRPC, type TRPC_ERROR_CODE_KEY, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError, z } from "zod/v4";
+
+import { type ErrorKey, isErrorKey } from "./error-keys";
 
 /**
  * 1. CONTEXT
@@ -44,18 +47,33 @@ export const createTRPCContext = async (opts: { headers: Headers; auth: Auth }) 
  * This is where the trpc api is initialized, connecting the context and
  * transformer
  */
+// Errors thrown without an ErrorKey message (e.g. bare `UNAUTHORIZED`, input
+// validation, unexpected exceptions) still reach the client as a key.
+const ERROR_KEY_BY_CODE: Partial<Record<TRPC_ERROR_CODE_KEY, ErrorKey>> = {
+  UNAUTHORIZED: "UNAUTHORIZED",
+  FORBIDDEN: "PERMISSION_DENIED",
+  TOO_MANY_REQUESTS: "RATE_LIMITED",
+};
+
 const t = initTRPC.context<typeof createTRPCContext>().create({
   transformer: superjson,
-  errorFormatter: ({ shape, error }) => ({
-    ...shape,
-    data: {
-      ...shape.data,
-      zodError:
-        error.cause instanceof ZodError
-          ? z.flattenError(error.cause as ZodError<Record<string, unknown>>)
-          : null,
-    },
-  }),
+  errorFormatter: ({ shape, error }) => {
+    const zodError = error.cause instanceof ZodError ? error.cause : null;
+    let errorKey: ErrorKey = ERROR_KEY_BY_CODE[error.code] ?? "UNKNOWN";
+    if (zodError) errorKey = "VALIDATION_FAILED";
+    if (isErrorKey(error.message)) errorKey = error.message;
+
+    // The key replaces the raw message so internal error details stop at the server.
+    return {
+      ...shape,
+      message: errorKey,
+      data: {
+        ...shape.data,
+        errorKey,
+        zodError: zodError ? z.flattenError(zodError as ZodError<Record<string, unknown>>) : null,
+      },
+    };
+  },
 });
 
 /**
@@ -148,7 +166,7 @@ export const requirePermission = (...required: [PermissionKey, ...PermissionKey[
     if (!hasAllPermissions(granted, required)) {
       throw new TRPCError({
         code: "FORBIDDEN",
-        message: "You do not have permission to perform this action.",
+        message: "PERMISSION_DENIED" satisfies ErrorKey,
       });
     }
     return next();
@@ -163,7 +181,7 @@ export function assertCanGrant(granted: readonly string[], requested: readonly s
   if (!hasAllPermissions(granted, requested as readonly PermissionKey[])) {
     throw new TRPCError({
       code: "FORBIDDEN",
-      message: "You can only grant permissions you hold yourself.",
+      message: "PERMISSION_GRANT_EXCEEDED" satisfies ErrorKey,
     });
   }
 }

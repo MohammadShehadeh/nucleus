@@ -1,3 +1,4 @@
+"use no memo";
 "use client";
 
 import { Badge } from "@nucleus/ui/components/badge";
@@ -13,29 +14,35 @@ import {
 } from "@nucleus/ui/components/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@nucleus/ui/components/popover";
 import { Separator } from "@nucleus/ui/components/separator";
+import type { DataTableFeatures } from "@nucleus/ui/lib/data-table";
+import { useDataTableLabels } from "@nucleus/ui/lib/data-table-labels";
 import { cn } from "@nucleus/ui/lib/utils";
 import type { Option } from "@nucleus/ui/types/data-table";
-import type { Column } from "@tanstack/react-table";
+import type { CellData, Column, RowData } from "@tanstack/react-table";
 import { Check, PlusCircle, XCircle } from "lucide-react";
 import * as React from "react";
 
-interface DataTableFacetedFilterProps<TData, TValue> {
-  column?: Column<TData, TValue>;
+interface DataTableFacetedFilterProps<TData extends RowData, TValue extends CellData> {
+  column?: Column<DataTableFeatures, TData, TValue>;
   title?: string;
   options: Option[];
   multiple?: boolean;
 }
 
-export function DataTableFacetedFilter<TData, TValue>({
+export const DataTableFacetedFilter = <TData extends RowData, TValue extends CellData>({
   column,
   title,
   options,
   multiple,
-}: DataTableFacetedFilterProps<TData, TValue>) {
+}: DataTableFacetedFilterProps<TData, TValue>) => {
+  const labels = useDataTableLabels();
   const [open, setOpen] = React.useState(false);
 
   const columnFilterValue = column?.getFilterValue();
-  const selectedValues = new Set(Array.isArray(columnFilterValue) ? columnFilterValue : []);
+  const selectedValues = React.useMemo(
+    () => new Set(Array.isArray(columnFilterValue) ? columnFilterValue : []),
+    [columnFilterValue]
+  );
 
   const onItemSelect = React.useCallback(
     (option: Option, isSelected: boolean) => {
@@ -58,31 +65,39 @@ export function DataTableFacetedFilter<TData, TValue>({
     [column, multiple, selectedValues]
   );
 
-  const onReset = React.useCallback(
-    (event?: React.MouseEvent) => {
-      event?.stopPropagation();
-      column?.setFilterValue(undefined);
-    },
-    [column]
-  );
+  const onReset = React.useCallback(() => {
+    column?.setFilterValue(undefined);
+  }, [column]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button variant="outline" size="sm" className="border-dashed font-normal">
-          {selectedValues?.size > 0 ? (
-            <div
-              role="button"
-              aria-label={`Clear ${title} filter`}
-              tabIndex={0}
-              className="rounded-sm opacity-70 transition-opacity hover:opacity-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-              onClick={onReset}
-            >
-              <XCircle />
-            </div>
-          ) : (
-            <PlusCircle />
-          )}
+      <div className="flex items-center">
+        {selectedValues?.size > 0 ? (
+          <Button
+            variant="outline"
+            size="sm"
+            aria-label={labels.clearFilter(title ?? "")}
+            data-slot="data-table-faceted-filter-reset"
+            className="rounded-e-none border-e-0 border-dashed px-2"
+            onClick={onReset}
+          >
+            <XCircle />
+          </Button>
+        ) : null}
+        <PopoverTrigger
+          render={
+            <Button
+              variant="outline"
+              size="sm"
+              data-slot="data-table-faceted-filter"
+              className={cn(
+                "border-dashed font-normal",
+                selectedValues?.size > 0 && "rounded-s-none"
+              )}
+            />
+          }
+        >
+          {selectedValues?.size > 0 ? null : <PlusCircle />}
           {title}
           {selectedValues?.size > 0 && (
             <>
@@ -96,7 +111,7 @@ export function DataTableFacetedFilter<TData, TValue>({
               <div className="hidden items-center gap-1 lg:flex">
                 {selectedValues.size > 2 ? (
                   <Badge variant="secondary" className="rounded-sm px-1 font-normal">
-                    {selectedValues.size} selected
+                    {labels.selectedCount(selectedValues.size)}
                   </Badge>
                 ) : (
                   options
@@ -114,14 +129,14 @@ export function DataTableFacetedFilter<TData, TValue>({
               </div>
             </>
           )}
-        </Button>
-      </PopoverTrigger>
+        </PopoverTrigger>
+      </div>
       <PopoverContent className="w-50 p-0" align="start">
         <Command>
           <CommandInput placeholder={title} />
           <CommandList className="max-h-full">
-            <CommandEmpty>No results found.</CommandEmpty>
-            <CommandGroup className="max-h-[300px] scroll-py-1 overflow-y-auto overflow-x-hidden">
+            <CommandEmpty>{labels.noOptions}</CommandEmpty>
+            <CommandGroup className="max-h-[300px] scroll-py-1 overflow-x-hidden overflow-y-auto">
               {options.map((option) => {
                 const isSelected = selectedValues.has(option.value);
 
@@ -137,8 +152,8 @@ export function DataTableFacetedFilter<TData, TValue>({
                     </div>
                     {option.icon && <option.icon />}
                     <span className="truncate">{option.label}</span>
-                    {option.count && (
-                      <span className="ml-auto font-mono text-xs">{option.count}</span>
+                    {option.count != null && option.count > 0 && (
+                      <span className="ms-auto text-xs tabular-nums">{option.count}</span>
                     )}
                   </CommandItem>
                 );
@@ -148,9 +163,7 @@ export function DataTableFacetedFilter<TData, TValue>({
               <>
                 <CommandSeparator />
                 <CommandGroup>
-                  <CommandItem onSelect={() => onReset()} className="justify-center text-center">
-                    Clear filters
-                  </CommandItem>
+                  <CommandItem onSelect={() => onReset()}>{labels.clearFilters}</CommandItem>
                 </CommandGroup>
               </>
             )}
@@ -159,4 +172,4 @@ export function DataTableFacetedFilter<TData, TValue>({
       </PopoverContent>
     </Popover>
   );
-}
+};

@@ -1,4 +1,4 @@
-FROM node:24-alpine AS base
+FROM node:26-alpine AS base
 
 RUN apk update
 RUN apk add --no-cache libc6-compat
@@ -17,7 +17,7 @@ WORKDIR /app
 FROM base AS prepare
 
 # Install turbo globally
-RUN pnpm install -g turbo@^2.5.8
+RUN npm install -g turbo@$(node -p "require('./package.json').devDependencies.turbo")
 
 COPY . .
 RUN turbo prune @nucleus/nextjs --docker
@@ -31,7 +31,7 @@ COPY .env ./.env
 RUN pnpm turbo run build --filter=@nucleus/nextjs...
 
 # -------------------
-FROM node:24-alpine AS runner
+FROM node:26-alpine AS runner
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs

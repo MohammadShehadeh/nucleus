@@ -1,16 +1,16 @@
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 
-import * as schema from "./schema";
+import { dbEnv } from "../env";
+import * as rbacSchema from "./schema/rbac";
+import * as rbacRelations from "./schema/relations/rbac";
+import * as userRelations from "./schema/relations/user";
+import * as userSchema from "./schema/user";
 
-if (!process.env.POSTGRES_URL) {
-  throw new Error("Missing POSTGRES_URL");
-}
-
-const nonPoolingUrl = process.env.POSTGRES_URL.replace(":6543", ":5432");
+const nonPoolingUrl = dbEnv().POSTGRES_URL.replace(":6543", ":5432");
 
 export const db = drizzle({
   client: postgres(nonPoolingUrl),
-  schema,
+  schema: { ...rbacSchema, ...rbacRelations, ...userSchema, ...userRelations },
   casing: "snake_case",
 });

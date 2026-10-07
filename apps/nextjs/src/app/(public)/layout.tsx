@@ -2,7 +2,11 @@ import type React from "react";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
 
-export default function PublicLayout({ children }: { children: React.ReactNode }) {
+interface PublicLayoutProps {
+  children: React.ReactNode;
+}
+
+export default function PublicLayout({ children }: PublicLayoutProps) {
   return (
     <>
       <Header />

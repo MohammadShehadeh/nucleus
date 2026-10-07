@@ -1,9 +1,11 @@
-import { SUPER_ADMIN_SLUG } from "@nucleus/db/rbac";
-import { role, user, userInsertSchema, userSelectSchema } from "@nucleus/db/schema";
+import { SUPER_ADMIN_SLUG } from "@nucleus/db/rbac/roles";
+import { role } from "@nucleus/db/schema/rbac";
+import { user, userInsertSchema, userSelectSchema } from "@nucleus/db/schema/user";
 import { takeFirstOrNull } from "@nucleus/db/utils";
 import { TRPCError, type TRPCRouterRecord } from "@trpc/server";
 import { and, asc, count, desc, eq, ilike, inArray } from "drizzle-orm";
 import { z } from "zod/v4";
+import type { ErrorKey } from "../error-keys";
 import { assertCanGrant, requirePermission } from "../trpc";
 
 const sortSchema = z.array(
@@ -130,13 +132,13 @@ export const usersRouter = {
             .where(eq(role.id, input.roleId))
         );
         if (!target) {
-          throw new TRPCError({ code: "NOT_FOUND", message: "Role not found." });
+          throw new TRPCError({ code: "NOT_FOUND", message: "ROLE_NOT_FOUND" satisfies ErrorKey });
         }
         // The wildcard super admin role can only be granted via the seed/bootstrap.
         if (target.slug === SUPER_ADMIN_SLUG) {
           throw new TRPCError({
             code: "FORBIDDEN",
-            message: "The super admin role cannot be assigned.",
+            message: "ROLE_SUPER_ADMIN_NOT_ASSIGNABLE" satisfies ErrorKey,
           });
         }
 

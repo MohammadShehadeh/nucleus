@@ -2,7 +2,7 @@ import { Label } from "@nucleus/ui/components/label";
 import { SidebarInput } from "@nucleus/ui/components/sidebar";
 import { Search } from "lucide-react";
 
-export function SearchForm({ ...props }: React.ComponentProps<"form">) {
+export const SearchForm = ({ ...props }: React.ComponentProps<"form">) => {
   return (
     <form {...props}>
       <div className="relative">
@@ -14,4 +14,4 @@ export function SearchForm({ ...props }: React.ComponentProps<"form">) {
       </div>
     </form>
   );
-}
+};

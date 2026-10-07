@@ -19,7 +19,7 @@ interface DataTableSkeletonProps extends React.ComponentProps<"div"> {
   shrinkZero?: boolean;
 }
 
-export function DataTableSkeleton({
+export const DataTableSkeleton = ({
   columnCount,
   rowCount = 10,
   filterCount = 0,
@@ -29,14 +29,18 @@ export function DataTableSkeleton({
   shrinkZero = false,
   className,
   ...props
-}: DataTableSkeletonProps) {
+}: DataTableSkeletonProps) => {
   const cozyCellWidths = Array.from(
     { length: columnCount },
     (_, index) => cellWidths[index % cellWidths.length] ?? "auto"
   );
 
   return (
-    <div className={cn("flex w-full flex-col gap-2.5 overflow-auto", className)} {...props}>
+    <div
+      data-slot="data-table-skeleton"
+      className={cn("flex w-full flex-col gap-2.5 overflow-auto", className)}
+      {...props}
+    >
       <div className="flex w-full items-center justify-between gap-2 overflow-auto p-1">
         <div className="flex flex-1 items-center gap-2">
           {filterCount > 0
@@ -45,26 +49,24 @@ export function DataTableSkeleton({
               ))
             : null}
         </div>
-        {withViewOptions ? <Skeleton className="ml-auto hidden h-7 w-18 lg:flex" /> : null}
+        {withViewOptions ? <Skeleton className="ms-auto hidden h-7 w-18 lg:flex" /> : null}
       </div>
       <div className="rounded-md border">
         <Table>
           <TableHeader>
-            {Array.from({ length: 1 }).map((_, i) => (
-              <TableRow key={i} className="hover:bg-transparent">
-                {Array.from({ length: columnCount }).map((_, j) => (
-                  <TableHead
-                    key={j}
-                    style={{
-                      width: cozyCellWidths[j],
-                      minWidth: shrinkZero ? cozyCellWidths[j] : "auto",
-                    }}
-                  >
-                    <Skeleton className="h-6 w-full" />
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
+            <TableRow className="hover:bg-transparent">
+              {Array.from({ length: columnCount }).map((_, j) => (
+                <TableHead
+                  key={j}
+                  style={{
+                    width: cozyCellWidths[j],
+                    minWidth: shrinkZero ? cozyCellWidths[j] : "auto",
+                  }}
+                >
+                  <Skeleton className="h-6 w-full" />
+                </TableHead>
+              ))}
+            </TableRow>
           </TableHeader>
           <TableBody>
             {Array.from({ length: rowCount }).map((_, i) => (
@@ -93,7 +95,7 @@ export function DataTableSkeleton({
               <Skeleton className="h-7 w-24" />
               <Skeleton className="h-7 w-18" />
             </div>
-            <div className="flex items-center justify-center font-medium text-sm">
+            <div className="flex items-center justify-center text-sm font-medium">
               <Skeleton className="h-7 w-20" />
             </div>
             <div className="flex items-center gap-2">
@@ -107,4 +109,4 @@ export function DataTableSkeleton({
       ) : null}
     </div>
   );
-}
+};

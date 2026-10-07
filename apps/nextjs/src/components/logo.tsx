@@ -10,7 +10,7 @@ export const Logo = ({ className }: LogoProps) => {
     <Link
       href="/"
       className={cn("flex shrink-0 items-center gap-2", className)}
-      aria-label="Mohammad Shehadeh Logo"
+      aria-label="Nucleus"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -19,13 +19,13 @@ export const Logo = ({ className }: LogoProps) => {
         aria-hidden="true"
         className="relative size-7.5"
       >
-        <title>Hirael</title>
+        <title>Nucleus</title>
         <path
           d="M160 340V235C160 171 203 128 256 128C309 128 352 171 352 235V340"
           fill="none"
           stroke="currentColor"
-          stroke-width="18"
-          stroke-linecap="square"
+          strokeWidth="18"
+          strokeLinecap="square"
         ></path>
         <path
           d="M256 220C262 242 274 254 296 260C274 266 262 278 256 300C250 278 238 266 216 260C238 254 250 242 256 220Z"

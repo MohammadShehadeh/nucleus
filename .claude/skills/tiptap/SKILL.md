@@ -7,6 +7,8 @@ description: |
 user-invocable: true
 ---
 
+> Repo note: code style follows `pxkit:pxkit-conventions` (named arrow-const components, no default exports outside Next.js file conventions, TanStack Query for server state, flat compound exports, errorKey codes, env via env.ts, space-y-* for simple vertical stacks and gap-* inside flex/grid layouts). Where examples here differ, pxkit wins.
+
 # Tiptap Rich Text Editor
 
 **Status**: Production Ready

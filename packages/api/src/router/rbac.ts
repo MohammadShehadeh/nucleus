@@ -1,4 +1,4 @@
-import { PERMISSION_GROUPS } from "@nucleus/db/rbac";
+import { PERMISSION_GROUPS } from "@nucleus/db/rbac/permissions";
 import type { TRPCRouterRecord } from "@trpc/server";
 import { requirePermission } from "../trpc";
 

@@ -1,48 +1,50 @@
 ---
 name: project-architecture
-description: Provides a high-level guide to the project's monorepo architecture. Use to understand the roles of different packages and apps.
-alwaysApply: true
+description: High-level map of the Nucleus monorepo (pnpm + Turborepo) - what each app and @nucleus/* package owns, how data flows from Drizzle schema through tRPC to Next.js via useTRPC/TanStack Query, and the import aliases. Use to orient before working across packages or deciding which package owns new code.
 ---
 
-# LMS Project Architecture Guide
+# Nucleus Architecture
 
-## Monorepo Structure
-This is a Turborepo monorepo with `pnpm` workspaces. The goal is to maximize code sharing and maintain a clear separation of concerns.
+Code style follows the `pxkit:pxkit-conventions` skill; this skill covers repo-specific patterns. On conflict, pxkit wins.
 
-### `apps/`
-Contains the runnable applications.
-- `apps/nextjs/` - The main Next.js web application, which serves the user-facing frontend.
-- `apps/expo/` - The React Native mobile application for iOS and Android.
+pnpm workspaces (`apps/*`, `packages/*`, `tooling/*`) + Turborepo. Node >= 24, pnpm 12, TypeScript 7, Biome.
 
-### `packages/`
-Contains all the shared logic, components, and configurations.
-- `packages/api/` - The tRPC API layer. Defines all API procedures and routers.
-- `packages/auth/` - Authentication logic and configuration, built on `better-auth`.
-- `packages/cache/` - Caching utilities (e.g., Redis client wrapper).
-- `packages/db/` - The database layer, containing the Drizzle ORM schema, client, and Zod validators. This is the single source of truth for data models.
-- `packages/email/` - Email templates and sending logic.
-- `packages/i18n/` - Internationalization setup and translations.
-- `packages/rate-limit/` - Rate limiting middleware for the API.
-- `packages/ui/` - Shared React UI components, based on `shadcn/ui`.
-- `packages/upload/` - File upload utilities.
-- `packages/validators/` - Complex, form-specific Zod validation schemas that extend the base schemas from `packages/db`.
+## apps/
 
-### `tooling/`
-Contains shared development configurations.
-- `tooling/github/` - GitHub Actions workflows and templates.
-- `tooling/tailwind/` - Shared Tailwind CSS configuration.
-- `tooling/typescript/` - Shared `tsconfig.json` base configurations.
+- `apps/nextjs` (`@nucleus/nextjs`) - Next.js 16 App Router, React 19, Tailwind v4. Alias `@/` -> `apps/nextjs/src`. Hosts the tRPC (`app/api/trpc/[trpc]`) and better-auth (`app/api/auth/[...all]`) handlers. `proxy.ts` guards routes. React Compiler is **not** enabled.
+- `apps/expo` - React Native client using the same tRPC router and better-auth (`@better-auth/expo`).
 
-## Data Flow
-1.  **Schema Definition**: A table is defined in `packages/db/src/schema/`. Zod schemas are automatically generated alongside it.
-2.  **API Endpoint**: A tRPC router in `packages/api/src/router/` imports the Zod schema for input validation and the Drizzle client for database access.
-3.  **UI Component**: A React component in `apps/nextjs/` or `packages/ui/` uses the tRPC hook (`api.user.getById.useQuery()`) to fetch data.
-4.  **Form Submission**: A form uses React Hook Form with a resolver for a Zod schema imported from `packages/validators` or `packages/db`. On submit, it calls a tRPC mutation (`api.user.create.useMutation()`).
+## packages/
 
-## Import Patterns
-Always use workspace aliases for cross-package imports to ensure Turborepo can correctly track dependencies.
-- `@nucleus/db` for database schema and client.
-- `@nucleus/api` for the tRPC client (`~/trpc/react` within Next.js).
-- `@nucleus/ui` for shared components.
-- `@nucleus/validators` for complex validation schemas.
-- `@nucleus/auth` for authentication functions.
+| Package | Owns |
+| --- | --- |
+| `@nucleus/api` | tRPC routers (`auth`, `rbac`, `roles`, `users`), procedures, `ErrorKey` union (`@nucleus/api/error-keys`), `RouterInputs`/`RouterOutputs` |
+| `@nucleus/auth` | better-auth config (`initAuth`), signup role assignment, session RBAC enrichment |
+| `@nucleus/db` | Drizzle schema + drizzle-zod schemas (`@nucleus/db/schema/<file>`), `db` client (`@nucleus/db/client`), RBAC catalog/checks (`@nucleus/db/rbac/<file>`), helpers (`@nucleus/db/utils`), seeds |
+| `@nucleus/cache` | Redis client (`Redis.getInstance()`, `wrapWithCache`) |
+| `@nucleus/rate-limit` | `RedisRateLimiter` (used in `proxy.ts`) |
+| `@nucleus/email` | Email templates + sending |
+| `@nucleus/i18n` | i18n setup |
+| `@nucleus/ui` | shadcn/ui components on **Base UI** (style `base-vega`, add/update with `pnpm ui-add`), data-table components/hooks, `cn`, formatters, providers. Compose with the `render` prop (`<DialogTrigger render={<Button />} />`, links: `<Button nativeButton={false} render={<Link href="/" />} />`), never Radix `asChild`; state selectors are Base UI ones (`data-popup-open:`, `data-panel-open:`), and menu labels live inside a `DropdownMenuGroup`/`RadioGroup`. |
+| `@nucleus/upload` | File upload utilities |
+| `@nucleus/validators` | zod schemas shared by client and server (`authentication.ts`, `data-table.ts`) |
+
+`tooling/`: `typescript` (`@nucleus/tsconfig`), `tailwind`, `github`.
+
+Packages with env vars ship an `env.ts` factory (`authEnv()`, `dbEnv()`, ...) composed by `apps/nextjs/src/env.ts`.
+
+## Data flow
+
+1. Table in `packages/db/src/schema/*.ts` (+ `createInsertSchema`/`createSelectSchema`); `pnpm db:push`.
+2. Router in `packages/api/src/router/<domain>.ts` with `requirePermission(...)`, zod/v4 input, `ctx.db` query; register in `root.ts`. Failures throw `TRPCError` with an `ErrorKey`.
+3. Server page: `await prefetch(trpc.x.y.queryOptions(input))` + `<HydrateClient>` from `@/trpc/server`.
+4. Client component: `const trpc = useTRPC()` from `@/trpc/react`; `useQuery(trpc.x.y.queryOptions(input))`, `useMutation(trpc.x.y.mutationOptions({ ... }))`, invalidate with `queryClient.invalidateQueries(trpc.x.y.queryFilter())`.
+5. Forms: react-hook-form + `zodResolver` + `Field`/`FieldGroup` from `@nucleus/ui/components/field`; errors via `getErrorMessage` from `@/lib/error-messages`.
+
+## Imports
+
+- App code: `@/...` to the defining file.
+- Cross-package: direct per-file subpaths from the package's `exports` (`@nucleus/ui/components/button`, `@nucleus/db/client`, `@nucleus/db/schema/user`, `@nucleus/db/rbac/check`). No barrels or re-export middlemen; drizzle operators from `drizzle-orm`.
+- Types from tRPC: `RouterOutputs` / `RouterInputs` from `@nucleus/api`.
+
+Related skills: `api-patterns`, `auth-patterns`, `data-table-patterns`, `database-patterns`, `error-handling-patterns`, `file-organization`, `turborepo-patterns`.

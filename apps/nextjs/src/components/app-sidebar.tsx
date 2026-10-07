@@ -1,6 +1,6 @@
 "use client";
 
-import type { PermissionKey } from "@nucleus/db/rbac";
+import type { PermissionKey } from "@nucleus/db/rbac/permissions";
 import {
   Collapsible,
   CollapsibleContent,
@@ -34,23 +34,24 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import type * as React from "react";
-import { NavUser } from "./nav-user";
+import { NavUser, type SidebarUser } from "./nav-user";
 import { Can } from "./permissions-provider";
 
-interface ISidebarMenuItem {
+interface SidebarSubNavItem {
+  title: string;
+  url: string;
+}
+
+interface SidebarNavItem {
   title: string;
   url: string;
   icon: LucideIcon;
   isActive?: boolean;
   permissions?: PermissionKey[];
-
-  subNav?: {
-    title: string;
-    url: string;
-  }[];
+  subNav?: SidebarSubNavItem[];
 }
 
-export const mainMenu: ISidebarMenuItem[] = [
+export const mainMenu: SidebarNavItem[] = [
   {
     title: "Media Library",
     url: "/dashboard/media-library",
@@ -77,14 +78,10 @@ const navSecondary = [
 ];
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
-  user: {
-    name: string;
-    email: string;
-    avatar: string;
-  };
+  user: SidebarUser;
 }
 
-export function AppSidebar({ user, ...props }: AppSidebarProps) {
+export const AppSidebar = ({ user, ...props }: AppSidebarProps) => {
   return (
     <Sidebar
       className="h-[calc(100svh-var(--header-height))]! top-[var(--header-height)]"
@@ -93,16 +90,14 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
-              <Link href="/dashboard">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                  <Command className="size-4" />
-                </div>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">Nucleus</span>
-                  <span className="truncate text-xs">Platform</span>
-                </div>
-              </Link>
+            <SidebarMenuButton size="lg" render={<Link href="/dashboard" />}>
+              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                <Command className="size-4" />
+              </div>
+              <div className="grid flex-1 text-left text-sm leading-tight">
+                <span className="truncate font-medium">Nucleus</span>
+                <span className="truncate text-xs">Platform</span>
+              </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
@@ -113,38 +108,36 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
           <SidebarMenu>
             {mainMenu.map((mainMenu) => (
               <Can anyOf={mainMenu.permissions} key={mainMenu.url}>
-                <Collapsible key={mainMenu.title} asChild defaultOpen={mainMenu.isActive}>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton asChild tooltip={mainMenu.title}>
-                      <a href={mainMenu.url}>
-                        <mainMenu.icon />
-                        <span>{mainMenu.title}</span>
-                      </a>
-                    </SidebarMenuButton>
-                    {mainMenu.subNav?.length ? (
-                      <>
-                        <CollapsibleTrigger asChild>
-                          <SidebarMenuAction className="data-[state=open]:rotate-90">
-                            <ChevronRight />
-                            <span className="sr-only">Toggle</span>
-                          </SidebarMenuAction>
-                        </CollapsibleTrigger>
-                        <CollapsibleContent>
-                          <SidebarMenuSub>
-                            {mainMenu.subNav.map((subItem) => (
-                              <SidebarMenuSubItem key={subItem.title}>
-                                <SidebarMenuSubButton asChild>
-                                  <a href={subItem.url}>
-                                    <span>{subItem.title}</span>
-                                  </a>
-                                </SidebarMenuSubButton>
-                              </SidebarMenuSubItem>
-                            ))}
-                          </SidebarMenuSub>
-                        </CollapsibleContent>
-                      </>
-                    ) : null}
-                  </SidebarMenuItem>
+                <Collapsible
+                  key={mainMenu.title}
+                  defaultOpen={mainMenu.isActive}
+                  render={<SidebarMenuItem />}
+                >
+                  <SidebarMenuButton tooltip={mainMenu.title} render={<Link href={mainMenu.url} />}>
+                    <mainMenu.icon />
+                    <span>{mainMenu.title}</span>
+                  </SidebarMenuButton>
+                  {mainMenu.subNav?.length ? (
+                    <>
+                      <CollapsibleTrigger
+                        render={<SidebarMenuAction className="data-panel-open:rotate-90" />}
+                      >
+                        <ChevronRight />
+                        <span className="sr-only">Toggle</span>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent>
+                        <SidebarMenuSub>
+                          {mainMenu.subNav.map((subItem) => (
+                            <SidebarMenuSubItem key={subItem.title}>
+                              <SidebarMenuSubButton render={<Link href={subItem.url} />}>
+                                <span>{subItem.title}</span>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          ))}
+                        </SidebarMenuSub>
+                      </CollapsibleContent>
+                    </>
+                  ) : null}
                 </Collapsible>
               </Can>
             ))}
@@ -155,11 +148,9 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
             <SidebarMenu>
               {navSecondary.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild size="sm">
-                    <a href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </a>
+                  <SidebarMenuButton size="sm" render={<Link href={item.url} />}>
+                    <item.icon />
+                    <span>{item.title}</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
@@ -172,4 +163,4 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
       </SidebarFooter>
     </Sidebar>
   );
-}
+};

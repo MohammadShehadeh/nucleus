@@ -1,9 +1,9 @@
 "use client";
 
 import type { RouterOutputs } from "@nucleus/api";
-import { SUPER_ADMIN_SLUG } from "@nucleus/db/rbac";
+import { SUPER_ADMIN_SLUG } from "@nucleus/db/rbac/roles";
 import { Button } from "@nucleus/ui/components/button";
-import { useConfirm } from "@nucleus/ui/components/confrim";
+import { useConfirm } from "@nucleus/ui/components/confirm";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,27 +11,36 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@nucleus/ui/components/dropdown-menu";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { MoreHorizontal } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import { usePermissions } from "@/components/permissions-provider";
+import { getErrorMessage } from "@/lib/error-messages";
 import { useTRPC } from "@/trpc/react";
 import { RoleFormDialog } from "./role-form-dialog";
 
 type Role = RouterOutputs["roles"]["list"]["data"][number];
 
-export function RoleRowActions({ role }: { role: Role }) {
+interface RoleRowActionsProps {
+  role: Role;
+}
+
+export const RoleRowActions = ({ role }: RoleRowActionsProps) => {
   const trpc = useTRPC();
   const router = useRouter();
+  const queryClient = useQueryClient();
   const confirm = useConfirm();
   const { can } = usePermissions();
 
   const [editOpen, setEditOpen] = useState(false);
 
-  // The table renders from RSC props, so refresh the server component to reflect changes.
-  const refresh = () => router.refresh();
+  // Refetch the table, and refresh the server layout so the session's permissions stay current.
+  const refresh = () => {
+    void queryClient.invalidateQueries(trpc.roles.list.queryFilter());
+    router.refresh();
+  };
 
   const deleteMutation = useMutation(
     trpc.roles.delete.mutationOptions({
@@ -39,7 +48,7 @@ export function RoleRowActions({ role }: { role: Role }) {
         refresh();
         toast.success("Role deleted");
       },
-      onError: (error) => toast.error(error.message),
+      onError: (error) => toast.error(getErrorMessage(error)),
     })
   );
 
@@ -62,7 +71,7 @@ export function RoleRowActions({ role }: { role: Role }) {
         refresh();
         toast.success("Default role updated");
       },
-      onError: (error) => toast.error(error.message),
+      onError: (error) => toast.error(getErrorMessage(error)),
     })
   );
 
@@ -76,11 +85,9 @@ export function RoleRowActions({ role }: { role: Role }) {
   return (
     <>
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon">
-            <MoreHorizontal className="size-4" />
-            <span className="sr-only">Open actions</span>
-          </Button>
+        <DropdownMenuTrigger render={<Button variant="ghost" size="icon" />}>
+          <MoreHorizontal className="size-4" />
+          <span className="sr-only">Open actions</span>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           {canUpdate && <DropdownMenuItem onClick={() => setEditOpen(true)}>Edit</DropdownMenuItem>}
@@ -106,4 +113,4 @@ export function RoleRowActions({ role }: { role: Role }) {
       <RoleFormDialog open={editOpen} onOpenChange={setEditOpen} role={role} onSaved={refresh} />
     </>
   );
-}
+};

@@ -1,8 +1,12 @@
 "use client";
 
-import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
+import { zodResolver } from "@hookform/resolvers/zod";
 import type { RouterOutputs } from "@nucleus/api";
-import { PERMISSION_GROUPS, type PermissionKey, WILDCARD_PERMISSION } from "@nucleus/db/rbac";
+import {
+  PERMISSION_GROUPS,
+  type PermissionKey,
+  WILDCARD_PERMISSION,
+} from "@nucleus/db/rbac/permissions";
 import { Button } from "@nucleus/ui/components/button";
 import { Checkbox } from "@nucleus/ui/components/checkbox";
 import {
@@ -14,19 +18,20 @@ import {
   DialogTitle,
 } from "@nucleus/ui/components/dialog";
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@nucleus/ui/components/form";
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+  FieldLegend,
+  FieldSet,
+} from "@nucleus/ui/components/field";
 import { Input } from "@nucleus/ui/components/input";
 import { Textarea } from "@nucleus/ui/components/textarea";
 import { useMutation } from "@tanstack/react-query";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod/v4";
+import { getErrorMessage } from "@/lib/error-messages";
 import { useTRPC } from "@/trpc/react";
 
 type Role = RouterOutputs["roles"]["list"]["data"][number];
@@ -46,13 +51,14 @@ interface RoleFormDialogProps {
   onSaved: () => void;
 }
 
-export function RoleFormDialog({ open, onOpenChange, role, onSaved }: RoleFormDialogProps) {
+export const RoleFormDialog = ({ open, onOpenChange, role, onSaved }: RoleFormDialogProps) => {
   const trpc = useTRPC();
   const isEdit = !!role;
   const isWildcard = role?.permissions.includes(WILDCARD_PERMISSION) ?? false;
 
   const form = useForm<RoleFormData>({
-    resolver: standardSchemaResolver(roleFormSchema),
+    resolver: zodResolver(roleFormSchema),
+    mode: "onTouched",
     defaultValues: { name: "", description: "", permissions: [] },
     values: {
       name: role?.name ?? "",
@@ -68,7 +74,7 @@ export function RoleFormDialog({ open, onOpenChange, role, onSaved }: RoleFormDi
         onSaved();
         onOpenChange(false);
       },
-      onError: (error) => toast.error(error.message),
+      onError: (error) => toast.error(getErrorMessage(error)),
     })
   );
 
@@ -79,7 +85,7 @@ export function RoleFormDialog({ open, onOpenChange, role, onSaved }: RoleFormDi
         onSaved();
         onOpenChange(false);
       },
-      onError: (error) => toast.error(error.message),
+      onError: (error) => toast.error(getErrorMessage(error)),
     })
   );
 
@@ -117,75 +123,82 @@ export function RoleFormDialog({ open, onOpenChange, role, onSaved }: RoleFormDi
             This role has full access and cannot be edited.
           </p>
         ) : (
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
-              <FormField
+          <form onSubmit={form.handleSubmit(onSubmit)}>
+            <FieldGroup className="gap-4">
+              <Controller
                 control={form.control}
                 name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Name</FormLabel>
-                    <FormControl>
-                      <Input disabled={role?.isSystem} placeholder="e.g. John Doe" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid} data-disabled={role?.isSystem}>
+                    <FieldLabel htmlFor="role-name">Name</FieldLabel>
+                    <Input
+                      {...field}
+                      id="role-name"
+                      disabled={role?.isSystem}
+                      placeholder="e.g. Editor"
+                      aria-invalid={fieldState.invalid}
+                    />
+                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                  </Field>
                 )}
               />
-              <FormField
+              <Controller
                 control={form.control}
                 name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Description</FormLabel>
-                    <FormControl>
-                      <Textarea placeholder="What is this role for?" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor="role-description">Description</FieldLabel>
+                    <Textarea
+                      {...field}
+                      id="role-description"
+                      placeholder="What is this role for?"
+                      aria-invalid={fieldState.invalid}
+                    />
+                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                  </Field>
                 )}
               />
-              <FormField
+              <Controller
                 control={form.control}
                 name="permissions"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Permissions</FormLabel>
-                    <div className="flex flex-col gap-3">
-                      {PERMISSION_GROUPS.map((group) => (
-                        <div key={group.resource} className="rounded-md border p-3">
-                          <p className="mb-2 font-medium text-sm capitalize">{group.resource}</p>
-                          <div className="grid grid-cols-2 gap-2">
-                            {group.permissions.map((permission) => {
-                              const action = permission.split(":")[1];
-                              const fieldId = `perm-${permission.replace(":", "-")}`;
-                              return (
-                                <label
-                                  key={permission}
-                                  htmlFor={fieldId}
-                                  className="flex items-center gap-2 text-sm"
-                                >
-                                  <Checkbox
-                                    id={fieldId}
-                                    checked={field.value.includes(permission)}
-                                    onCheckedChange={(checked) =>
-                                      field.onChange(
-                                        checked === true
-                                          ? [...field.value, permission]
-                                          : field.value.filter((p) => p !== permission)
-                                      )
-                                    }
-                                  />
-                                  <span className="capitalize">{action}</span>
-                                </label>
-                              );
-                            })}
-                          </div>
+                render={({ field, fieldState }) => (
+                  <FieldSet data-invalid={fieldState.invalid} className="gap-3">
+                    <FieldLegend variant="label" className="mb-0">
+                      Permissions
+                    </FieldLegend>
+                    {PERMISSION_GROUPS.map((group) => (
+                      <FieldSet key={group.resource} className="gap-2 rounded-md border p-3">
+                        <FieldLegend variant="label" className="mb-0 px-1 capitalize">
+                          {group.resource}
+                        </FieldLegend>
+                        <div className="grid grid-cols-2 gap-2">
+                          {group.permissions.map((permission) => {
+                            const action = permission.split(":")[1];
+                            const fieldId = `perm-${permission.replace(":", "-")}`;
+                            return (
+                              <Field key={permission} orientation="horizontal">
+                                <Checkbox
+                                  id={fieldId}
+                                  checked={field.value.includes(permission)}
+                                  onCheckedChange={(checked) =>
+                                    field.onChange(
+                                      checked === true
+                                        ? [...field.value, permission]
+                                        : field.value.filter((p) => p !== permission)
+                                    )
+                                  }
+                                />
+                                <FieldLabel htmlFor={fieldId} className="font-normal capitalize">
+                                  {action}
+                                </FieldLabel>
+                              </Field>
+                            );
+                          })}
                         </div>
-                      ))}
-                    </div>
-                    <FormMessage />
-                  </FormItem>
+                      </FieldSet>
+                    ))}
+                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                  </FieldSet>
                 )}
               />
 
@@ -197,8 +210,8 @@ export function RoleFormDialog({ open, onOpenChange, role, onSaved }: RoleFormDi
                   {isPending ? "Saving..." : isEdit ? "Save changes" : "Create role"}
                 </Button>
               </DialogFooter>
-            </form>
-          </Form>
+            </FieldGroup>
+          </form>
         )}
 
         {isWildcard && (
@@ -211,4 +224,4 @@ export function RoleFormDialog({ open, onOpenChange, role, onSaved }: RoleFormDi
       </DialogContent>
     </Dialog>
   );
-}
+};

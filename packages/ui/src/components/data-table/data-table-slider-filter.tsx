@@ -1,50 +1,58 @@
+"use no memo";
 "use client";
 
 import { Button } from "@nucleus/ui/components/button";
+import { Field, FieldLabel, FieldLegend, FieldSet } from "@nucleus/ui/components/field";
 import { Input } from "@nucleus/ui/components/input";
-import { Label } from "@nucleus/ui/components/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@nucleus/ui/components/popover";
 import { Separator } from "@nucleus/ui/components/separator";
 import { Slider } from "@nucleus/ui/components/slider";
+import type { DataTableFeatures } from "@nucleus/ui/lib/data-table";
+import { useDataTableLabels } from "@nucleus/ui/lib/data-table-labels";
 import { cn } from "@nucleus/ui/lib/utils";
-import type { Column } from "@tanstack/react-table";
+import type { Column, RowData } from "@tanstack/react-table";
 import { PlusCircle, XCircle } from "lucide-react";
 import * as React from "react";
 
-interface Range {
-  min: number;
-  max: number;
-}
-
 type RangeValue = [number, number];
 
-function getIsValidRange(value: unknown): value is RangeValue {
+const getIsValidRange = (value: unknown): value is RangeValue => {
   return (
     Array.isArray(value) &&
     value.length === 2 &&
     typeof value[0] === "number" &&
     typeof value[1] === "number"
   );
-}
+};
 
-function parseValuesAsNumbers(value: unknown): RangeValue | undefined {
-  if (
-    Array.isArray(value) &&
-    value.length === 2 &&
-    value.every((v) => (typeof v === "string" || typeof v === "number") && !Number.isNaN(v))
-  ) {
-    return [Number(value[0]), Number(value[1])];
+const parseValuesAsNumbers = (value: unknown): RangeValue | undefined => {
+  if (!Array.isArray(value) || value.length !== 2) return undefined;
+
+  const parsed = value.map((v) => {
+    if (typeof v === "number") return v;
+    if (typeof v === "string" && v.trim() !== "") return Number(v);
+
+    return Number.NaN;
+  });
+
+  const [min, max] = parsed;
+  if (min !== undefined && max !== undefined && parsed.every((n) => Number.isFinite(n))) {
+    return [min, max];
   }
 
   return undefined;
-}
+};
 
-interface DataTableSliderFilterProps<TData> {
-  column: Column<TData, unknown>;
+interface DataTableSliderFilterProps<TData extends RowData> {
+  column: Column<DataTableFeatures, TData>;
   title?: string;
 }
 
-export function DataTableSliderFilter<TData>({ column, title }: DataTableSliderFilterProps<TData>) {
+export const DataTableSliderFilter = <TData extends RowData>({
+  column,
+  title,
+}: DataTableSliderFilterProps<TData>) => {
+  const labels = useDataTableLabels();
   const id = React.useId();
 
   const columnFilterValue = parseValuesAsNumbers(column.getFilterValue());
@@ -52,16 +60,19 @@ export function DataTableSliderFilter<TData>({ column, title }: DataTableSliderF
   const defaultRange = column.columnDef.meta?.range;
   const unit = column.columnDef.meta?.unit;
 
-  const { min, max, step } = React.useMemo<Range & { step: number }>(() => {
+  // Read outside the memo so a data change (new faceted tuple) recomputes the bounds.
+  const facetedMinMax =
+    defaultRange && getIsValidRange(defaultRange) ? undefined : column.getFacetedMinMaxValues();
+
+  const { min, max, step } = React.useMemo<{ min: number; max: number; step: number }>(() => {
     let minValue = 0;
     let maxValue = 100;
 
     if (defaultRange && getIsValidRange(defaultRange)) {
       [minValue, maxValue] = defaultRange;
     } else {
-      const values = column.getFacetedMinMaxValues();
-      if (values && Array.isArray(values) && values.length === 2) {
-        const [facetMinValue, facetMaxValue] = values;
+      if (facetedMinMax && Array.isArray(facetedMinMax) && facetedMinMax.length === 2) {
+        const [facetMinValue, facetMaxValue] = facetedMinMax;
         if (typeof facetMinValue === "number" && typeof facetMaxValue === "number") {
           minValue = facetMinValue;
           maxValue = facetMaxValue;
@@ -76,73 +87,93 @@ export function DataTableSliderFilter<TData>({ column, title }: DataTableSliderF
         : rangeSize <= 100
           ? Math.ceil(rangeSize / 20)
           : Math.ceil(rangeSize / 50);
+    // Snap max up to the step grid, otherwise the slider can never reach the real max.
+    const snappedMax = minValue + Math.ceil(rangeSize / step) * step;
 
-    return { min: minValue, max: maxValue, step };
-  }, [column, defaultRange]);
+    return { min: minValue, max: snappedMax, step };
+  }, [defaultRange, facetedMinMax]);
 
   const range = React.useMemo((): RangeValue => {
     return columnFilterValue ?? [min, max];
   }, [columnFilterValue, min, max]);
 
+  const [fromDraft, setFromDraft] = React.useState<string | null>(null);
+  const [toDraft, setToDraft] = React.useState<string | null>(null);
+
   const formatValue = React.useCallback((value: number) => {
     return value.toLocaleString(undefined, { maximumFractionDigits: 0 });
   }, []);
 
-  const onFromInputChange = React.useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      const numValue = Number(event.target.value);
-      if (!Number.isNaN(numValue) && numValue >= min && numValue <= range[1]) {
-        column.setFilterValue([numValue, range[1]]);
-      }
-    },
-    [column, min, range]
-  );
+  const commitFrom = React.useCallback(() => {
+    if (fromDraft === null) return;
+    const numValue = Number(fromDraft);
+    if (fromDraft.trim() !== "" && Number.isFinite(numValue)) {
+      const clamped = Math.min(Math.max(numValue, min), range[1]);
+      column.setFilterValue([clamped, range[1]]);
+    }
+    setFromDraft(null);
+  }, [fromDraft, column, min, range]);
 
-  const onToInputChange = React.useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      const numValue = Number(event.target.value);
-      if (!Number.isNaN(numValue) && numValue <= max && numValue >= range[0]) {
-        column.setFilterValue([range[0], numValue]);
-      }
-    },
-    [column, max, range]
-  );
+  const commitTo = React.useCallback(() => {
+    if (toDraft === null) return;
+    const numValue = Number(toDraft);
+    if (toDraft.trim() !== "" && Number.isFinite(numValue)) {
+      const clamped = Math.min(Math.max(numValue, range[0]), max);
+      column.setFilterValue([range[0], clamped]);
+    }
+    setToDraft(null);
+  }, [toDraft, column, max, range]);
 
   const onSliderValueChange = React.useCallback(
-    (value: RangeValue) => {
+    (value: number | readonly number[]) => {
       if (Array.isArray(value) && value.length === 2) {
+        setFromDraft(null);
+        setToDraft(null);
         column.setFilterValue(value);
       }
     },
     [column]
   );
 
-  const onReset = React.useCallback(
-    (event: React.MouseEvent) => {
-      if (event.target instanceof HTMLDivElement) {
-        event.stopPropagation();
-      }
-      column.setFilterValue(undefined);
-    },
-    [column]
-  );
+  const onReset = React.useCallback(() => {
+    setFromDraft(null);
+    setToDraft(null);
+    column.setFilterValue(undefined);
+  }, [column]);
 
   return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button variant="outline" size="sm" className="border-dashed font-normal">
-          {columnFilterValue ? (
-            <button
-              type="button"
-              aria-label={`Clear ${title} filter`}
-              className="rounded-sm opacity-70 transition-opacity hover:opacity-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-              onClick={onReset}
-            >
-              <XCircle />
-            </button>
-          ) : (
-            <PlusCircle />
-          )}
+    <Popover
+      onOpenChange={(open) => {
+        if (!open) {
+          setFromDraft(null);
+          setToDraft(null);
+        }
+      }}
+    >
+      <div className="flex items-center">
+        {columnFilterValue ? (
+          <Button
+            variant="outline"
+            size="sm"
+            aria-label={labels.clearFilter(title ?? "")}
+            data-slot="data-table-slider-filter-reset"
+            className="rounded-e-none border-e-0 border-dashed px-2"
+            onClick={onReset}
+          >
+            <XCircle />
+          </Button>
+        ) : null}
+        <PopoverTrigger
+          render={
+            <Button
+              variant="outline"
+              size="sm"
+              data-slot="data-table-slider-filter"
+              className={cn("border-dashed font-normal", columnFilterValue && "rounded-s-none")}
+            />
+          }
+        >
+          {columnFilterValue ? null : <PlusCircle />}
           <span>{title}</span>
           {columnFilterValue ? (
             <>
@@ -154,79 +185,104 @@ export function DataTableSliderFilter<TData>({ column, title }: DataTableSliderF
               {unit ? ` ${unit}` : ""}
             </>
           ) : null}
-        </Button>
-      </PopoverTrigger>
+        </PopoverTrigger>
+      </div>
       <PopoverContent align="start" className="flex w-auto flex-col gap-4">
-        <div className="flex flex-col gap-3">
-          <p className="font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+        <FieldSet className="gap-3">
+          <FieldLegend variant="label" className="leading-none">
             {title}
-          </p>
+          </FieldLegend>
           <div className="flex items-center gap-4">
-            <Label htmlFor={`${id}-from`} className="sr-only">
-              From
-            </Label>
-            <div className="relative">
-              <Input
-                id={`${id}-from`}
-                type="number"
-                aria-valuemin={min}
-                aria-valuemax={max}
-                inputMode="numeric"
-                pattern="[0-9]*"
-                placeholder={min.toString()}
-                min={min}
-                max={max}
-                value={range[0]?.toString()}
-                onChange={onFromInputChange}
-                className={cn("h-8 w-24", unit && "pr-8")}
-              />
-              {unit && (
-                <span className="absolute top-0 right-0 bottom-0 flex items-center rounded-r-md bg-accent px-2 text-muted-foreground text-sm">
-                  {unit}
-                </span>
-              )}
-            </div>
-            <Label htmlFor={`${id}-to`} className="sr-only">
-              to
-            </Label>
-            <div className="relative">
-              <Input
-                id={`${id}-to`}
-                type="number"
-                aria-valuemin={min}
-                aria-valuemax={max}
-                inputMode="numeric"
-                pattern="[0-9]*"
-                placeholder={max.toString()}
-                min={min}
-                max={max}
-                value={range[1]?.toString()}
-                onChange={onToInputChange}
-                className={cn("h-8 w-24", unit && "pr-8")}
-              />
-              {unit && (
-                <span className="absolute top-0 right-0 bottom-0 flex items-center rounded-r-md bg-accent px-2 text-muted-foreground text-sm">
-                  {unit}
-                </span>
-              )}
-            </div>
+            <Field className="w-auto">
+              <FieldLabel htmlFor={`${id}-from`} className="sr-only">
+                {labels.rangeFrom}
+              </FieldLabel>
+              <div className="relative">
+                <Input
+                  id={`${id}-from`}
+                  type="number"
+                  aria-valuemin={min}
+                  aria-valuemax={max}
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  placeholder={min.toString()}
+                  min={min}
+                  max={max}
+                  value={fromDraft ?? range[0].toString()}
+                  onChange={(event) => setFromDraft(event.target.value)}
+                  onBlur={commitFrom}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") {
+                      event.preventDefault();
+                      commitFrom();
+                    }
+                  }}
+                  className={cn("h-8 w-24", unit && "pe-8")}
+                />
+                {unit && (
+                  <span className="absolute end-0 top-0 bottom-0 flex items-center rounded-e-md bg-accent px-2 text-sm text-muted-foreground">
+                    {unit}
+                  </span>
+                )}
+              </div>
+            </Field>
+            <Field className="w-auto">
+              <FieldLabel htmlFor={`${id}-to`} className="sr-only">
+                {labels.rangeTo}
+              </FieldLabel>
+              <div className="relative">
+                <Input
+                  id={`${id}-to`}
+                  type="number"
+                  aria-valuemin={min}
+                  aria-valuemax={max}
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  placeholder={max.toString()}
+                  min={min}
+                  max={max}
+                  value={toDraft ?? range[1].toString()}
+                  onChange={(event) => setToDraft(event.target.value)}
+                  onBlur={commitTo}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") {
+                      event.preventDefault();
+                      commitTo();
+                    }
+                  }}
+                  className={cn("h-8 w-24", unit && "pe-8")}
+                />
+                {unit && (
+                  <span className="absolute end-0 top-0 bottom-0 flex items-center rounded-e-md bg-accent px-2 text-sm text-muted-foreground">
+                    {unit}
+                  </span>
+                )}
+              </div>
+            </Field>
           </div>
-          <Label htmlFor={`${id}-slider`} className="sr-only">
-            {title} slider
-          </Label>
-          <Slider
-            id={`${id}-slider`}
-            min={min}
-            max={max}
-            step={step}
-            value={range}
-            onValueChange={onSliderValueChange}
-          />
-        </div>
-        <Button aria-label={`Clear ${title} filter`} variant="outline" size="sm" onClick={onReset}>
-          Clear
+          <Field>
+            <FieldLabel htmlFor={`${id}-slider`} className="sr-only">
+              {labels.rangeSlider(title ?? "")}
+            </FieldLabel>
+            <Slider
+              id={`${id}-slider`}
+              min={min}
+              max={max}
+              step={step}
+              value={range}
+              onValueChange={onSliderValueChange}
+            />
+          </Field>
+        </FieldSet>
+        <Button
+          aria-label={labels.clearFilter(title ?? "")}
+          variant="outline"
+          size="sm"
+          onClick={onReset}
+        >
+          {labels.clearRange}
         </Button>
       </PopoverContent>
     </Popover>
   );
-}
+};

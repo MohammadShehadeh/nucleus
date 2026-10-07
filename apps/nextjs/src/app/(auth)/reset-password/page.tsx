@@ -1,6 +1,6 @@
 "use client";
 
-import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@nucleus/ui/components/button";
 import {
   Card,
@@ -10,23 +10,24 @@ import {
   CardTitle,
 } from "@nucleus/ui/components/card";
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@nucleus/ui/components/form";
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@nucleus/ui/components/field";
 import { Input } from "@nucleus/ui/components/input";
-import { cn } from "@nucleus/ui/lib/utils";
-import type { ResetPasswordFormData } from "@nucleus/validators/authentication";
-import { resetPasswordSchema } from "@nucleus/validators/authentication";
+import {
+  type ResetPasswordFormData,
+  resetPasswordSchema,
+} from "@nucleus/validators/authentication";
 import Link from "next/link";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 
-export default function ResetPasswordPage({ className, ...props }: React.ComponentProps<"div">) {
+export default function ResetPasswordPage() {
   const form = useForm<ResetPasswordFormData>({
-    resolver: standardSchemaResolver(resetPasswordSchema),
+    resolver: zodResolver(resetPasswordSchema),
+    mode: "onTouched",
     defaultValues: {
       email: "",
     },
@@ -37,40 +38,42 @@ export default function ResetPasswordPage({ className, ...props }: React.Compone
   };
 
   return (
-    <Card className={cn("w-full", className)} {...props}>
+    <Card className="w-full">
       <CardHeader className="text-center">
         <CardTitle className="text-xl">Recover Password</CardTitle>
         <CardDescription>Enter your email to receive a reset link</CardDescription>
       </CardHeader>
       <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
-            <FormField
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+          <FieldGroup className="gap-4">
+            <Controller
               control={form.control}
               name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input type="email" placeholder="m@example.com" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="reset-password-email">Email</FieldLabel>
+                  <Input
+                    {...field}
+                    id="reset-password-email"
+                    type="email"
+                    autoComplete="email"
+                    placeholder="m@example.com"
+                    aria-invalid={fieldState.invalid}
+                  />
+                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                </Field>
               )}
             />
-
-            <div className="text-sm">
-              Remembered your password?{" "}
-              <Link href="/login" className="underline underline-offset-4">
-                Login
-              </Link>
-            </div>
-
-            <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
-              {form.formState.isSubmitting ? "Sending reset link..." : "Send reset link"}
-            </Button>
-          </form>
-        </Form>
+            <FieldDescription>
+              Remembered your password? <Link href="/login">Login</Link>
+            </FieldDescription>
+            <Field>
+              <Button type="submit" disabled={form.formState.isSubmitting}>
+                {form.formState.isSubmitting ? "Sending reset link..." : "Send reset link"}
+              </Button>
+            </Field>
+          </FieldGroup>
+        </form>
       </CardContent>
     </Card>
   );

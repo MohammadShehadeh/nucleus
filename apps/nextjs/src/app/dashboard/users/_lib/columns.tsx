@@ -5,21 +5,19 @@ import { Badge } from "@nucleus/ui/components/badge";
 import { Checkbox } from "@nucleus/ui/components/checkbox";
 import { DataTableColumnHeader } from "@nucleus/ui/components/data-table/data-table-column-header";
 import { formatDate } from "@nucleus/ui/lib/format";
-import type { ColumnDef } from "@tanstack/react-table";
+import type { DataTableColumnDef } from "@nucleus/ui/types/data-table";
 import { UserRowActions } from "../_components/user-row-actions";
 
 type User = RouterOutputs["users"]["list"]["data"][number];
 
-export function getColumns(): ColumnDef<User>[] {
+export function getColumns(): DataTableColumnDef<User>[] {
   return [
     {
       id: "select",
       header: ({ table }) => (
         <Checkbox
-          checked={
-            table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && "indeterminate")
-          }
+          checked={table.getIsAllPageRowsSelected()}
+          indeterminate={table.getIsSomePageRowsSelected() && !table.getIsAllPageRowsSelected()}
           onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
           aria-label="Select all"
         />

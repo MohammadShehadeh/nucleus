@@ -10,77 +10,93 @@ import {
   TableHeader,
   TableRow,
 } from "@nucleus/ui/components/table";
+import type { DataTableFeatures } from "@nucleus/ui/lib/data-table";
 import { getColumnPinningStyle } from "@nucleus/ui/lib/data-table";
+import {
+  type DataTableLabels,
+  DataTableLabelsContext,
+  DEFAULT_DATA_TABLE_LABELS,
+} from "@nucleus/ui/lib/data-table-labels";
 import { cn } from "@nucleus/ui/lib/utils";
-import { flexRender, type Table as TanstackTable } from "@tanstack/react-table";
+import type { ReactTable, RowData } from "@tanstack/react-table";
 import type * as React from "react";
 
-interface DataTableProps<TData> extends React.ComponentProps<"div"> {
-  table: TanstackTable<TData>;
+interface DataTableProps<TData extends RowData> extends React.ComponentProps<"div"> {
+  table: ReactTable<DataTableFeatures, TData>;
   actionBar?: React.ReactNode;
+  /** Override any of the table's text, e.g. for another language. */
+  labels?: Partial<DataTableLabels>;
 }
 
-export function DataTable<TData>({
+export const DataTable = <TData extends RowData>({
   table,
   actionBar,
+  labels,
   children,
   className,
   ...props
-}: DataTableProps<TData>) {
+}: DataTableProps<TData>) => {
   return (
-    <div className={cn("flex w-full flex-col gap-2.5 overflow-auto", className)} {...props}>
-      {children}
-      <div className="overflow-hidden rounded-md border">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead
-                    key={header.id}
-                    colSpan={header.colSpan}
-                    style={{
-                      ...getColumnPinningStyle({ column: header.column }),
-                    }}
-                  >
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(header.column.columnDef.header, header.getContext())}
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell
-                      key={cell.id}
+    <DataTableLabelsContext.Provider value={{ ...DEFAULT_DATA_TABLE_LABELS, ...labels }}>
+      <div
+        data-slot="data-table"
+        className={cn("flex w-full flex-col gap-2.5 overflow-auto", className)}
+        {...props}
+      >
+        {children}
+        <div data-slot="data-table-content" className="overflow-hidden rounded-md border">
+          <Table>
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <TableHead
+                      key={header.id}
+                      colSpan={header.colSpan}
                       style={{
-                        ...getColumnPinningStyle({ column: cell.column }),
+                        ...getColumnPinningStyle({ column: header.column }),
                       }}
                     >
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </TableCell>
+                      {header.isPlaceholder ? null : <table.FlexRender header={header} />}
+                    </TableHead>
                   ))}
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={table.getAllColumns().length} className="h-24 text-center">
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell
+                        key={cell.id}
+                        style={{
+                          ...getColumnPinningStyle({ column: cell.column }),
+                        }}
+                      >
+                        <table.FlexRender cell={cell} />
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={table.getVisibleLeafColumns().length}
+                    className="h-24 text-center"
+                  >
+                    {labels?.noResults ?? DEFAULT_DATA_TABLE_LABELS.noResults}
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+        <div className="flex flex-col gap-2.5">
+          <DataTablePagination table={table} />
+          {actionBar && table.getFilteredSelectedRowModel().rows.length > 0 && actionBar}
+        </div>
       </div>
-      <div className="flex flex-col gap-2.5">
-        <DataTablePagination table={table} />
-        {actionBar && table.getFilteredSelectedRowModel().rows.length > 0 && actionBar}
-      </div>
-    </div>
+    </DataTableLabelsContext.Provider>
   );
-}
+};

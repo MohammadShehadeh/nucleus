@@ -1,5 +1,5 @@
 import type { SearchParams } from "nuqs/server";
-import { api } from "@/trpc/server";
+import { HydrateClient, prefetch, trpc } from "@/trpc/server";
 import { UsersTable } from "./_components/users-table";
 import { searchParamsCache } from "./_lib/search-params";
 
@@ -10,14 +10,7 @@ interface UsersPageProps {
 export default async function UsersPage({ searchParams }: UsersPageProps) {
   const search = searchParamsCache.parse(await searchParams);
 
-  const result = await api.users.list({
-    page: search.page,
-    perPage: search.perPage,
-    sort: search.sort,
-    name: search.name,
-    email: search.email,
-    emailVerified: search.emailVerified,
-  });
+  await prefetch(trpc.users.list.queryOptions(search));
 
   return (
     <div className="flex flex-col gap-6">
@@ -27,7 +20,9 @@ export default async function UsersPage({ searchParams }: UsersPageProps) {
           Manage users and their roles in the platform.
         </p>
       </div>
-      <UsersTable initialData={result} />
+      <HydrateClient>
+        <UsersTable />
+      </HydrateClient>
     </div>
   );
 }

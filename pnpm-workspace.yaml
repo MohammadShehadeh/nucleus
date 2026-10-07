@@ -3,38 +3,46 @@ packages:
   - packages/*
   - tooling/*
 
+allowBuilds:
+  '@prisma/client': true
+  better-sqlite3: true
+  esbuild: true
+
 catalog:
   '@better-auth/cli': 1.4.21
-  '@better-auth/expo': 1.6.18
+  '@better-auth/expo': 1.7.7
   '@t3-oss/env-core': ^0.13.11
   '@t3-oss/env-nextjs': ^0.13.11
-  '@tailwindcss/postcss': ^4.3.1
-  '@tanstack/react-query': ^5.101.0
-  '@trpc/client': ^11.17.0
-  '@trpc/server': ^11.17.0
-  '@trpc/tanstack-react-query': ^11.17.0
-  better-auth: 1.6.18
-  next: ^16.2.9
-  tailwindcss: ^4.3.1
-  typescript: ^6.0.3
-  vitest: ^4.1.8
-  zod: 4.4.3
+  '@tailwindcss/postcss': ^4.3.3
+  '@tanstack/react-query': ^5.104.1
+  '@trpc/client': ^11.19.0
+  '@trpc/server': ^11.19.0
+  '@trpc/tanstack-react-query': ^11.19.0
+  '@types/node': ^26.6.4
+  better-auth: 1.7.7
+  next: ^16.4.0
+  tailwindcss: ^4.3.3
+  typescript: ^7.0.2
+  vitest: ^5.0.3
+  zod: 4.6.5
 
 catalogs:
   react19:
-    '@types/react': ^19.2.17
-    '@types/react-dom': ^19.2.3
-    react: ^19.2.7
-    react-dom: ^19.2.7
+    '@types/react': ^19.3.0
+    '@types/react-dom': ^19.3.0
+    react: ^19.3.0
+    react-dom: ^19.3.0
 
 linkWorkspacePackages: true
 
-onlyBuiltDependencies:
-  - esbuild
-
-overrides:
-  drizzle-orm@<0.45.2: '>=0.45.2'
-  esbuild@<=0.24.2: '>=0.25.0'
-  lodash@<=4.17.23: '>=4.18.0'
-  lodash@>=4.0.0 <=4.17.22: '>=4.17.23'
-  lodash@>=4.0.0 <=4.17.23: '>=4.18.0'
+minimumReleaseAgeExclude:
+  - '@next/env@16.4.0'
+  - '@next/swc-darwin-arm64@16.4.0'
+  - '@next/swc-darwin-x64@16.4.0'
+  - '@next/swc-linux-arm64-gnu@16.4.0'
+  - '@next/swc-linux-arm64-musl@16.4.0'
+  - '@next/swc-linux-x64-gnu@16.4.0'
+  - '@next/swc-linux-x64-musl@16.4.0'
+  - '@next/swc-win32-arm64-msvc@16.4.0'
+  - '@next/swc-win32-x64-msvc@16.4.0'
+  - next@16.4.0
