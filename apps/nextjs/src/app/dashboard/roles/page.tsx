@@ -1,5 +1,5 @@
 import type { SearchParams } from "nuqs/server";
-import { api } from "@/trpc/server";
+import { HydrateClient, prefetch, trpc } from "@/trpc/server";
 import { RolesTable } from "./_components/roles-table";
 import { searchParamsCache } from "./_lib/search-params";
 
@@ -10,12 +10,7 @@ interface RolesPageProps {
 export default async function RolesPage({ searchParams }: RolesPageProps) {
   const search = searchParamsCache.parse(await searchParams);
 
-  const result = await api.roles.list({
-    page: search.page,
-    perPage: search.perPage,
-    sort: search.sort,
-    name: search.name,
-  });
+  await prefetch(trpc.roles.list.queryOptions(search));
 
   return (
     <div className="flex flex-col gap-6">
@@ -25,7 +20,9 @@ export default async function RolesPage({ searchParams }: RolesPageProps) {
           Create roles and control what each one can access across the platform.
         </p>
       </div>
-      <RolesTable initialData={result} />
+      <HydrateClient>
+        <RolesTable />
+      </HydrateClient>
     </div>
   );
 }

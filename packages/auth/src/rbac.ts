@@ -1,8 +1,10 @@
 import { Redis } from "@nucleus/cache";
-import { eq } from "@nucleus/db";
 import { db } from "@nucleus/db/client";
-import { roleCacheKey, SUPER_ADMIN_SLUG } from "@nucleus/db/rbac";
-import { role, user } from "@nucleus/db/schema";
+import { roleCacheKey } from "@nucleus/db/rbac/cache";
+import { SUPER_ADMIN_SLUG } from "@nucleus/db/rbac/roles";
+import { role } from "@nucleus/db/schema/rbac";
+import { user } from "@nucleus/db/schema/user";
+import { eq } from "drizzle-orm";
 
 /** How long a role's permissions stay cached. Edits invalidate eagerly (see api). */
 const ROLE_CACHE_TTL_SECONDS = 600;

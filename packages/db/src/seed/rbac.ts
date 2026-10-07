@@ -1,12 +1,10 @@
 import { inArray } from "drizzle-orm";
+import { dbEnv } from "../../env";
 import { db } from "../client";
-import {
-  DEFAULT_ROLE_SLUG,
-  type PermissionKey,
-  SUPER_ADMIN_SLUG,
-  WILDCARD_PERMISSION,
-} from "../rbac";
-import { role, user } from "../schema";
+import { type PermissionKey, WILDCARD_PERMISSION } from "../rbac/permissions";
+import { DEFAULT_ROLE_SLUG, SUPER_ADMIN_SLUG } from "../rbac/roles";
+import { role } from "../schema/rbac";
+import { user } from "../schema/user";
 
 /**
  * Permissions granted to every new user via the default role. Members get
@@ -51,7 +49,7 @@ export async function seedRbac() {
   console.info("✓ Seeded system roles: super_admin, member");
 
   // 3. Promote configured super-admin emails (better-auth stores emails lowercased).
-  const emails = (process.env.SUPER_ADMIN_EMAILS ?? "")
+  const emails = (dbEnv().SUPER_ADMIN_EMAILS ?? "")
     .split(",")
     .map((email) => email.trim().toLowerCase())
     .filter(Boolean);

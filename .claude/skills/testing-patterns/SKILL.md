@@ -1,164 +1,60 @@
 ---
 name: testing-patterns
-description: Defines testing patterns and best practices for Vitest, Playwright, and React Testing Library. Use when writing any kind of test.
+description: How tests are written and run in Nucleus - Vitest, colocated *.test.ts files for pure lib logic (e.g. packages/db/src/rbac), which packages have a test script, and how to add one. Use when writing or running tests or adding a test setup to a package.
 ---
 
-# Testing Guidelines
+# Testing Patterns
 
-> **Note:** This project currently has no tests. This document serves as the official blueprint for how tests **must** be implemented. Adhere to these patterns when adding any new tests to the codebase.
+Code style follows the `pxkit:pxkit-conventions` skill; this skill covers repo-specific patterns. On conflict, pxkit wins. (pxkit reference: `testing.md`.)
 
-## Testing Stack
-This project uses the following testing tools:
-- **Unit Testing**: Vitest for fast unit tests
-- **E2E Testing**: Playwright for end-to-end testing
-- **Component Testing**: React Testing Library with Vitest
-- **API Testing**: tRPC testing utilities
+## Current state
 
-## Test File Organization
-Test files **should** be co-located with the code they are testing, either in a `__tests__` directory or as `.test.ts` files alongside the source.
+- Runner: **Vitest** (version from the pnpm `catalog:`).
+- Only `@nucleus/db` has tests today:
+  - `packages/db/src/rbac/check.test.ts` - `hasPermission` / `hasAllPermissions` / `hasAnyPermission` incl. wildcard.
+  - `packages/db/src/rbac/permissions.test.ts` - permission catalog integrity.
+  - Config: `packages/db/vitest.config.ts` (`environment: "node"`, `include: ["src/**/*.test.ts"]`).
+- Scripts: `pnpm test` (root, `turbo run test`) runs every package with a `test` script; `pnpm -F @nucleus/db test` / `test:watch` for one package.
+- No Playwright, Testing Library, or msw setup exists. Don't write tests that assume them without adding the setup first (and confirming with the user).
 
-```
-src/
-├── components/
-│   ├── login-form.tsx
-│   └── __tests__/
-│       └── login-form.test.tsx
-├── utils/
-│   ├── helpers.ts
-│   └── helpers.test.ts
-```
+## What to test
 
-## Unit Testing Patterns
+Separate decisions from actions: test the **pure logic** - permission checks, parsers, slug/sort/filter builders, mappers, zod schemas. Don't unit-test thin wiring (tRPC procedures that just query, components that just render).
 
-### Component Testing
-```typescript
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { vi } from 'vitest';
-import { LoginForm } from '../login-form';
+When router logic gets non-trivial (e.g. `slugify` or `orderBy` building in `packages/api/src/router/roles.ts`), extract it to a pure function and test that; keep it in the router file until a second consumer appears, and test it via export.
 
-describe('LoginForm', () => {
-  it('should submit form with valid data', async () => {
-    const mockSignIn = vi.fn();
-    vi.mock('~/auth/client', () => ({
-      signIn: { email: mockSignIn }
-    }));
+## Shape
 
-    render(<LoginForm />);
-    
-    fireEvent.change(screen.getByLabelText(/email/i), {
-      target: { value: 'test@example.com' }
-    });
-    
-    fireEvent.click(screen.getByRole('button', { name: /login/i }));
-    
-    await waitFor(() => {
-      expect(mockSignIn).toHaveBeenCalledWith({
-        email: 'test@example.com',
-        password: expect.any(String),
-        callbackURL: '/',
-      });
-    });
+Colocated sibling file, BDD naming, explicit imports from `vitest`:
+
+```ts
+// packages/db/src/rbac/check.test.ts
+import { describe, expect, it } from "vitest";
+import { hasPermission } from "./check";
+import { WILDCARD_PERMISSION } from "./permissions";
+
+describe("hasPermission", () => {
+  it("returns true for any permission when the wildcard is granted", () => {
+    expect(hasPermission([WILDCARD_PERMISSION], "user:assign-role")).toBe(true);
+  });
+
+  it("returns false for an empty grant list", () => {
+    expect(hasPermission([], "role:read")).toBe(false);
   });
 });
 ```
 
-### API Testing
-This example uses `msw-trpc` to mock tRPC procedures for a hypothetical `userRouter`.
-```typescript
-import { createTRPCMsw } from 'msw-trpc';
-import { setupServer } from 'msw/node';
-import type { AppRouter } from '@nucleus/api';
-import { userSelectSchema } from '@nucleus/db/schema';
+- Import the defining file (`./check`), never a barrel.
+- Cover the unhappy path and edges (empty lists, wildcard, duplicates).
+- No DB, Redis, or network in unit tests; if logic needs them, split the pure part out.
 
-const trpcMsw = createTRPCMsw<AppRouter>();
-const server = setupServer();
+## Adding tests to another package
 
-describe('User API', () => {
-  beforeAll(() => server.listen());
-  afterEach(() => server.resetHandlers());
-  afterAll(() => server.close());
+1. Add `"vitest": "catalog:"` to `devDependencies`.
+2. Add scripts `"test": "vitest run"` and `"test:watch": "vitest"`.
+3. Add a `vitest.config.ts` like `packages/db/vitest.config.ts` (`environment: "jsdom"` only if testing DOM code, which then also needs the jsdom/Testing Library deps).
+4. `turbo.json` already defines the `test` task - nothing to add there.
 
-  it('should get user by id successfully', async () => {
-    const fakeUser = { id: 'user_1', name: 'Test User', email: 'test@example.com' };
-    
-    server.use(
-      trpcMsw.user.getById.query((req, res, ctx) => {
-        return res(ctx.status(200), ctx.data(fakeUser));
-      })
-    );
+## Done criteria
 
-    // This would be a call from a client-side test
-    const result = await trpc.user.getById.useQuery({ id: 'user_1' });
-
-    expect(result.data).toMatchObject(fakeUser);
-  });
-});
-```
-
-## Database Testing
-```typescript
-import { beforeEach, afterEach } from 'vitest';
-import { db } from '@nucleus/db/client';
-import { user as userTable } from '@nucleus/db/schema';
-import { eq } from '@nucleus/db';
-
-describe('User Database Operations', () => {
-  const testUser = {
-    id: 'test_user_1',
-    name: 'DB Test User',
-    email: 'db_test@example.com',
-    emailVerified: false,
-  };
-
-  beforeEach(async () => {
-    // Setup test data
-    await db.insert(userTable).values(testUser);
-  });
-
-  afterEach(async () => {
-    // Cleanup test data
-    await db.delete(userTable).where(eq(userTable.id, testUser.id));
-  });
-
-  it('should find user by id', async () => {
-    const result = await db
-      .select()
-      .from(userTable)
-      .where(eq(userTable.id, testUser.id))
-      .limit(1);
-
-    expect(result[0]).toMatchObject({
-      name: 'DB Test User',
-      email: 'db_test@example.com',
-    });
-  });
-});
-```
-
-## E2E Testing Patterns
-```typescript
-import { test, expect } from '@playwright/test';
-
-test.describe('Authentication Flow', () => {
-  test('should login successfully', async ({ page }) => {
-    await page.goto('/sign-in');
-    
-    await page.fill('input[name="email"]', 'test@example.com');
-    await page.fill('input[name="password"]', 'password123');
-    
-    await page.click('button[type="submit"]');
-    
-    await expect(page).toHaveURL('/dashboard');
-    await expect(page.getByText('Welcome')).toBeVisible();
-  });
-});
-```
-
-## Testing Best Practices
-- **Arrange, Act, Assert**: Structure tests clearly.
-- **Test behavior, not implementation**: Focus on what the user experiences.
-- **Use `data-testid` for E2E**: Use them for reliable element selection in Playwright tests.
-- **Mock external dependencies**: Keep tests fast and isolated. Use `vi.mock`.
-- **Test error states**: Include "unhappy path" scenarios.
-- **Use descriptive test names**: A test name should clearly state what it is testing.
-- **Group related tests**: Use `describe` blocks for organization.
+`pnpm typecheck`, `pnpm format-and-lint`, and `pnpm test` pass.

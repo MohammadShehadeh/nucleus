@@ -1,185 +1,80 @@
 ---
 name: turborepo-patterns
-description: Outlines the Turborepo development workflow and patterns. Use as a reference for pnpm scripts and monorepo development tasks.
+description: Turborepo + pnpm workflow for Nucleus - the real root scripts (dev, dev:next, format-and-lint, typecheck, test, db:push/seed/studio, auth:generate, ui-add, dep:check), turbo filters, turbo.json tasks, catalog/workspace dependencies, and adding a package with per-file subpath exports. Use when running scripts, adding dependencies or packages, or editing turbo.json.
 ---
 
-# Turborepo Development Guidelines
+# Turborepo Workflow
 
-## Monorepo Structure
-This project uses Turborepo for efficient monorepo management with the following structure:
-- **Apps**: `apps/nextjs/`, `apps/expo/`
-- **Packages**: `packages/db/`, `packages/api/`, `packages/ui/`, etc.
-- **Tooling**: unified Biome config, `tooling/tailwind/`, `tooling/typescript/`, etc.
+Code style follows the `pxkit:pxkit-conventions` skill; this skill covers repo-specific patterns. On conflict, pxkit wins.
 
-## Package Scripts and Tasks
+## Root scripts (`package.json`)
 
-### Root Level Scripts
-From the project root, use these commands:
 ```bash
-# Development
-pnpm dev                    # Start all apps in watch mode
-pnpm dev:next              # Start only Next.js app with dependencies
+pnpm dev                    # turbo watch dev --continue (all apps)
+pnpm dev:next               # Next.js app + its workspace deps
+pnpm build                  # turbo run build
 
-# Building
-pnpm build                 # Build all packages and apps
-pnpm clean                 # Clean all node_modules
-pnpm clean:workspaces      # Clean all package build outputs
+pnpm format-and-lint        # biome check .
+pnpm format-and-lint:fix    # biome check . --write
+pnpm typecheck              # turbo run typecheck
+pnpm test                   # turbo run test (only packages with a test script; today @nucleus/db)
 
-# Database
-pnpm db:push               # Push database schema changes
-pnpm db:studio             # Open Drizzle Studio
+pnpm db:push                # drizzle-kit push (via @nucleus/db, loads ../../.env)
+pnpm db:seed                # run idempotent seeders (RBAC roles)
+pnpm db:studio              # Drizzle Studio
+pnpm auth:generate          # better-auth CLI schema generation
 
-# Code Quality (Biome)
-pnpm lint                  # Lint all packages (Biome)
-pnpm lint:fix              # Fix linting issues (Biome)
-pnpm format                # Format all files (Biome)
-pnpm check:ci              # Check formatting, linting, and imports for CI
-pnpm check                 # Fix all checkable issues (format, lint, imports)
-pnpm typecheck             # Type check all packages
+pnpm ui-add                 # shadcn add into @nucleus/ui (+ import fix + format)
+pnpm dep:check              # sherif workspace lint (also runs on postinstall)
+
+pnpm clean                  # remove root node_modules
+pnpm clean:workspaces       # turbo run clean in every package
 ```
 
-### Package-Specific Scripts
-Target specific packages using Turbo filters:
+Done criteria for any change: `pnpm typecheck`, `pnpm format-and-lint`, `pnpm test`. Husky + lint-staged run on commit.
+
+## Filters
+
 ```bash
-# Run script in specific package
-turbo run build -F @nucleus/db
-turbo run dev -F @nucleus/nextjs
-
-# Run script in package and its dependencies
-turbo run build -F @nucleus/nextjs...
-
-# Run script in package and its dependents
-turbo run test -F ...@nucleus/db
+pnpm -F @nucleus/db test               # one package script
+turbo run typecheck -F @nucleus/api    # one package task
+turbo run build -F @nucleus/nextjs...  # package + its dependencies
+turbo run test -F ...@nucleus/db       # package + its dependents
 ```
 
-## Turbo Configuration Patterns
+## turbo.json
 
-### Task Dependencies
-Define task dependencies in [turbo.json](mdc:turbo.json):
-```json
-{
-  "tasks": {
-    "build": {
-      "dependsOn": ["^build"],
-      "outputs": ["dist/**", ".next/**"]
-    },
-    "dev": {
-      "cache": false,
-      "persistent": true
-    },
-    "lint": {
-      "dependsOn": ["^build"]
-    }
-  }
+- `build` depends on `^build`; outputs `dist/**`, `.next/**`, `.cache/tsbuildinfo.json`.
+- `typecheck` and `test` depend on `^topo` and `^build`.
+- `dev`, `studio` persistent/uncached; `push`, `seed`, `ui-add` interactive/uncached.
+- `//#format-and-lint` runs Biome at the root.
+- A new env var used at build time must be added to `globalEnv` (secrets/config) or `globalPassThroughEnv`.
+
+## Dependencies
+
+- Internal: `"@nucleus/<pkg>": "workspace:*"`.
+- Shared external versions: `"catalog:"` (default catalog in `pnpm-workspace.yaml`: zod, trpc, tanstack query, better-auth, next, vitest, ...) or `"catalog:react19"` for React.
+- Add with `pnpm -F <pkg> add <dep>`; run `pnpm dep:check` after.
+- One version per dependency across the workspace (sherif enforces).
+
+## Adding a package
+
+1. `packages/<name>/` with `package.json` named `@nucleus/<name>`, `"type": "module"`, `"private": true`.
+2. Scripts mirroring siblings: `build`/`dev` (`tsc`), `clean`, `format-and-lint`, `format-and-lint:fix`, `typecheck`, and `test` if it has tests.
+3. `tsconfig.json` extending `@nucleus/tsconfig` (see a sibling, e.g. `packages/validators/tsconfig.json`).
+4. **Per-file subpath exports, no `index.ts` barrel** - follow `packages/ui/package.json` / `packages/validators/package.json`:
+
+```jsonc
+"exports": {
+  "./*": { "types": "./dist/*.d.ts", "default": "./src/*.ts" }
 }
 ```
 
-### Cache Configuration
-- **Build outputs**: Cache `dist/`, `.next/`, build artifacts
-- **Linting**: Cache based on source files and config changes
-- **Testing**: Cache based on test files and source dependencies
-- **Development**: Never cache (`"cache": false`)
+5. Env vars -> `env.ts` factory exported as `./env`, then `extends` it in `apps/nextjs/src/env.ts` (see `env-config-patterns`).
+6. Only create a package for code with 2+ consumers (apps or packages); single-consumer code stays where it is used.
 
-## Package Development Workflow
+## Troubleshooting
 
-### Creating New Packages
-1. Use Turbo generators: `turbo gen workspace`
-2. Follow naming convention: `@nucleus/package-name`
-3. Include standard files: `package.json`, `tsconfig.json`
-4. Export from `src/index.ts` with proper TypeScript types
-
-### Package Dependencies
-- **Internal dependencies**: Use `workspace:*` protocol
-- **External dependencies**: Use `catalog:` for shared versions
-- **Dev dependencies**: Inherit from workspace when possible
-
-Example `package.json`:
-```json
-{
-  "name": "@nucleus/new-package",
-  "dependencies": {
-    "@nucleus/db": "workspace:*",
-    "zod": "catalog:"
-  },
-  "devDependencies": {
-    "@nucleus/tsconfig": "workspace:*"
-  }
-}
-```
-
-### Shared Tooling Configuration
-Extend shared configurations from `tooling/`:
-```typescript
-// tsconfig.json
-{
-  "extends": "@nucleus/tsconfig/base.json",
-  "compilerOptions": {
-    "outDir": "dist"
-  }
-}
-```
-
-## Development Best Practices
-
-### Workspace Dependencies
-- Always use workspace aliases (`@nucleus/package`) in imports
-- Update dependencies using `pnpm up` from root
-- Use `pnpm install` from root to maintain lockfile consistency
-
-### Build Order
-Turbo automatically handles build order based on dependencies:
-1. Shared packages (`db`, `ui`, `validators`) build first
-2. API packages build after database schemas
-3. Apps build last, consuming all package outputs
-
-### Hot Reload and Watch Mode
-- Use `pnpm dev` for full-stack development
-- Turbo's watch mode automatically rebuilds dependencies
-- Next.js and Expo apps hot-reload when packages change
-
-### Performance Optimization
-- Leverage Turbo's caching for faster builds
-- Use `turbo prune` for Docker builds
-- Run tasks in parallel when possible
-- Cache node_modules using proper `.gitignore` patterns
-
-## Deployment Patterns
-
-### Vercel Deployment
-- Deploy from `apps/nextjs/` directory
-- Use `turbo prune` to optimize bundle size
-- Configure build command: `cd ../.. && turbo build -F @nucleus/nextjs`
-
-### Package Publishing
-- Build packages before publishing: `turbo build`
-- Use changesets for version management
-- Publish from package directories, not root
-
-## Troubleshooting Common Issues
-
-### Cache Issues
-```bash
-# Clear Turbo cache
-turbo clean
-
-# Clear all caches and reinstall
-pnpm clean && pnpm install
-```
-
-### Dependency Issues
-```bash
-# Check workspace dependencies
-pnpm list --depth=0
-
-# Update all dependencies
-pnpm up -r
-```
-
-### Build Issues
-```bash
-# Build specific package and dependencies
-turbo build -F @nucleus/package-name...
-
-# Force rebuild without cache
-turbo build --force
-```
+- Stale types across packages: `pnpm typecheck` (builds `^build` first) or `turbo run build -F <pkg>...`.
+- Force no cache: append `--force`.
+- Lockfile drift: `pnpm install` from the root.

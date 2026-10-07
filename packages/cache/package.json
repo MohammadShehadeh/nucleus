@@ -24,10 +24,13 @@
   },
   "devDependencies": {
     "@nucleus/tsconfig": "workspace:*",
-    "typescript": "catalog:"
+    "@types/node": "catalog:",
+    "typescript": "7"
   },
   "dependencies": {
+    "@t3-oss/env-core": "catalog:",
     "redis": "^6.3.0",
-    "superjson": "2.2.6"
+    "superjson": "2.2.6",
+    "zod": "catalog:"
   }
 }

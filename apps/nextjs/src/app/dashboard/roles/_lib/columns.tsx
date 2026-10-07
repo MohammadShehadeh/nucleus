@@ -1,16 +1,20 @@
 "use client";
 
 import type { RouterOutputs } from "@nucleus/api";
-import { WILDCARD_PERMISSION } from "@nucleus/db/rbac";
+import { WILDCARD_PERMISSION } from "@nucleus/db/rbac/permissions";
 import { Badge } from "@nucleus/ui/components/badge";
 import { DataTableColumnHeader } from "@nucleus/ui/components/data-table/data-table-column-header";
 import { formatDate } from "@nucleus/ui/lib/format";
-import type { ColumnDef } from "@tanstack/react-table";
+import type { DataTableColumnDef } from "@nucleus/ui/types/data-table";
 import { RoleRowActions } from "../_components/role-row-actions";
 
 type Role = RouterOutputs["roles"]["list"]["data"][number];
 
-function PermissionSummary({ permissions }: { permissions: string[] }) {
+interface PermissionSummaryProps {
+  permissions: string[];
+}
+
+const PermissionSummary = ({ permissions }: PermissionSummaryProps) => {
   if (permissions.includes(WILDCARD_PERMISSION)) {
     return <Badge>All access</Badge>;
   }
@@ -19,9 +23,9 @@ function PermissionSummary({ permissions }: { permissions: string[] }) {
       {permissions.length} permission{permissions.length === 1 ? "" : "s"}
     </span>
   );
-}
+};
 
-export function getColumns(): ColumnDef<Role>[] {
+export function getColumns(): DataTableColumnDef<Role>[] {
   return [
     {
       accessorKey: "name",

@@ -1,29 +1,34 @@
+"use no memo";
 "use client";
 
 import { Button } from "@nucleus/ui/components/button";
 import { Calendar } from "@nucleus/ui/components/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@nucleus/ui/components/popover";
 import { Separator } from "@nucleus/ui/components/separator";
+import type { DataTableFeatures } from "@nucleus/ui/lib/data-table";
+import { useDataTableLabels } from "@nucleus/ui/lib/data-table-labels";
 import { formatDate } from "@nucleus/ui/lib/format";
-import type { Column } from "@tanstack/react-table";
+import { cn } from "@nucleus/ui/lib/utils";
+import type { Column, RowData } from "@tanstack/react-table";
 import { CalendarIcon, XCircle } from "lucide-react";
 import * as React from "react";
 import type { DateRange } from "react-day-picker";
 
 type DateSelection = Date[] | DateRange;
 
-function getIsDateRange(value: DateSelection): value is DateRange {
+const getIsDateRange = (value: DateSelection): value is DateRange => {
   return value && typeof value === "object" && !Array.isArray(value);
-}
+};
 
-function parseAsDate(timestamp: number | string | undefined): Date | undefined {
+const parseAsDate = (timestamp: number | string | undefined): Date | undefined => {
   if (!timestamp) return undefined;
   const numericTimestamp = typeof timestamp === "string" ? Number(timestamp) : timestamp;
   const date = new Date(numericTimestamp);
-  return !Number.isNaN(date.getTime()) ? date : undefined;
-}
 
-function parseColumnFilterValue(value: unknown) {
+  return !Number.isNaN(date.getTime()) ? date : undefined;
+};
+
+const parseColumnFilterValue = (value: unknown) => {
   if (value === null || value === undefined) {
     return [];
   }
@@ -33,6 +38,7 @@ function parseColumnFilterValue(value: unknown) {
       if (typeof item === "number" || typeof item === "string") {
         return item;
       }
+
       return undefined;
     });
   }
@@ -42,19 +48,23 @@ function parseColumnFilterValue(value: unknown) {
   }
 
   return [];
-}
+};
 
-interface DataTableDateFilterProps<TData> {
-  column: Column<TData, unknown>;
+interface DataTableDateFilterProps<TData extends RowData> {
+  column: Column<DataTableFeatures, TData>;
   title?: string;
   multiple?: boolean;
+  /** Locale for the trigger label. Defaults to `en-US`. */
+  locale?: string;
 }
 
-export function DataTableDateFilter<TData>({
+export const DataTableDateFilter = <TData extends RowData>({
   column,
   title,
   multiple,
-}: DataTableDateFilterProps<TData>) {
+  locale = "en-US",
+}: DataTableDateFilterProps<TData>) => {
+  const labels = useDataTableLabels();
   const columnFilterValue = column.getFilterValue();
 
   const selectedDates = React.useMemo<DateSelection>(() => {
@@ -64,6 +74,7 @@ export function DataTableDateFilter<TData>({
 
     if (multiple) {
       const timestamps = parseColumnFilterValue(columnFilterValue);
+
       return {
         from: parseAsDate(timestamps[0]),
         to: parseAsDate(timestamps[1]),
@@ -72,6 +83,7 @@ export function DataTableDateFilter<TData>({
 
     const timestamps = parseColumnFilterValue(columnFilterValue);
     const date = parseAsDate(timestamps[0]);
+
     return date ? [date] : [];
   }, [columnFilterValue, multiple]);
 
@@ -79,13 +91,15 @@ export function DataTableDateFilter<TData>({
     (date: Date | DateRange | undefined) => {
       if (!date) {
         column.setFilterValue(undefined);
+
         return;
       }
 
       if (multiple && !("getTime" in date)) {
         const from = date.from?.getTime();
         const to = date.to?.getTime();
-        column.setFilterValue(from || to ? [from, to] : undefined);
+        // Open-ended ranges keep an empty slot so the URL never carries `undefined`.
+        column.setFilterValue(from || to ? [from ?? "", to ?? ""] : undefined);
       } else if (!multiple && "getTime" in date) {
         column.setFilterValue(date.getTime());
       }
@@ -93,37 +107,39 @@ export function DataTableDateFilter<TData>({
     [column, multiple]
   );
 
-  const onReset = React.useCallback(
-    (event: React.MouseEvent) => {
-      event.stopPropagation();
-      column.setFilterValue(undefined);
-    },
-    [column]
-  );
+  const onReset = React.useCallback(() => {
+    column.setFilterValue(undefined);
+  }, [column]);
 
   const hasValue = React.useMemo(() => {
     if (multiple) {
       if (!getIsDateRange(selectedDates)) return false;
+
       return selectedDates.from || selectedDates.to;
     }
     if (!Array.isArray(selectedDates)) return false;
+
     return selectedDates.length > 0;
   }, [multiple, selectedDates]);
 
-  const formatDateRange = React.useCallback((range: DateRange) => {
-    if (!range.from && !range.to) return "";
-    if (range.from && range.to) {
-      return `${formatDate(range.from)} - ${formatDate(range.to)}`;
-    }
-    return formatDate(range.from ?? range.to);
-  }, []);
+  const formatDateRange = React.useCallback(
+    (range: DateRange) => {
+      if (!range.from && !range.to) return "";
+      if (range.from && range.to) {
+        return `${formatDate(range.from, {}, locale)} - ${formatDate(range.to, {}, locale)}`;
+      }
+
+      return formatDate(range.from ?? range.to, {}, locale);
+    },
+    [locale]
+  );
 
   const label = React.useMemo(() => {
     if (multiple) {
       if (!getIsDateRange(selectedDates)) return null;
 
       const hasSelectedDates = selectedDates.from || selectedDates.to;
-      const dateText = hasSelectedDates ? formatDateRange(selectedDates) : "Select date range";
+      const dateText = hasSelectedDates ? formatDateRange(selectedDates) : labels.selectDateRange;
 
       return (
         <span className="flex items-center gap-2">
@@ -144,7 +160,7 @@ export function DataTableDateFilter<TData>({
     if (getIsDateRange(selectedDates)) return null;
 
     const hasSelectedDate = selectedDates.length > 0;
-    const dateText = hasSelectedDate ? formatDate(selectedDates[0]) : "Select date";
+    const dateText = hasSelectedDate ? formatDate(selectedDates[0], {}, locale) : labels.selectDate;
 
     return (
       <span className="flex items-center gap-2">
@@ -157,28 +173,35 @@ export function DataTableDateFilter<TData>({
         )}
       </span>
     );
-  }, [selectedDates, multiple, formatDateRange, title]);
+  }, [selectedDates, multiple, formatDateRange, title, locale, labels]);
 
   return (
     <Popover>
-      <PopoverTrigger asChild>
-        <Button variant="outline" size="sm" className="border-dashed font-normal">
-          {hasValue ? (
-            <div
-              role="button"
-              aria-label={`Clear ${title} filter`}
-              tabIndex={0}
-              onClick={onReset}
-              className="rounded-sm opacity-70 transition-opacity hover:opacity-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-            >
-              <XCircle />
-            </div>
-          ) : (
-            <CalendarIcon />
-          )}
-          {label}
-        </Button>
-      </PopoverTrigger>
+      <div className="flex items-center">
+        {hasValue ? (
+          <Button
+            variant="outline"
+            size="sm"
+            aria-label={labels.clearFilter(title ?? "")}
+            data-slot="data-table-date-filter-reset"
+            className="rounded-e-none border-e-0 border-dashed px-2"
+            onClick={onReset}
+          >
+            <XCircle />
+          </Button>
+        ) : null}
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            size="sm"
+            data-slot="data-table-date-filter"
+            className={cn("border-dashed font-normal", hasValue && "rounded-s-none")}
+          >
+            {hasValue ? null : <CalendarIcon />}
+            {label}
+          </Button>
+        </PopoverTrigger>
+      </div>
       <PopoverContent className="w-auto p-0" align="start">
         {multiple ? (
           <Calendar
@@ -201,4 +224,4 @@ export function DataTableDateFilter<TData>({
       </PopoverContent>
     </Popover>
   );
-}
+};

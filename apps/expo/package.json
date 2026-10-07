@@ -47,8 +47,9 @@
     "@nucleus/api": "workspace:*",
     "@nucleus/tailwind-config": "workspace:*",
     "@nucleus/tsconfig": "workspace:*",
+    "@types/node": "catalog:",
     "@types/react": "catalog:react19",
     "tailwindcss": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "7"
   }
 }

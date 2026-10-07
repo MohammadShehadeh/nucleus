@@ -1,14 +1,13 @@
 "use client";
 
-import {
-  hasAllPermissions,
-  hasAnyPermission,
-  hasPermission,
-  type PermissionKey,
-} from "@nucleus/db/rbac";
-import { createContext, type ReactNode, useContext } from "react";
+import { hasAllPermissions, hasAnyPermission, hasPermission } from "@nucleus/db/rbac/check";
+import type { PermissionKey } from "@nucleus/db/rbac/permissions";
+import { createSafeContext } from "@nucleus/ui/lib/create-safe-context";
+import type { ReactNode } from "react";
 
-const PermissionsContext = createContext<string[]>([]);
+const [PermissionsContextProvider, usePermissionsContext] = createSafeContext<string[]>(
+  "usePermissions must be used inside <PermissionsProvider>"
+);
 
 interface PermissionsProviderProps {
   permissions: string[];
@@ -16,19 +15,19 @@ interface PermissionsProviderProps {
 }
 
 /** Seeds the current user's effective permissions (from the session) to the client tree. */
-export function PermissionsProvider({ permissions, children }: PermissionsProviderProps) {
-  return <PermissionsContext.Provider value={permissions}>{children}</PermissionsContext.Provider>;
-}
+export const PermissionsProvider = ({ permissions, children }: PermissionsProviderProps) => {
+  return <PermissionsContextProvider value={permissions}>{children}</PermissionsContextProvider>;
+};
 
-export function usePermissions() {
-  const permissions = useContext(PermissionsContext);
+export const usePermissions = () => {
+  const permissions = usePermissionsContext();
   return {
     permissions,
     can: (permission: PermissionKey) => hasPermission(permissions, permission),
     canAll: (required: PermissionKey[]) => hasAllPermissions(permissions, required),
     canAny: (required: PermissionKey[]) => hasAnyPermission(permissions, required),
   };
-}
+};
 
 interface CanProps {
   permission?: PermissionKey;
@@ -39,7 +38,7 @@ interface CanProps {
 }
 
 /** Renders children only when the user satisfies the given permission(s). */
-export function Can({ permission, anyOf, allOf, fallback = null, children }: CanProps) {
+export const Can = ({ permission, anyOf, allOf, fallback = null, children }: CanProps) => {
   const { can, canAny, canAll } = usePermissions();
 
   let allowed = true;
@@ -49,4 +48,4 @@ export function Can({ permission, anyOf, allOf, fallback = null, children }: Can
   else if (allOf) allowed = canAll(allOf);
 
   return <>{allowed ? children : fallback}</>;
-}
+};

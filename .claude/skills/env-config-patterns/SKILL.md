@@ -1,92 +1,61 @@
 ---
 name: env-config-patterns
-description: Defines environment configuration and validation patterns. Use when adding or modifying environment variables.
+description: Environment variables in Nucleus - per-package t3 env-core factories in packages/*/env.ts, composition in apps/nextjs/src/env.ts via extends, NEXT_PUBLIC_ client vars, turbo.json globalEnv, and the rule that process.env is read only in env.ts files. Use when adding, reading, or changing an environment variable.
 ---
 
-# Environment Configuration Guidelines
+# Environment Configuration
 
-## Environment Schema Pattern
+Code style follows the `pxkit:pxkit-conventions` skill; this skill covers repo-specific patterns. On conflict, pxkit wins.
 
-- Use `@t3-oss/env-nextjs` for type-safe environment variable validation
-- Create package-specific env functions that return `createEnv()` configurations
-- Import Zod from `zod/v4` for consistency across the project
+**Read env only through `env.ts`.** Never `process.env` in feature code - import `env` from `@/env` in the app, or call the package's factory in a package.
 
-Example from [packages/auth/env.ts](mdc:packages/auth/env.ts):
+## Package factories (`@t3-oss/env-core`)
 
-```typescript
-import { createEnv } from '@t3-oss/env-core';
-import { z } from 'zod/v4';
+Existing: `packages/auth/env.ts` (`authEnv`), `packages/db/env.ts` (`dbEnv`), `packages/cache/env.ts` (`cacheEnv`), `packages/email/env.ts` (`emailEnv`). Each is exported as the `./env` subpath.
 
-export function authEnv() {
-	return createEnv({
-		server: {
-			AUTH_SECRET:
-				process.env.NODE_ENV === 'production'
-					? z.string().min(1)
-					: z.string().min(1).optional(),
-			GOOGLE_CLIENT_ID: z.string().min(1),
-			GOOGLE_CLIENT_SECRET: z.string().min(1),
-		},
-		runtimeEnv: {
-			AUTH_SECRET: process.env.AUTH_SECRET,
-			GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
-			GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
-		},
-		skipValidation:
-			!!process.env.CI || process.env.npm_lifecycle_event === 'lint',
-	});
-}
+```ts
+import { createEnv } from "@t3-oss/env-core";
+import { z } from "zod/v4";
+
+export const dbEnv = () =>
+  createEnv({
+    server: {
+      POSTGRES_URL: z.string().min(1),
+    },
+    runtimeEnv: process.env,
+    skipValidation: !!process.env.CI || process.env.npm_lifecycle_event === "lint",
+  });
 ```
 
-## App-Level Environment Configuration
+- Only the variables that package uses.
+- Production-only requirements via a conditional schema (see `AUTH_SECRET` in `authEnv`).
+- Numbers: `z.coerce.number()`. Lists: a string parsed at the consumer (see `SUPER_ADMIN_EMAILS` in `apps/nextjs/src/auth/server.ts`).
+- Inside the package, call the factory (`const env = dbEnv();`, as `packages/db/src/client.ts` and `packages/db/drizzle.config.ts` do).
 
-- Extend package environments using the `extends` property
-- Include Vercel presets for deployment compatibility
-- Separate server and client environment variables clearly
+## App composition (`apps/nextjs/src/env.ts`, `@t3-oss/env-nextjs`)
 
-Example from [apps/nextjs/src/env.ts](mdc:apps/nextjs/src/env.ts):
-
-```typescript
+```ts
 export const env = createEnv({
-	extends: [authEnv(), vercel(), dbEnv(), cacheEnv(), emailEnv()],
-	server: {
-		VERCEL_ENV: z.enum(['development', 'preview', 'production']).optional(),
-	},
-	client: {
-		// NEXT_PUBLIC_CLIENTVAR: z.string(),
-	},
-	runtimeEnv: {
-		NODE_ENV: process.env.NODE_ENV,
-		// NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
-	},
+  extends: [authEnv(), vercel(), dbEnv(), cacheEnv(), emailEnv()],
+  shared: { NODE_ENV: z.enum(["development", "production", "test"]).default("development").optional() },
+  server: {},
+  client: { NEXT_PUBLIC_BASE_URL: z.url() },
+  experimental__runtimeEnv: {
+    NODE_ENV: process.env.NODE_ENV,
+    NEXT_PUBLIC_BASE_URL: process.env.NEXT_PUBLIC_BASE_URL,
+  },
+  skipValidation: !!process.env.CI || process.env.npm_lifecycle_event === "lint",
 });
 ```
 
-## Environment Variable Naming
+- New package factory -> add it to `extends`.
+- Client vars: `NEXT_PUBLIC_` prefix, declared under `client` **and** listed in `experimental__runtimeEnv`.
 
-- Use SCREAMING_SNAKE_CASE for all environment variables
-- Prefix client-side variables with `NEXT_PUBLIC_`
-- Group related variables with consistent prefixes (e.g., `REDIS_*`, `GOOGLE_*`)
+## Adding a variable - checklist
 
-## Validation Patterns
+1. Add it to the owning `env.ts` (package or app).
+2. Add it to `.env.example` (never commit real values; scripts load `../../.env` via `dotenv-cli`).
+3. Add it to `turbo.json` `globalEnv` (or `globalPassThroughEnv` for platform vars) so Turbo caching and tasks see it.
+4. Read it via `env.X` only.
 
-- Make production variables required, development optional where appropriate
-- Use `z.coerce.number()` for numeric environment variables
-- Include `skipValidation` for CI and lint environments
-- Always define `runtimeEnv` mapping for server variables
-
-## Package Environment Structure
-
-Each package should have its own `env.ts` file that:
-
-- Exports a function returning the environment configuration
-- Only includes variables relevant to that package
-- Uses consistent validation patterns
-- Includes proper TypeScript types
-
-## Security Considerations
-
-- Never commit actual environment values to version control
-- Use `.env.example` files to document required variables
-- Validate sensitive variables are present in production
-- Use different validation rules for different environments
+Naming: SCREAMING_SNAKE_CASE, grouped by prefix (`GOOGLE_*`, `RESEND_*`, `REDIS_*`).

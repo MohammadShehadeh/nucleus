@@ -1,89 +1,81 @@
 ---
 name: schema-validation
-description: Describes schema validation patterns using Drizzle and Zod. Use when creating or validating data against database schemas, in forms, or in APIs.
+description: Zod (zod/v4) validation in Nucleus - drizzle-zod schemas generated next to tables, shared client/server schemas in @nucleus/validators, tRPC inputs, and react-hook-form with zodResolver + Controller + Field/FieldGroup/FieldError. Use when writing a zod schema, a tRPC input, or a form.
 ---
 
-# Schema Validation Guidelines
+# Schema Validation
 
-## Database Schema Patterns
-- Database schemas are defined using Drizzle ORM in [packages/db/src/schema/](mdc:packages/db/src/schema/)
-- Always generate Zod schemas from Drizzle schemas using `createInsertSchema` and `createSelectSchema` from `drizzle-zod`.
-- These are exported from the same file where the table is defined (e.g., `packages/db/src/schema/user.ts`).
+Code style follows the `pxkit:pxkit-conventions` skill; this skill covers repo-specific patterns. On conflict, pxkit wins. (pxkit reference: `forms.md`.)
 
-Example from [packages/db/src/schema/user.ts](mdc:packages/db/src/schema/user.ts):
-```typescript
-export const userInsertSchema = createInsertSchema(user);
-export const userSelectSchema = createSelectSchema(user);
+## Import
+
+Always `import { z } from "zod/v4";` (zod 4 via the pnpm catalog). Use v4 APIs: `z.email()`, `z.url()`, `z.flattenError()`.
+
+## Where schemas live (priority order)
+
+1. **Drizzle-generated** - `createInsertSchema` / `createSelectSchema` next to the table in `packages/db/src/schema/<file>.ts` (`userInsertSchema`, `userSelectSchema`). Use for CRUD inputs; derive with `.pick()` / `.omit()` / `.extend()` (`userSelectSchema.pick({ id: true })`).
+2. **Shared client + server** - `packages/validators/src/<topic>.ts`, imported per file: `@nucleus/validators/authentication` (`loginSchema`, `registerSchema`, `resetPasswordSchema`), `@nucleus/validators/data-table`. Export the inferred type beside it: `export type LoginFormData = z.infer<typeof loginSchema>;`.
+3. **Single consumer** - declare it in that file (router input like `createRoleInput` in `packages/api/src/router/roles.ts`; form schema like `roleFormSchema` in `role-form-dialog.tsx`). Move it to `@nucleus/validators` only when a second file needs it.
+
+Never hand-write a type a schema already defines - `z.infer`.
+
+## tRPC inputs
+
+```ts
+const updateRoleInput = z.object({
+  id: z.string(),
+  name: z.string().min(1).max(50).optional(),
+  permissions: z.array(permissionKeySchema).optional(),
+});
+
+update: requirePermission("role:update").input(updateRoleInput).mutation(...)
 ```
 
-## Form Validation Patterns
-- For React Hook Form validation, import the generated Zod schemas from `@nucleus/db/schema`.
-- When more specific validation is needed (e.g., password confirmation), create a new schema in `packages/validators/src` that extends the base database schema.
-- Use `standardSchemaResolver` from `@hookform/resolvers/standard-schema` for Zod v4 compatibility.
+Input failures surface automatically as `VALIDATION_FAILED` with `data.zodError` (see `error-handling-patterns`). Server-only schemas need no messages.
 
-Example from [apps/nextjs/src/app/(auth)/components/login-form.tsx](mdc:apps/nextjs/src/app/(auth)/components/login-form.tsx):
-```typescript
-import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
-import { loginSchema } from "@nucleus/validators/authentication";
+## Validation messages
 
+Field messages are short English copy defined **once in the schema** (single-language app; the i18n package is not wired into forms), rendered through `FieldError`. Keep them brief and consistent with `packages/validators/src/authentication.ts` ("Email is required", "Password must be at least 6 characters"). Submit/server failures are **not** schema messages - they come from `errorKey` via `getErrorMessage`.
+
+Cross-field rules use `.refine` with a `path`:
+
+```ts
+.refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
+});
+```
+
+## Forms
+
+react-hook-form + `zodResolver` (`@hookform/resolvers/zod`) + `mode: "onTouched"`; markup is `FieldGroup` -> `Controller` -> `Field` from `@nucleus/ui/components/field`. Reference: `apps/nextjs/src/app/(auth)/login/page.tsx`, `apps/nextjs/src/app/dashboard/roles/_components/role-form-dialog.tsx`.
+
+```tsx
 const form = useForm<LoginFormData>({
-  resolver: standardSchemaResolver(loginSchema),
+  resolver: zodResolver(loginSchema),
+  mode: "onTouched",
+  defaultValues: { email: "", password: "" },
 });
+
+<form onSubmit={form.handleSubmit(handleSubmit)}>
+  <FieldGroup>
+    <Controller
+      control={form.control}
+      name="email"
+      render={({ field, fieldState }) => (
+        <Field data-invalid={fieldState.invalid}>
+          <FieldLabel htmlFor="login-email">Email</FieldLabel>
+          <Input {...field} id="login-email" type="email" aria-invalid={fieldState.invalid} />
+          {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+        </Field>
+      )}
+    />
+    <Button type="submit" disabled={form.formState.isSubmitting}>Login</Button>
+  </FieldGroup>
+</form>
 ```
 
-## API Input Validation
-- tRPC procedures **must** use the generated Zod schemas for input validation to ensure end-to-end type safety.
-- Import schemas from `@nucleus/db/schema` in your API routers.
-- Use Zod methods like `.pick()`, `.omit()`, or `.extend()` to modify schemas for specific procedures.
-
-Example from a hypothetical `userRouter`:
-```typescript
-import { userInsertSchema } from "@nucleus/db/schema";
-
-// ...
-
-create: publicProcedure
-  .input(userInsertSchema)
-  .mutation(async ({ input }) => {
-    // `input` is fully typed and validated against the `user` table structure
-    return await db.insert(user).values(input).returning();
-  }),
-```
-
-## Schema Creation Priority
-1. **Use generated database schemas directly** from `@nucleus/db/schema` for all CRUD operations.
-2. **Create specific schemas in `@nucleus/validators`** only when you need complex validation not present in the DB schema (e.g., password confirmation, multi-field validation). These schemas should `extend()` or `pick()` from the base DB schemas to avoid duplicating logic.
-3. **Never duplicate validation logic.** Always derive from the single source of truth in the database schema.
-
-## Advanced Schema Patterns
-- Use `.pick()` to select specific fields: `userSelectSchema.pick({ id: true, name: true, email: true })`
-- Use `.omit()` to exclude sensitive fields: `userSelectSchema.omit({ emailVerified: true })`
-- Use `.extend()` to add additional fields for form validation: `userInsertSchema.extend({ confirmPassword: z.string() })`
-
-## Custom Validation Messages
-When creating specific schemas in `packages/validators`, you can add custom messages.
-```typescript
-import { z } from "zod";
-
-export const loginSchema = z.object({
-  email: z.string().email("Please enter a valid email address."),
-  password: z.string().min(8, "Password must be at least 8 characters long."),
-});
-```
-
-## Conditional Validation
-Use `.refine()` for validation that depends on multiple fields.
-```typescript
-const userUpdateSchema = userSelectSchema
-  .pick({ name: true, image: true })
-  .extend({
-    isPublic: z.boolean(),
-  })
-  .refine(
-    (data) => (data.isPublic ? data.image !== null : true),
-    {
-      message: "A profile image is required for public profiles.",
-      path: ["image"], // Field that the error is associated with
-    }
-  );
-```
+- `data-invalid` on `Field` **and** `aria-invalid` on the control.
+- Checkbox/radio groups: `FieldSet` + `FieldLegend` (see the permissions picker in `role-form-dialog.tsx`).
+- Guard double submits with `form.formState.isSubmitting` or the mutation's `isPending`.
+- Don't use the legacy `Form`/`FormField`/`FormItem`/`FormMessage` wrappers or `standardSchemaResolver` in new code; don't lay out fields with `div` + `space-y-*`.

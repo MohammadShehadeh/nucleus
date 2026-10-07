@@ -33,6 +33,6 @@
     "husky": "^9.1.7",
     "lint-staged": "^17.6.0",
     "turbo": "^2.11.7",
-    "typescript": "catalog:"
+    "typescript": "7"
   }
 }

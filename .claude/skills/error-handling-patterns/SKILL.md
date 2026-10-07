@@ -1,364 +1,99 @@
 ---
 name: error-handling-patterns
-description: Outlines error handling and logging patterns for the API and client. Use when implementing try/catch blocks, handling API errors, or logging.
+description: Error handling in Nucleus - the ErrorKey union in packages/api/src/error-keys.ts, throwing TRPCError with an ErrorKey message, the errorFormatter that exposes data.errorKey, resolving copy with getErrorMessage / authErrorKey in apps/nextjs/src/lib/error-messages.ts, and the 'Error in <fn>::' logging convention. Use when throwing or catching errors in tRPC routers or auth flows, handling mutation/query errors, or showing an error to the user.
 ---
 
-# Error Handling Guidelines
+# Error Handling
 
-## Error Handling Philosophy
-- **Fail fast**: Catch errors early and provide clear feedback
-- **User-friendly messages**: Show helpful messages to users, log technical details
-- **Graceful degradation**: Provide fallbacks when possible
-- **Consistent patterns**: Use the same error handling approach across the codebase
+Code style follows the `pxkit:pxkit-conventions` skill; this skill covers repo-specific patterns. On conflict, pxkit wins. (pxkit reference: `errors.md`.)
 
-## tRPC Error Handling
+**Errors are codes, not sentences.** Every expected failure reaches the client as a SCREAMING_SNAKE `errorKey`; the Next.js app turns the key into copy at render time. No user-facing string is written in a router, a hook, or a `toast` call.
 
-### API Error Patterns
-A hypothetical `userRouter` showing error handling patterns.
-```typescript
-import { TRPCError } from "@trpc/server";
-import { user, userInsertSchema } from "@nucleus/db/schema";
-import { eq } from "@nucleus/db";
+## No `Result` layer
 
-export const userRouter = {
-  getById: publicProcedure
-    .input(z.object({ id: z.string() }))
-    .query(async ({ input, ctx }) => {
-      const result = await ctx.db.query.user.findFirst({
-        where: eq(user.id, input.id),
-      });
+pxkit's `Result<T, K>` + shared `http` client are for services calling external APIs. In Nucleus **tRPC is the boundary**: routers throw `TRPCError`, the client gets a typed `TRPCClientError`. Don't wrap tRPC in a `Result` type or a hand-rolled `fetch` client.
 
-      if (!result) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "User not found",
-          cause: new Error(`User with id ${input.id} does not exist`),
-        });
-      }
+## 1. Keys - `packages/api/src/error-keys.ts`
 
-      return result;
-    }),
+```ts
+export const ERROR_KEYS = [
+  "NETWORK", "UNAUTHORIZED", "PERMISSION_DENIED", "RATE_LIMITED", "VALIDATION_FAILED", "UNKNOWN",
+  "ROLE_NOT_FOUND", "ROLE_NAME_TAKEN", /* ... */
+  "AUTH_INVALID_CREDENTIALS", /* ... */ "AUTH_FAILED",
+] as const;
 
-  create: protectedProcedure
-    .input(userInsertSchema)
-    .mutation(async ({ input, ctx }) => {
-      try {
-        const result = await ctx.db.insert(user).values({
-          ...input,
-          // other required fields
-        }).returning();
-        return result[0];
-      } catch (error) {
-        // Example of catching a specific database constraint error
-        if (Error.isError(error) && error.message.includes('duplicate key')) {
-          throw new TRPCError({
-            code: "CONFLICT",
-            message: "A user with this email already exists",
-            cause: error,
-          });
-        }
-        
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to create user",
-          cause: error,
-        });
-      }
-    }),
-};
+export type ErrorKey = (typeof ERROR_KEYS)[number];
+export const isErrorKey = (value: unknown): value is ErrorKey => ...;
 ```
 
-### Common tRPC Error Codes
-- `BAD_REQUEST` - Invalid input data (Zod validation will trigger this automatically).
-- `UNAUTHORIZED` - Authentication required (triggered by `protectedProcedure`).
-- `FORBIDDEN` - Insufficient permissions.
-- `NOT_FOUND` - Resource doesn't exist.
-- `CONFLICT` - Resource already exists or a unique constraint is violated.
-- `INTERNAL_SERVER_ERROR` - Unexpected server errors.
-- `TOO_MANY_REQUESTS` - Rate limiting.
+- The `as const` array exists so `isErrorKey` can check at runtime; `ErrorKey` is derived from it. Never an `enum`.
+- Shared keys are transport/session only (`NETWORK`, `UNAUTHORIZED`, `PERMISSION_DENIED`, `RATE_LIMITED`, `VALIDATION_FAILED`, `UNKNOWN`). Everything else is feature-prefixed (`ROLE_`, `PERMISSION_`, `AUTH_`) and **named by reason** (`ROLE_NOT_FOUND`, `ROLE_SYSTEM_UNDELETABLE`); an operation catch-all (`AUTH_FAILED`) only for unknown reasons.
+- Imports: inside `packages/api` use `"../error-keys"`; elsewhere `@nucleus/api/error-keys`.
+- Adding a key = add it to `ERROR_KEYS` **and** its copy in `apps/nextjs/src/lib/error-messages.ts` (the `Record<ErrorKey, string>` makes a missing entry a type error).
 
-## Client-Side Error Handling
+## 2. Throwing in routers
 
-### React Query Error Handling
-This example assumes you have a `useQuery` hook for a `user.getById` procedure.
-```typescript
-import { toast } from "@nucleus/ui/components/sonner";
-import { api } from "~/trpc/react";
+`code` is the tRPC transport code (HTTP status, retry behavior); `message` is the key:
 
-export function UserProfile({ userId }: { userId: string }) {
-  const { data: user, error, isError } = api.user.getById.useQuery({ id: userId });
-
-  if (isError) {
-    // Handle different error types from the API
-    if (error.data?.code === "UNAUTHORIZED") {
-      return <div>Please log in to view this profile.</div>;
-    }
-    
-    // Generic error fallback
-    toast.error(error.message || "Failed to load user profile.");
-    return <div>Could not load user profile. Please try again.</div>;
-  }
-
-  return (
-    <div>
-      <h1>{user?.name}</h1>
-      <p>{user?.email}</p>
-    </div>
-  );
+```ts
+if (!existing) {
+  throw new TRPCError({ code: "NOT_FOUND", message: "ROLE_NOT_FOUND" satisfies ErrorKey });
 }
 ```
 
-### Form Error Handling
-This example shows handling a `CONFLICT` error from the API when creating a user.
-```typescript
-import { useForm } from "react-hook-form";
-import { toast } from "@nucleus/ui/components/sonner";
-import { userInsertSchema } from "@nucleus/db/schema";
-import type { z } from "zod";
-import { Form } from "@nucleus/ui/form";
-import { api } from "~/trpc/react";
+| Situation | `code` | Key |
+| --- | --- | --- |
+| no session (`protectedProcedure`) | `UNAUTHORIZED` | `UNAUTHORIZED` (mapped by formatter) |
+| missing permission (`requirePermission`) | `FORBIDDEN` | `PERMISSION_DENIED` |
+| granting permissions you lack (`assertCanGrant`) | `FORBIDDEN` | `PERMISSION_GRANT_EXCEEDED` |
+| row missing | `NOT_FOUND` | `<FEATURE>_NOT_FOUND` |
+| unique violation (`checkPostgresErrorCode(error, "unique_violation")` from `@nucleus/db/utils`) | `CONFLICT` | e.g. `ROLE_NAME_TAKEN` |
+| business rule | `BAD_REQUEST` / `FORBIDDEN` | reason key, e.g. `ROLE_IS_DEFAULT` |
+| zod input failure | `BAD_REQUEST` (automatic) | `VALIDATION_FAILED` + `data.zodError` |
 
-type UserFormData = z.infer<typeof userInsertSchema>;
+Guard clauses first, happy path unindented. Unknown errors are re-thrown untouched and surface as `UNKNOWN`.
 
-export function CreateUserForm() {
-  const form = useForm<UserFormData>();
-  const createUser = api.user.create.useMutation({
-    onSuccess: () => {
-      toast.success("User created successfully!");
-      form.reset();
-    },
-    onError: (error) => {
-      if (error.data?.code === "CONFLICT") {
-        form.setError("email", {
-          message: "This email address is already in use.",
-        });
-      } else {
-        toast.error(error.message || "Failed to create user. Please try again.");
-      }
-    },
-  });
+## 3. `errorFormatter` - `packages/api/src/trpc.ts`
 
-  const onSubmit = (data: UserFormData) => {
-    createUser.mutate(data);
-  };
+Resolves every error to a key: the thrown message if `isErrorKey`, else `VALIDATION_FAILED` for zod errors, else `ERROR_KEY_BY_CODE[code]`, else `UNKNOWN`. It replaces `shape.message` with the key and sets `data.errorKey` (plus `data.zodError`), so internal messages never leave the server. Extend `ERROR_KEY_BY_CODE` rather than special-casing in routers.
 
-  return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
-        {/* Form fields for name, email, password etc. */}
-      </form>
-    </Form>
-  );
-}
-```
+## 4. Logging
 
-## Database Error Handling
+`try/catch` only around I/O you need to translate (DB constraint, email, Redis, better-auth). Log with the greppable prefix, then throw a key; raw details stop at the log:
 
-### Drizzle Error Patterns
-```typescript
-import { eq } from "@nucleus/db";
-import { db } from "@nucleus/db/client";
-
-export async function updateUser(id: string, data: Partial<User>) {
-  try {
-    const result = await db
-      .update(user)
-      .set(data)
-      .where(eq(user.id, id))
-      .returning();
-
-    if (result.length === 0) {
-      throw new Error(`User with id ${id} not found`);
-    }
-
-    return result[0];
-  } catch (error) {
-    if (Error.isError(error)) {
-      // Handle specific database errors
-      if (error.message.includes('foreign key constraint')) {
-        throw new Error('Cannot update user: referenced by other records');
-      }
-      
-      if (error.message.includes('unique constraint')) {
-        throw new Error('User email must be unique');
-      }
-    }
-    
-    // Re-throw unknown errors
-    throw error;
-  }
-}
-```
-
-## Authentication Error Handling
-
-### Auth Error Patterns
-```typescript
-import { signIn } from "~/auth/client";
-
-export function LoginForm() {
-  const [error, setError] = useState<string | null>(null);
-
-  const handleSignIn = async (data: LoginFormData) => {
-    try {
-      setError(null);
-      await signIn.email({
-        email: data.email,
-        password: data.password,
-        callbackURL: "/dashboard",
-      });
-    } catch (error) {
-      if (Error.isError(error)) {
-        // Handle specific auth errors
-        if (error.message.includes("Invalid credentials")) {
-          setError("Invalid email or password");
-        } else if (error.message.includes("Too many requests")) {
-          setError("Too many login attempts. Please try again later.");
-        } else {
-          setError("An unexpected error occurred. Please try again.");
-        }
-      }
-    }
-  };
-
-  return (
-    <form onSubmit={handleSubmit(handleSignIn)}>
-      {error && (
-        <div className="text-destructive text-sm mb-4">
-          {error}
-        </div>
-      )}
-      {/* Form fields */}
-    </form>
-  );
-}
-```
-
-## Error Boundaries
-
-### React Error Boundary
-```typescript
-import { Component, type ReactNode } from "react";
-
-interface ErrorBoundaryState {
-  hasError: boolean;
-  error?: Error;
-}
-
-export class ErrorBoundary extends Component<
-  { children: ReactNode; fallback?: ReactNode },
-  ErrorBoundaryState
-> {
-  constructor(props: { children: ReactNode; fallback?: ReactNode }) {
-    super(props);
-    this.state = { hasError: false };
-  }
-
-  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
-    return { hasError: true, error };
-  }
-
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error("Error caught by boundary:", error, errorInfo);
-    // Log to error reporting service
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return this.props.fallback || (
-        <div className="p-4 text-center">
-          <h2 className="text-lg font-semibold mb-2">Something went wrong</h2>
-          <p className="text-muted-foreground">
-            Please refresh the page or try again later.
-          </p>
-        </div>
-      );
-    }
-
-    return this.props.children;
-  }
-}
-```
-
-## Logging Patterns
-
-### Server-Side Logging
-```typescript
-// Use structured logging
-console.error("User creation failed", {
-  userId: ctx.user.id,
-  input: input,
-  error: error.message,
-  timestamp: new Date().toISOString(),
-});
-
-// For production, use a proper logging service
-// logger.error("User creation failed", {
-//   userId: ctx.user.id,
-//   error: error.message,
-//   stack: error.stack,
-// });
-```
-
-### Client-Side Error Reporting
-```typescript
-// Log client errors for debugging
-if (process.env.NODE_ENV === "development") {
-  console.error("API call failed:", {
-    endpoint: "user.create",
-    error: error.message,
-    data: error.data,
-  });
-}
-
-// In production, send to error reporting service
-// errorReporter.captureException(error, {
-//   tags: { component: "CreateUserForm" },
-//   extra: { formData: data },
-// });
-```
-
-## Validation Error Handling
-
-### Zod Validation Errors
-```typescript
-import { z } from "zod/v4";
-
-const schema = z.object({
-  email: z.string().email("Please enter a valid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
-});
-
+```ts
 try {
-  const result = schema.parse(data);
+  await sendVerificationEmail(input);
 } catch (error) {
-  if (error instanceof z.ZodError) {
-    // Handle validation errors
-    error.errors.forEach((err) => {
-      form.setError(err.path[0] as keyof FormData, {
-        message: err.message,
-      });
-    });
-  }
+  console.error("Error in sendVerificationEmail::", error);
+  throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "UNKNOWN" satisfies ErrorKey });
 }
 ```
 
-## Best Practices
+## 5. Client copy - `apps/nextjs/src/lib/error-messages.ts`
 
-### Error Message Guidelines
-- **Be specific**: "User not found" vs "An error occurred"
-- **Be actionable**: Tell users what they can do next
-- **Be consistent**: Use the same tone and format across the app
-- **Be secure**: Don't expose sensitive information in error messages
+- `getErrorMessage(error: unknown)` accepts an `ErrorKey` or a `TRPCClientError` (reads `error.data.errorKey`; no `data` -> `NETWORK`; anything else -> `UNKNOWN`).
+- `authErrorKey({ code, status })` maps a better-auth client error to an `ErrorKey` (429 -> `RATE_LIMITED`, unknown codes -> `AUTH_FAILED`). This is the **only** place better-auth codes are mapped.
 
-### Error Recovery
-- Provide retry mechanisms for transient errors
-- Offer alternative actions when possible
-- Save user input when errors occur
-- Show loading states during error recovery
+```tsx
+const deleteRole = useMutation(
+  trpc.roles.delete.mutationOptions({
+    onSuccess: () => queryClient.invalidateQueries(trpc.roles.list.queryFilter()),
+    onError: (error) => toast.error(getErrorMessage(error)),
+  })
+);
 
-### Monitoring and Alerting
-- Log all server errors with context
-- Monitor error rates and patterns
-- Set up alerts for critical error thresholds
-- Track user-facing errors separately from system errors
+const response = await signIn.email({ email, password, callbackURL: "/" });
+if (response.error) toast.error(getErrorMessage(authErrorKey(response.error)));
+```
+
+- **Never render `error.message`** (tRPC or better-auth). Inline errors use `<p role="alert">{getErrorMessage(error)}</p>`.
+- Queries: read the query's `error`/`status` and render via `getErrorMessage`; don't copy errors into `useState`.
+- Field validation messages come from the zod schema and render through `FieldError` (see `schema-validation`); submit failures use the key path above.
+
+## Don'ts
+
+- No `TRPCError` with a sentence message; no hardcoded error strings in components.
+- No `error.message.includes(...)` sniffing - use `checkPostgresErrorCode` or the better-auth `code`.
+- No `process.env.NODE_ENV` around logging; use `env` from `@/env` if it matters.
+- No class error boundaries for data errors; Next.js `error.tsx` handles render crashes.

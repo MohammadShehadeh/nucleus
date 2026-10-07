@@ -5,9 +5,11 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { PermissionsProvider } from "@/components/permissions-provider";
 import { SiteHeader } from "@/components/site-header";
 
-export const description = "A sidebar with a header and a search form.";
+interface DashboardLayoutProps {
+  children: React.ReactNode;
+}
 
-export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
+export default async function DashboardLayout({ children }: DashboardLayoutProps) {
   const session = await getSession();
   const user = {
     name: session?.user.name ?? "User",

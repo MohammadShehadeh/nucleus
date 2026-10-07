@@ -1,60 +1,61 @@
 ---
 name: file-organization
-description: Details file and folder organization conventions. Use as a reference for project structure and where to place new files.
+description: Where files go in the Nucleus monorepo and how they are named - kebab-case filenames, .tsx only for JSX, route colocation with _components/_lib, the one-consumer rule, no barrel files, direct imports via @/ and @nucleus/* subpath exports, and no default exports outside Next.js file conventions. Use when creating, moving, or renaming files, or deciding where new code belongs.
 ---
 
-# File Organization Guidelines
+# File Organization
 
-## Naming Conventions
-- Use **kebab-case** for file and folder names (e.g., `user-management`, `course-form.tsx`).
-- Use **PascalCase** for React components (e.g., `LoginForm`, `CourseCard.tsx`).
-- Use **camelCase** for general functions and variables (e.g., `createCourse`, `userId`).
-- Use **SCREAMING_SNAKE_CASE** for constants (e.g., `DATABASE_URL`, `API_BASE_URL`).
+Code style follows the `pxkit:pxkit-conventions` skill; this skill covers repo-specific patterns. On conflict, pxkit wins. (pxkit references: `naming.md`, `structure.md`.)
 
-## Directory Structure Patterns
+## Naming
 
-### Apps Structure
-The `apps/` directory contains the runnable applications.
+- **kebab-case for every filename**, components included: `users-table.tsx`, `role-form-dialog.tsx`, `use-data-table.ts`. Never `UsersTable.tsx`.
+- The filename mirrors the main export (`role-row-actions.tsx` -> `RoleRowActions`).
+- **`.tsx` if and only if the file contains JSX.** Hooks, search-param parsers, routers, schemas are `.ts`.
+- Identifiers: camelCase values/functions, PascalCase components/types, `is/has/should` booleans, `handle*` internal handlers, `on*` callback props.
+
+## Exports
+
+- Named arrow-const exports: `export const UsersTable = () => { ... }`.
+- **No default exports** except Next.js file conventions: `page.tsx`, `layout.tsx`, `error.tsx`, `not-found.tsx`, `loading.tsx`, `route.ts` (named HTTP handlers), `proxy.ts` (named `proxy` + `config`), and config files that require it (`drizzle.config.ts`, `vitest.config.ts`).
+
+## No barrels
+
+- Never add an `index.ts` that only re-exports, and never re-export a symbol through a middleman file.
+- Import the **defining file**: in the app via `@/` (`@/trpc/react`, `@/components/permissions-provider`), across packages via subpath exports (`@nucleus/ui/components/button`, `@nucleus/db/client`, `@nucleus/db/utils`, `@nucleus/validators/authentication`).
+- Packages expose **per-file subpath exports** (`@nucleus/db/schema/user`, `@nucleus/db/rbac/check`, `@nucleus/db/utils`, `@nucleus/api/error-keys`, `@nucleus/ui/lib/create-safe-context`); `packages/db` and `packages/api` no longer use `index.ts` barrels or re-export middlemen. Drizzle operators come from `drizzle-orm` directly. A new package follows `packages/ui/package.json` / `packages/validators/package.json`. Confirm a subpath in the package's `exports` before importing it.
+
+## Layout
+
 ```
 apps/nextjs/src/
-├── app/                    # Next.js App Router
-│   ├── (auth)/            # Auth route group (e.g., /sign-in)
-│   ├── (protected)/       # Protected route group (requires login)
-│   ├── (public)/          # Public route group (e.g., landing page)
-│   └── api/               # API routes (e.g., tRPC)
-├── auth/                  # Auth configuration files
-├── components/            # App-specific shared components
-├── lib/                   # App-specific utilities
-└── trpc/                  # tRPC client setup
+  app/                    # App Router; route groups (auth), (public); dashboard/
+    dashboard/users/
+      page.tsx            # thin server page
+      _components/        # route-private client components (users-table.tsx, user-row-actions.tsx)
+      _lib/               # route-private non-UI logic (search-params.ts, columns.tsx)
+    api/trpc/[trpc]/route.ts, api/auth/[...all]/route.ts
+  auth/                   # server.ts (initAuth + getSession), client.ts (better-auth client)
+  components/             # app-wide components used by 2+ routes
+  lib/error-messages.ts   # ErrorKey -> copy (getErrorMessage, authErrorKey)
+  trpc/                   # react.tsx (useTRPC), server.tsx (trpc, prefetch, HydrateClient), query-client.ts
+  env.ts                  # the only place that reads process.env in the app
+  proxy.ts                # Next 16 proxy (not middleware.ts); owns route lists + routePermissions
+
+packages/<name>/
+  env.ts                  # package env factory (when the package has env)
+  src/...                 # one concept per file, exposed via package.json "exports"
 ```
 
-### Package Structure
-The `packages/` directory contains shared code, organized by domain.
-```
-packages/{package-name}/
-├── src/
-│   ├── index.ts          # Main export file for the package
-│   └── ...               # Feature files
-├── package.json
-└── tsconfig.json
-```
+## Placement rules (one-consumer rule)
 
-## Import/Export Patterns
-- Use barrel exports (`export * from './file'`) in `index.ts` files to create a clean public API for each package.
-- Prefer named exports over default exports to maintain consistency.
-- Group imports in this order:
-  1. React/Next.js imports
-  2. External library imports
-  3. Internal workspace imports (`@nucleus/...`)
-  4. Relative imports (`~/...`, `./...`, `../...`)
-- Always use absolute imports with workspace aliases (`@nucleus/db`, `@nucleus/ui`) when crossing package boundaries.
+- A type, constant, helper, or sub-component used by **one file lives in that file**. Move it out only when a second file imports it.
+- Used by one route -> that route's `_components/` or `_lib/` (underscore folders are not routable).
+- Used by 2+ routes in the app -> `apps/nextjs/src/components/`, `lib/`, or `constants/`.
+- Used by 2+ apps (Next.js + Expo) or by the API -> a package (`@nucleus/ui` for UI primitives, `@nucleus/validators` for shared zod schemas, `@nucleus/db` for schema/RBAC logic).
+- Create a directory only when a file exists for it.
+- Tests: colocated `*.test.ts` next to the pure logic they test (see `testing-patterns`).
 
-## Route Organization
-- Use Next.js route groups (`(auth)`) for organizing routes that share a layout or context, without affecting the URL.
-- Place components shared within a route group inside that group's folder (e.g., `app/(protected)/components/`).
-- Keep page-specific logic as close to its `page.tsx` file as possible.
+## Imports
 
-## Component Co-location
-- If a component is only used on one page, define it in the same file or a file next to the page.
-- If a component is used by multiple pages within the same route group, place it in a shared `components` folder for that group.
-- If a component is used across multiple route groups or apps, promote it to the shared `@nucleus/ui` package.
+Biome organizes imports (`pnpm format-and-lint:fix`); don't hand-sort. Use `import type` for type-only imports.

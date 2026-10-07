@@ -1,6 +1,6 @@
 "use client";
 
-import type { AppRouter } from "@nucleus/api";
+import type { AppRouter } from "@nucleus/api/root";
 import type { QueryClient } from "@tanstack/react-query";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { createTRPCClient, httpBatchStreamLink, loggerLink } from "@trpc/client";
@@ -14,10 +14,8 @@ import { createQueryClient } from "./query-client";
 let clientQueryClientSingleton: QueryClient | undefined;
 const getQueryClient = () => {
   if (typeof window === "undefined") {
-    // Server: always make a new query client
     return createQueryClient();
   } else {
-    // Browser: use singleton pattern to keep the same query client
     clientQueryClientSingleton ??= createQueryClient();
     return clientQueryClientSingleton;
   }
@@ -25,7 +23,11 @@ const getQueryClient = () => {
 
 export const { useTRPC, TRPCProvider } = createTRPCContext<AppRouter>();
 
-export function TRPCReactProvider(props: { children: React.ReactNode }) {
+interface TRPCReactProviderProps {
+  children: React.ReactNode;
+}
+
+export const TRPCReactProvider = ({ children }: TRPCReactProviderProps) => {
   const queryClient = getQueryClient();
 
   const [trpcClient] = useState(() =>
@@ -52,11 +54,11 @@ export function TRPCReactProvider(props: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       <TRPCProvider trpcClient={trpcClient} queryClient={queryClient}>
-        {props.children}
+        {children}
       </TRPCProvider>
     </QueryClientProvider>
   );
-}
+};
 
 const getBaseUrl = () => {
   if (typeof window !== "undefined") return window.location.origin;

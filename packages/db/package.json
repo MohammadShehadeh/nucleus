@@ -4,21 +4,17 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": {
-      "types": "./dist/src/index.d.ts",
-      "default": "./src/index.ts"
-    },
     "./client": {
       "types": "./dist/src/client.d.ts",
       "default": "./src/client.ts"
     },
-    "./schema": {
-      "types": "./dist/src/schema/index.d.ts",
-      "default": "./src/schema/index.ts"
+    "./schema/*": {
+      "types": "./dist/src/schema/*.d.ts",
+      "default": "./src/schema/*.ts"
     },
-    "./rbac": {
-      "types": "./dist/src/rbac/index.d.ts",
-      "default": "./src/rbac/index.ts"
+    "./rbac/*": {
+      "types": "./dist/src/rbac/*.d.ts",
+      "default": "./src/rbac/*.ts"
     },
     "./env": {
       "types": "./dist/env.d.ts",
@@ -59,10 +55,11 @@
   },
   "devDependencies": {
     "@nucleus/tsconfig": "workspace:*",
+    "@types/node": "catalog:",
     "dotenv-cli": "^11.0.0",
     "drizzle-kit": "^0.31.11",
     "tsx": "^4.23.15",
-    "typescript": "catalog:",
+    "typescript": "7",
     "vitest": "catalog:"
   }
 }

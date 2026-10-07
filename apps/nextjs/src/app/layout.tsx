@@ -1,5 +1,5 @@
 import "./globals.css";
-import { ConfirmProvider } from "@nucleus/ui/components/confrim";
+import { ConfirmProvider } from "@nucleus/ui/components/confirm";
 import { ThemeProvider } from "@nucleus/ui/components/theme";
 import { Toaster } from "@nucleus/ui/components/toast";
 import { cn } from "@nucleus/ui/lib/utils";
@@ -12,11 +12,11 @@ import { HydrateClient } from "@/trpc/server";
 
 export const metadata: Metadata = {
   metadataBase: new URL(env.NEXT_PUBLIC_BASE_URL),
-  title: "Nucleus",
+  title: { default: "Nucleus", template: "%s | Nucleus" },
   description: "A Real-World Full-Stack Reference Architecture",
   openGraph: {
     title: "Nucleus",
-    description: "A platform for creating and managing learning content.",
+    description: "A Real-World Full-Stack Reference Architecture",
     url: env.NEXT_PUBLIC_BASE_URL,
     siteName: "Nucleus",
   },
@@ -44,7 +44,11 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
 });
 
-export default function RootLayout(props: { children: React.ReactNode }) {
+interface RootLayoutProps {
+  children: React.ReactNode;
+}
+
+export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body
@@ -65,7 +69,7 @@ export default function RootLayout(props: { children: React.ReactNode }) {
             <TRPCReactProvider>
               <HydrateClient>
                 <ConfirmProvider>
-                  <div className="flex min-h-screen flex-col">{props.children}</div>
+                  <div className="flex min-h-screen flex-col">{children}</div>
                 </ConfirmProvider>
               </HydrateClient>
             </TRPCReactProvider>

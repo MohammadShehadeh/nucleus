@@ -52,7 +52,7 @@ import {
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
-interface RichTextEditorProps {
+export interface RichTextEditorProps {
   /** Current HTML value (controlled) */
   value?: string;
   /** Called with updated HTML whenever the content changes */
@@ -75,6 +75,13 @@ interface RichTextEditorProps {
   onBlur?: () => void;
 }
 
+interface FakeSelectionRange {
+  from: number;
+  to: number;
+}
+
+type FakeSelectionMeta = FakeSelectionRange | "clear";
+
 const fakeSelectionPluginKey = new PluginKey("fakeSelection");
 
 const SelectionHighlight = Extension.create({
@@ -87,10 +94,7 @@ const SelectionHighlight = Extension.create({
         state: {
           init: () => DecorationSet.empty,
           apply: (tr, old) => {
-            const meta = tr.getMeta(fakeSelectionPluginKey) as
-              | { from: number; to: number }
-              | "clear"
-              | undefined;
+            const meta = tr.getMeta(fakeSelectionPluginKey) as FakeSelectionMeta | undefined;
             if (meta === "clear") return DecorationSet.empty;
             if (meta) {
               const deco = Decoration.inline(meta.from, meta.to, {
@@ -113,7 +117,7 @@ const SelectionHighlight = Extension.create({
 
 function showFakeSelection(editor: Editor) {
   const { from, to } = editor.state.selection;
-  if (from === to) return; // no range selected
+  if (from === to) return;
   editor.view.dispatch(editor.state.tr.setMeta(fakeSelectionPluginKey, { from, to }));
 }
 
@@ -129,26 +133,36 @@ interface ToolbarButtonProps {
   children: React.ReactNode;
 }
 
-function ToolbarButton({
+const ToolbarButton = ({
   tooltip,
   pressed,
   onPressedChange,
   disabled,
   children,
-}: ToolbarButtonProps) {
+}: ToolbarButtonProps) => {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <Toggle size="sm" pressed={pressed} onPressedChange={onPressedChange} disabled={disabled}>
+        <Toggle
+          size="sm"
+          aria-label={tooltip}
+          pressed={pressed}
+          onPressedChange={onPressedChange}
+          disabled={disabled}
+        >
           {children}
         </Toggle>
       </TooltipTrigger>
       <TooltipContent side="top">{tooltip}</TooltipContent>
     </Tooltip>
   );
+};
+
+interface LinkPopoverProps {
+  editor: Editor;
 }
 
-function LinkPopover({ editor }: { editor: Editor }) {
+const LinkPopover = ({ editor }: LinkPopoverProps) => {
   const [open, setOpen] = useState(false);
   const [url, setUrl] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -187,6 +201,7 @@ function LinkPopover({ editor }: { editor: Editor }) {
           <PopoverTrigger asChild>
             <Toggle
               size="sm"
+              aria-label="Link"
               pressed={editor.isActive("link")}
               onPressedChange={() => handleOpen(!open)}
             >
@@ -220,11 +235,17 @@ function LinkPopover({ editor }: { editor: Editor }) {
             onChange={(e) => setUrl(e.target.value)}
             className="h-8 text-sm"
           />
-          <Button type="submit" variant="ghost" size="icon-sm">
+          <Button type="submit" variant="ghost" size="icon-sm" aria-label="Apply link">
             <Check className="size-4" />
           </Button>
           {editor.isActive("link") && (
-            <Button type="button" variant="ghost" size="icon-sm" onClick={removeLink}>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              aria-label="Remove link"
+              onClick={removeLink}
+            >
               <Trash2 className="size-4 text-destructive" />
             </Button>
           )}
@@ -232,9 +253,13 @@ function LinkPopover({ editor }: { editor: Editor }) {
       </PopoverContent>
     </Popover>
   );
+};
+
+interface ToolbarProps {
+  editor: Editor;
 }
 
-function Toolbar({ editor }: { editor: Editor }) {
+const Toolbar = ({ editor }: ToolbarProps) => {
   return (
     <TooltipProvider>
       <div
@@ -402,9 +427,9 @@ function Toolbar({ editor }: { editor: Editor }) {
       </div>
     </TooltipProvider>
   );
-}
+};
 
-function RichTextEditor({
+export const RichTextEditor = ({
   value,
   onChange,
   defaultValue = "",
@@ -414,7 +439,7 @@ function RichTextEditor({
   className,
   onFocus,
   onBlur,
-}: RichTextEditorProps) {
+}: RichTextEditorProps) => {
   const isEditable = editable && !disabled;
 
   const editor = useEditor({
@@ -499,7 +524,7 @@ function RichTextEditor({
             <Skeleton key={`skel-${i}`} className="size-7 rounded aspect-square" />
           ))}
         </div>
-        <div className="space-y-2.5 px-3 py-3 min-h-[150px]">
+        <div className="min-h-[150px] space-y-2.5 px-3 py-3">
           <Skeleton className="h-4 w-3/4" />
           <Skeleton className="h-4 w-full" />
           <Skeleton className="h-4 w-5/6" />
@@ -523,6 +548,4 @@ function RichTextEditor({
       </div>
     </div>
   );
-}
-
-export { RichTextEditor, type RichTextEditorProps };
+};

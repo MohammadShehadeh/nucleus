@@ -7,6 +7,8 @@ metadata:
   version: '1.0.0'
 ---
 
+> Repo note: code style follows `pxkit:pxkit-conventions` (named arrow-const components, no default exports outside Next.js file conventions, TanStack Query for server state, flat compound exports, errorKey codes, env via env.ts, space-y-* for simple vertical stacks and gap-* inside flex/grid layouts). Where examples here differ, pxkit wins.
+
 # React Composition Patterns
 
 Composition patterns for building flexible, maintainable React components. Avoid

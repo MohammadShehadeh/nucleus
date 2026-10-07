@@ -32,6 +32,7 @@
   },
   "devDependencies": {
     "@nucleus/tsconfig": "workspace:*",
-    "typescript": "catalog:"
+    "@types/node": "catalog:",
+    "typescript": "7"
   }
 }

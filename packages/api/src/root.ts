@@ -1,5 +1,3 @@
-import type { inferRouterOutputs } from "@trpc/server";
-
 import { authRouter } from "./router/auth";
 import { rbacRouter } from "./router/rbac";
 import { rolesRouter } from "./router/roles";
@@ -23,5 +21,3 @@ export type AppRouter = typeof appRouter;
  *       ^? string
  */
 export const createCaller = createCallerFactory(appRouter);
-
-export type RouterOutput = inferRouterOutputs<AppRouter>;

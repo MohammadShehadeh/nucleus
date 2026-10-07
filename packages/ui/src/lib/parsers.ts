@@ -1,4 +1,4 @@
-import type { ExtendedColumnSort } from "@nucleus/ui/types/data-table";
+import type { ExtendedColumnSort } from "@nucleus/validators/data-table";
 import { createParser } from "nuqs/server";
 import { z } from "zod";
 

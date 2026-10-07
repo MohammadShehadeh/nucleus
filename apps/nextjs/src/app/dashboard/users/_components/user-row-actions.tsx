@@ -15,11 +15,16 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { MoreHorizontal } from "lucide-react";
 import { toast } from "sonner";
 import { usePermissions } from "@/components/permissions-provider";
+import { getErrorMessage } from "@/lib/error-messages";
 import { useTRPC } from "@/trpc/react";
 
 type User = RouterOutputs["users"]["list"]["data"][number];
 
-export function UserRowActions({ user }: { user: User }) {
+interface UserRowActionsProps {
+  user: User;
+}
+
+export const UserRowActions = ({ user }: UserRowActionsProps) => {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const { can } = usePermissions();
@@ -36,7 +41,7 @@ export function UserRowActions({ user }: { user: User }) {
         queryClient.invalidateQueries(trpc.users.list.queryFilter());
         toast.success("Role updated");
       },
-      onError: (error) => toast.error(error.message),
+      onError: (error) => toast.error(getErrorMessage(error)),
     })
   );
 
@@ -69,4 +74,4 @@ export function UserRowActions({ user }: { user: User }) {
       </DropdownMenuContent>
     </DropdownMenu>
   );
-}
+};

@@ -1,41 +1,31 @@
 ---
 name: data-table-patterns
-description: Patterns for building server-side data tables with filtering, sorting, and pagination. Use when creating or modifying data table pages, search params parsing, or list API endpoints.
+description: How Nucleus builds server-side data tables - nuqs search-param parsers shared by server and client, page.tsx prefetch + HydrateClient, a client table using useQueryStates + useQuery(trpc.x.list.queryOptions) + useDataTable (TanStack Table v9, shallow URL updates), DataTableColumnDef columns with filter meta, and a tRPC list procedure with Drizzle filters/sort/pagination. Use when creating or modifying a dashboard table, its search params, columns, row actions, or list endpoint.
 ---
 
 # Data Table Patterns
 
-This project uses the tablecn pattern: TanStack Table + nuqs URL state + Drizzle server-side queries.
+Code style follows the `pxkit:pxkit-conventions` skill; this skill covers repo-specific patterns. On conflict, pxkit wins.
 
-## Architecture Overview
+Reference implementation: `apps/nextjs/src/app/dashboard/users/` (also `dashboard/roles/`). Copy its shape.
 
-```
-page.tsx (RSC)              → searchParamsCache.parse() → api.entity.list()
-  ↓ initialData
-_components/entity-table.tsx (client) → useDataTable() → DataTable + DataTableToolbar
-_lib/search-params.ts       → createSearchParamsCache (nuqs/server)
-_lib/columns.tsx            → ColumnDef[] with filter meta
-```
-
-## File Structure for a Data Table Page
+## Flow
 
 ```
-apps/nextjs/src/app/dashboard/{entity}/
-├── page.tsx                    # RSC: parse params, fetch data, render
-├── _components/
-│   └── {entity}-table.tsx      # Client: useDataTable + DataTable
-└── _lib/
-    ├── columns.tsx             # Column definitions with filter meta
-    └── search-params.ts        # searchParamsCache definition
+_lib/search-params.ts   usersSearchParams (nuqs parsers, from "nuqs/server") + searchParamsCache
+page.tsx (RSC)          searchParamsCache.parse -> await prefetch(trpc.users.list.queryOptions(search)) -> <HydrateClient>
+_components/users-table.tsx (client)
+                        useQueryStates(usersSearchParams) -> useQuery(trpc.users.list.queryOptions(search, keepPreviousData))
+                        -> useDataTable({ data, columns, pageCount }) -> <DataTable><DataTableToolbar/></DataTable>
+_lib/columns.tsx        getColumns(): DataTableColumnDef<User>[] with meta { label, placeholder, variant, options }
+packages/api/src/router/users.ts   list: requirePermission(...).input(...).query(...)
 ```
 
-## 1. Search Params (nuqs/server)
+Filter/sort/page changes update the URL **shallowly** (no RSC round-trip, no full refresh); the client query key changes and TanStack Query refetches. The server prefetch only seeds the first render. Because both sides parse with the same parsers, the server and client build identical query keys and hydration hits.
 
-Use `createSearchParamsCache` with the same parsers the client hook uses.
-This is the single source of truth — no manual string parsing.
+## 1. `_lib/search-params.ts`
 
-```typescript
-// _lib/search-params.ts
+```ts
 import type { RouterOutputs } from "@nucleus/api";
 import { getSortingStateParser } from "@nucleus/ui/lib/parsers";
 import {
@@ -46,86 +36,86 @@ import {
   parseAsStringEnum,
 } from "nuqs/server";
 
-type Entity = RouterOutputs["entity"]["list"]["data"][number];
+type User = RouterOutputs["users"]["list"]["data"][number];
 
-export const searchParamsCache = createSearchParamsCache({
+export const usersSearchParams = {
   page: parseAsInteger.withDefault(1),
   perPage: parseAsInteger.withDefault(10),
-  sort: getSortingStateParser<Entity>().withDefault([{ id: "createdAt", desc: true }]),
-  // column filters — one entry per filterable column
-  name: parseAsString.withDefault(""),                                          // text
-  status: parseAsArrayOf(parseAsStringEnum(["active", "inactive"])).withDefault([]), // select
-});
+  sort: getSortingStateParser<User>().withDefault([{ id: "createdAt", desc: true }]),
+  name: parseAsString.withDefault(""),
+  emailVerified: parseAsArrayOf(parseAsStringEnum(["true", "false"])).withDefault([]),
+};
 
-export type GetEntitySchema = Awaited<ReturnType<typeof searchParamsCache.parse>>;
+export const searchParamsCache = createSearchParamsCache(usersSearchParams);
 ```
 
-**Rules:**
-- Text filter columns → `parseAsString.withDefault("")`
-- Select/multiSelect filter columns → `parseAsArrayOf(parseAsStringEnum([...values])).withDefault([])`
-- Range/number filter columns → `parseAsArrayOf(parseAsInteger).withDefault([])`
-- Date filter columns → `parseAsArrayOf(parseAsInteger).withDefault([])` (timestamps)
-- Always pass the entity type to `getSortingStateParser<Entity>()` for type-safe sort IDs
+Import parsers from `"nuqs/server"` so the object is usable from both the server page and the client component. One entry per filterable column; keys must match column ids.
 
-## 2. Page Component (RSC)
+| `meta.variant` | Parser | Router operator |
+| --- | --- | --- |
+| `text` | `parseAsString.withDefault("")` | `ilike` |
+| `select` / `multiSelect` | `parseAsArrayOf(parseAsStringEnum([...]))` | `eq` / `inArray` |
+| `range` / `date` | `parseAsArrayOf(parseAsInteger)` | `gte` / `lte` |
 
-Parse search params and fetch data server-side. Pass result as `initialData`.
+## 2. `page.tsx`
 
-```typescript
-// page.tsx
+Thin server page - the one place a default export is allowed.
+
+```tsx
 import type { SearchParams } from "nuqs/server";
-import { api } from "@/trpc/server";
-import { EntityTable } from "./_components/entity-table";
+import { HydrateClient, prefetch, trpc } from "@/trpc/server";
+import { UsersTable } from "./_components/users-table";
 import { searchParamsCache } from "./_lib/search-params";
 
-interface PageProps {
+interface UsersPageProps {
   searchParams: Promise<SearchParams>;
 }
 
-export default async function EntityPage({ searchParams }: PageProps) {
+export default async function UsersPage({ searchParams }: UsersPageProps) {
   const search = searchParamsCache.parse(await searchParams);
+  await prefetch(trpc.users.list.queryOptions(search));
 
-  const result = await api.entity.list({
-    page: search.page,
-    perPage: search.perPage,
-    sort: search.sort,
-    name: search.name,
-    status: search.status,
-  });
-
-  return <EntityTable initialData={result} />;
+  return (
+    <div className="flex flex-col gap-6">
+      <h1 className="font-semibold text-2xl tracking-tight">Users</h1>
+      <HydrateClient>
+        <UsersTable />
+      </HydrateClient>
+    </div>
+  );
 }
 ```
 
-## 3. Client Table Component
+Never pass `initialData` props; never call `api.*` (the server caller) for table data.
 
-Use `useDataTable` with `shallow: false` so URL changes trigger server re-renders.
+## 3. `_components/users-table.tsx`
 
-```typescript
-// _components/entity-table.tsx
+```tsx
 "use client";
 
-import type { RouterOutputs } from "@nucleus/api";
 import { DataTable } from "@nucleus/ui/components/data-table/data-table";
 import { DataTableToolbar } from "@nucleus/ui/components/data-table/data-table-toolbar";
 import { useDataTable } from "@nucleus/ui/hooks/use-data-table";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { useQueryStates } from "nuqs";
+import { useTRPC } from "@/trpc/react";
 import { getColumns } from "../_lib/columns";
+import { usersSearchParams } from "../_lib/search-params";
 
-interface EntityTableProps {
-  initialData: RouterOutputs["entity"]["list"];
-}
+const columns = getColumns();
+const EMPTY: never[] = [];
 
-export function EntityTable({ initialData }: EntityTableProps) {
-  const columns = getColumns();
+export const UsersTable = () => {
+  const trpc = useTRPC();
+  const [search] = useQueryStates(usersSearchParams);
+  const { data } = useQuery(
+    trpc.users.list.queryOptions(search, { placeholderData: keepPreviousData })
+  );
 
   const { table } = useDataTable({
-    data: initialData.data,
+    data: data?.data ?? EMPTY,
     columns,
-    pageCount: initialData.pageCount,
-    shallow: false,  // triggers RSC re-render on filter/sort/page change
-    initialState: {
-      pagination: { pageIndex: 0, pageSize: 10 },
-    },
+    pageCount: data?.pageCount ?? 0,
   });
 
   return (
@@ -133,137 +123,59 @@ export function EntityTable({ initialData }: EntityTableProps) {
       <DataTableToolbar table={table} />
     </DataTable>
   );
-}
+};
 ```
 
-**Key props:**
-- `shallow: false` — URL changes hit the server (required for server-side filtering)
-- `prefix: "entity."` — namespace URL params when multiple tables share a page
+- `columns` and the empty fallback are module-level so references stay stable (React Compiler is off).
+- `keepPreviousData` keeps the current rows visible while the next page loads.
+- Leave `shallow` at its default (`true`). `shallow: false` is the old RSC-refetch pattern - don't reintroduce it.
+- Use a `prefix` option on `useDataTable` (and matching parser keys) only when two tables share a page.
 
-## 4. Column Definitions
+## 4. `_lib/columns.tsx`
 
-Each column declares its filter variant via `meta`. The toolbar auto-generates filter UI from this.
+```tsx
+import type { DataTableColumnDef } from "@nucleus/ui/types/data-table";
 
-```typescript
-// _lib/columns.tsx
-"use client";
-
-import type { RouterOutputs } from "@nucleus/api";
-import type { ColumnDef } from "@tanstack/react-table";
-
-type Entity = RouterOutputs["entity"]["list"]["data"][number];
-
-export function getColumns(): ColumnDef<Entity>[] {
-  return [
-    {
-      accessorKey: "name",
-      header: ({ column }) => <DataTableColumnHeader column={column} label="Name" />,
-      enableColumnFilter: true,
-      meta: {
-        label: "Name",
-        variant: "text" as const,        // text → iLike search
-        placeholder: "Search names...",
-      },
-    },
-    {
-      accessorKey: "status",
-      header: ({ column }) => <DataTableColumnHeader column={column} label="Status" />,
-      cell: ({ row }) => <Badge>{row.getValue("status")}</Badge>,
-      enableColumnFilter: true,
-      meta: {
-        label: "Status",
-        variant: "select" as const,      // select → eq/inArray
-        options: [
-          { label: "Active", value: "active" },
-          { label: "Inactive", value: "inactive" },
-        ],
-      },
-    },
-    {
-      accessorKey: "createdAt",
-      header: ({ column }) => <DataTableColumnHeader column={column} label="Created" />,
-      cell: ({ row }) => formatDate(row.getValue<Date>("createdAt")),
-      enableSorting: true,               // sortable but not filterable
-    },
-  ];
-}
+export const getColumns = (): DataTableColumnDef<User>[] => [
+  {
+    accessorKey: "name",
+    header: ({ column }) => <DataTableColumnHeader column={column} label="Name" />,
+    enableColumnFilter: true,
+    meta: { label: "Name", variant: "text", placeholder: "Search names..." },
+  },
+  // select columns: meta.options = [{ label, value }]
+  // dates: cell uses formatDate from @nucleus/ui/lib/format
+  // actions: { id: "actions", cell: ({ row }) => <UserRowActions user={row.original} /> }
+];
 ```
 
-**Filter variant mapping:**
-| Variant        | URL parser                    | API operator     |
-|---------------|-------------------------------|------------------|
-| `text`        | `parseAsString`               | `iLike`          |
-| `select`      | `parseAsArrayOf(parseAsStringEnum)` | `eq` / `inArray` |
-| `multiSelect` | `parseAsArrayOf(parseAsStringEnum)` | `inArray`        |
-| `range`       | `parseAsArrayOf(parseAsInteger)`    | `gte` / `lte`    |
-| `date`        | `parseAsArrayOf(parseAsInteger)`    | `gte` / `lte`    |
+Type columns with `DataTableColumnDef<T>` (TanStack Table v9 features), not raw `ColumnDef`. `meta` shape is `DataTableColumnMeta` in `packages/ui/src/types/data-table.ts`.
 
-## 5. API Router (list procedure)
+## 5. Row actions and mutations
 
-Accept column filters and build Drizzle WHERE clauses directly.
+Mutations live in the row-actions component and invalidate the list (`getErrorMessage`: see `error-handling-patterns`):
 
-```typescript
-// packages/api/src/router/entity.ts
-import { and, asc, count, desc, ilike, inArray } from "drizzle-orm";
-
-export const entityRouter = {
-  list: protectedProcedure
-    .input(z.object({
-      page: z.number().min(1).default(1),
-      perPage: z.number().min(1).max(50).default(10),
-      sort: sortSchema.optional(),
-      // column filters
-      name: z.string().optional(),
-      status: z.array(z.string()).optional(),
-    }))
-    .query(async ({ ctx, input }) => {
-      const { page, perPage, sort } = input;
-      const offset = (page - 1) * perPage;
-
-      const where = and(
-        input.name ? ilike(entity.name, `%${input.name}%`) : undefined,
-        input.status?.length ? inArray(entity.status, input.status) : undefined,
-      );
-
-      const orderBy = sort?.length
-        ? sort
-            .filter((s) => s.id in sortableColumns)
-            .map((s) => {
-              const col = sortableColumns[s.id as keyof typeof sortableColumns];
-              return s.desc ? desc(col) : asc(col);
-            })
-        : [desc(entity.createdAt)];
-
-      const [data, total] = await Promise.all([
-        ctx.db.select().from(entity).where(where).orderBy(...orderBy)
-          .limit(perPage).offset(offset),
-        ctx.db.select({ count: count() }).from(entity).where(where),
-      ]);
-
-      return {
-        data,
-        pageCount: Math.ceil((total[0]?.count ?? 0) / perPage),
-      };
-    }),
-} satisfies TRPCRouterRecord;
+```tsx
+const queryClient = useQueryClient();
+const setRole = useMutation(
+  trpc.users.setRole.mutationOptions({
+    onSuccess: () => queryClient.invalidateQueries(trpc.users.list.queryFilter()),
+    onError: (error) => toast.error(getErrorMessage(error)),
+  })
+);
 ```
 
-## Shared Utilities
+Gate actions with `usePermissions().can(...)` / `<Can>` from `@/components/permissions-provider` (UX only - the router enforces). Destructive/permission changes show `isPending` and wait; no optimistic UI.
 
-These are already in the monorepo — import, don't recreate:
+## 6. List procedure
 
-| Import | Package | Purpose |
-|--------|---------|---------|
-| `useDataTable` | `@nucleus/ui/hooks/use-data-table` | Table hook with URL state |
-| `DataTable`, `DataTableToolbar`, etc. | `@nucleus/ui/components/data-table/*` | UI components |
-| `getSortingStateParser` | `@nucleus/ui/lib/parsers` | nuqs parser for sort state |
+See `list` in `packages/api/src/router/{users,roles}.ts`: `requirePermission("<resource>:list|read")`, zod input `{ page, perPage (max 50), sort?, ...filters }`, `and(...)` of optional filters, `orderBy` from a whitelisted `sortableColumns` map (default `desc(createdAt)`), `Promise.all([rows, count])`, return `{ data, pageCount }`.
 
-## Checklist for Adding a New Data Table Page
+## Checklist
 
-1. **Schema**: Ensure the DB table exists in `packages/db/src/schema/`
-2. **API router**: Create `packages/api/src/router/{entity}.ts` with `list` procedure
-3. **Register router**: Add to `packages/api/src/root.ts`
-4. **search-params.ts**: Define `searchParamsCache` with one entry per filterable column
-5. **columns.tsx**: Define `ColumnDef[]` with `meta.variant` matching the search param parsers
-6. **page.tsx**: Parse params → call API → pass `initialData`
-7. **entity-table.tsx**: `useDataTable({ shallow: false })` → `DataTable` + `DataTableToolbar`
+1. Table in `packages/db/src/schema/`, `pnpm db:push`.
+2. Router `packages/api/src/router/<entity>.ts` with `list`; register in `packages/api/src/root.ts`; add permissions to the RBAC catalog and a `routePermissions` entry in `apps/nextjs/src/proxy.ts`.
+3. `_lib/search-params.ts` parsers + cache.
+4. `_lib/columns.tsx` with `meta.variant` matching the parsers.
+5. `page.tsx` prefetch + `HydrateClient`.
+6. `_components/<entity>-table.tsx` with `useQueryStates` + `useQuery` + `useDataTable`.

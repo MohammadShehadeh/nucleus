@@ -3,6 +3,8 @@ name: vercel-react-best-practices
 description: React and Next.js performance optimization guidelines from Vercel Engineering. This skill should be used when writing, reviewing, or refactoring React/Next.js code to ensure optimal performance patterns. Triggers on tasks involving React components, Next.js pages, data fetching, bundle optimization, or performance improvements.
 ---
 
+> Repo note: code style follows `pxkit:pxkit-conventions` (named arrow-const components, no default exports outside Next.js file conventions, TanStack Query for server state, flat compound exports, errorKey codes, env via env.ts, space-y-* for simple vertical stacks and gap-* inside flex/grid layouts). Where examples here differ, pxkit wins.
+
 # Vercel React Best Practices
 
 Comprehensive performance optimization guide for React and Next.js applications, maintained by Vercel. Contains 57 rules across 8 categories, prioritized by impact to guide automated refactoring and code generation.

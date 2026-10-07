@@ -4,7 +4,10 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./root": "./src/root.ts",
+    "./trpc": "./src/trpc.ts",
+    "./error-keys": "./src/error-keys.ts"
   },
   "license": "MIT",
   "scripts": {
@@ -21,11 +24,13 @@
     "@nucleus/db": "workspace:*",
     "@nucleus/validators": "workspace:*",
     "@trpc/server": "catalog:",
+    "drizzle-orm": "^0.45.3",
     "superjson": "2.2.6",
     "zod": "catalog:"
   },
   "devDependencies": {
     "@nucleus/tsconfig": "workspace:*",
-    "typescript": "catalog:"
+    "@types/node": "catalog:",
+    "typescript": "7"
   }
 }
